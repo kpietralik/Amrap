@@ -1,0 +1,37 @@
+﻿using Amrap.Core.Models;
+
+namespace Amrap.Core.Domain;
+
+public class PlannedExercise
+{
+    public int Id { get; set; }
+    public string Guid { get; set; }
+    public ExerciseType ExerciseType { get; set; }
+    public int Sets { get; set; }
+    public int Reps { get; set; }
+    public float Weight { get; set; }
+    public string Note { get; set; }
+    public bool DropSet { get; set; }
+    public bool ToFailure { get; set; }
+
+    public static PlannedExercise FromModel(PlannedExerciseModel model, ExerciseType exerciseType)
+    {
+        if (model.ExerciseTypeGuid != exerciseType.Guid)
+            throw new Exception($"Data id missmatch: {nameof(PlannedExerciseModel)}, model={model.ExerciseTypeGuid}, data={exerciseType.Guid}");
+
+        return new(model.Id, model.Guid, exerciseType, model.Sets, model.Reps, model.Weight, model.Note, model.DropSet, model.ToFailure);
+    }
+
+    private PlannedExercise(int id, string guid, ExerciseType exerciseType, int sets, int reps, float weight, string note, bool dropSet, bool toFailure)
+    {
+        Id = id;
+        Guid = guid;
+        ExerciseType = exerciseType;
+        Sets = sets;
+        Reps = reps;
+        Note = note;
+        Weight = weight;
+        DropSet = dropSet;
+        ToFailure = toFailure;
+    }
+}

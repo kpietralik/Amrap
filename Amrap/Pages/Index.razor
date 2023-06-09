@@ -1,6 +1,75 @@
 ﻿@page "/"
+@using Amrap.Core;
+@using Amrap.Core.Domain;
+@using Amrap.Infrastructure.Db;
+@using Amrap.Core.Models;
 
+@inject DatabaseHandler _databaseHandler
+@inject WorkoutPlanRetriever _workoutPlanRetriever;
 
 <PageTitle>Amrap App</PageTitle>
 <h1>AMRAP</h1>
 <br />
+<h1>Workout plan</h1>
+@if (workoutPlanItems != null)
+{
+    <div class="container mx-auto font-mono flex-auto bg-gray-400">    
+        <div class="flex flex-row">
+            <div class="basis-3/4 py-2"><p class="text-xl font-bold">Exercises (@workoutPlanItems.Count)</p> </div>
+        </div>
+        <div>
+            <ul class="flex flex-col w-full">
+                @foreach (var item in workoutPlanItems)
+                {
+                    <WorkoutPlanItemComponent Item="@item" />
+                }
+            </ul>
+        </div>
+    </div>
+}
+
+@code {
+    private IList<WorkoutPlanItem> workoutPlanItems;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await _databaseHandler.CreateConnectionAndTables();
+
+        var t1 = new ExerciseTypeModel(1, Guid.NewGuid().ToString(), ExerciseKind.Push, "Deadlift", "Deadlift (standard)", null);
+        var t2 = new ExerciseTypeModel(2, Guid.NewGuid().ToString(), ExerciseKind.Push, "Bench press", null, null);
+        var t3 = new ExerciseTypeModel(3, Guid.NewGuid().ToString(), ExerciseKind.Pull, "Cable upright row", null, null);
+
+        await _databaseHandler.SeedExerciseTypes(new List<ExerciseTypeModel>() { t1, t2, t3 });
+
+        var p1 = new PlannedExerciseModel(Guid.NewGuid().ToString(), t1, 2, 5, 65, null, false, false);
+        var p2 = new PlannedExerciseModel(Guid.NewGuid().ToString(), t2, 3, 6, 45, null, false, false);
+        var p3 = new PlannedExerciseModel(Guid.NewGuid().ToString(), t3, 3, 12, 60, null, false, false);
+
+        // TODO resolved Missmatch. Ids are updated by different thread?
+        await _databaseHandler.AddPlannedExercise(p1);
+        await _databaseHandler.AddPlannedExercise(p2);
+        await _databaseHandler.AddPlannedExercise(p3);
+
+        await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItemModel(Guid.NewGuid().ToString(), DayOfTheWeek.Monday, p1));
+        await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItemModel(Guid.NewGuid().ToString(), DayOfTheWeek.Monday, p2));
+        await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItemModel(Guid.NewGuid().ToString(), DayOfTheWeek.Monday, p3));
+        await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItemModel(Guid.NewGuid().ToString(), DayOfTheWeek.Wednesday, p1));
+        await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItemModel(Guid.NewGuid().ToString(), DayOfTheWeek.Wednesday, p2));
+        await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItemModel(Guid.NewGuid().ToString(), DayOfTheWeek.Friday, p3));
+
+        var e1 = new CompletedExerciseModel(Guid.NewGuid().ToString(), t1, DateTimeOffset.Now, 3, 12, 100f);
+        var e2 = new CompletedExerciseModel(Guid.NewGuid().ToString(), t2, DateTimeOffset.Now, 2, 9, 99f);
+
+        await _databaseHandler.AddExercise(e1);
+        await _databaseHandler.AddExercise(e2);
+
+        var exerciseTypes = await _databaseHandler.GetExerciseTypes();
+        var plannedExercies = await _databaseHandler.GetPlannedExercises();
+        var workoutPlanItems = await _databaseHandler.GetWorkoutPlan();
+        var completedExercies = await _databaseHandler.GetCompletedExercises();
+
+        //this.workoutPlanItems = workoutPlanItems.AsReadOnly();
+
+        this.workoutPlanItems = await _workoutPlanRetriever.GetWorkoutPlan();
+    }
+}

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using Amrap.Data;
+using Amrap.Infrastructure.Db;
+using Amrap.Core;
 
 namespace Amrap;
 
@@ -22,7 +23,9 @@ public static class MauiProgram
 		builder.Logging.AddDebug();
 #endif
 
-		builder.Services.AddSingleton<WeatherForecastService>();
+		builder.Services.AddSingleton<DatabaseHandler>();
+
+		builder.Services.AddSingleton<WorkoutPlanRetriever>();
 
 		return builder.Build();
 	}
