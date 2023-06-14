@@ -5,9 +5,6 @@ namespace Amrap.Core.Models;
 public class ExerciseTypeModel
 {
     [PrimaryKey]
-    public int Id { get; set; }
-
-    [Indexed]
     public string Guid { get; set; }
 
     public ExerciseKind ExerciseKind { get; set; }
@@ -19,9 +16,8 @@ public class ExerciseTypeModel
     // For SQLite
     public ExerciseTypeModel() { }
 
-    public ExerciseTypeModel(/*string guis, *//*ExerciseKind excerciseKind, */ int id, string guid, ExerciseKind exerciseKind, string name, string description, string img = null)
+    public ExerciseTypeModel(string guid, ExerciseKind exerciseKind, string name, string description, string img = null)
     {
-        Id = id;
         Guid = guid;
 
         if (exerciseKind == ExerciseKind.Unknown)

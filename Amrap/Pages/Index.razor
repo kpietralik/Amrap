@@ -35,9 +35,9 @@
     {
         await _databaseHandler.CreateConnectionAndTables();
 
-        var t1 = new ExerciseTypeModel(1, Guid.NewGuid().ToString(), ExerciseKind.Push, "Deadlift", "Deadlift (standard)", null);
-        var t2 = new ExerciseTypeModel(2, Guid.NewGuid().ToString(), ExerciseKind.Push, "Bench press", null, null);
-        var t3 = new ExerciseTypeModel(3, Guid.NewGuid().ToString(), ExerciseKind.Pull, "Cable upright row", null, null);
+        var t1 = new ExerciseTypeModel(Guid.NewGuid().ToString(), ExerciseKind.Push, "Deadlift", "Deadlift (standard)", null);
+        var t2 = new ExerciseTypeModel(Guid.NewGuid().ToString(), ExerciseKind.Push, "Bench press", null, null);
+        var t3 = new ExerciseTypeModel(Guid.NewGuid().ToString(), ExerciseKind.Pull, "Cable upright row", null, null);
 
         await _databaseHandler.SeedExerciseTypes(new List<ExerciseTypeModel>() { t1, t2, t3 });
 

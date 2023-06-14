@@ -4,14 +4,7 @@ namespace Amrap.Core.Models;
 
 public class WorkoutPlanItemModel
 {
-    [PrimaryKey, AutoIncrement]
-    public int Id { get; set; }
-
-    // TODO Turn into relationship table with multiple values
-    //   [Indexed]
-    //   public List<int> PlannedExercies { get; set; }
-
-    [Indexed]
+    [PrimaryKey]
     public string Guid { get; set; }
 
     [Indexed]

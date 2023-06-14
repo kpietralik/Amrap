@@ -4,8 +4,6 @@ namespace Amrap.Core.Domain;
 
 public class ExerciseType
 {
-    public int Id { get; set; }
-    
     public string Guid { get; set; }
 
     public ExerciseKind ExerciseKind { get; set; }
@@ -15,11 +13,10 @@ public class ExerciseType
     public string Img { get; set; }
 
     public static ExerciseType FromModel(ExerciseTypeModel model) =>
-        new(model.Id, model.Guid, model.ExerciseKind, model.Name, model.Description, model.Img);
+        new(model.Guid, model.ExerciseKind, model.Name, model.Description, model.Img);
 
-    private ExerciseType(int id, string guid, ExerciseKind exerciseKind, string name, string description, string img)
+    private ExerciseType(string guid, ExerciseKind exerciseKind, string name, string description, string img)
     {
-        Id = id;
         Guid = guid;
         ExerciseKind = exerciseKind;
         Name = name;

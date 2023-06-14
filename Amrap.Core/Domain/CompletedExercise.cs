@@ -4,7 +4,6 @@ namespace Amrap.Core.Domain;
 
 public class CompletedExercise
 {
-    public int Id { get; set; }
     public string Guid { get; set; }
 
     public ExerciseType ExerciseType { get; set; }
@@ -19,12 +18,11 @@ public class CompletedExercise
         if (model.ExerciseTypeGuid != exerciseType.Guid.ToString())
             throw new Exception($"Data id missmatch: {nameof(CompletedExerciseModel)}, model={model.ExerciseTypeGuid}, data={exerciseType.Guid}");
 
-        return new CompletedExercise(model.Id, model.Guid, exerciseType, model.Time, model.Sets, model.Reps, model.Weight);
+        return new CompletedExercise(model.Guid, exerciseType, model.Time, model.Sets, model.Reps, model.Weight);
     }
 
-    public CompletedExercise(int id, string guid, ExerciseType exerciseType, DateTimeOffset time, int sets, int reps, float weight)
+    public CompletedExercise(string guid, ExerciseType exerciseType, DateTimeOffset time, int sets, int reps, float weight)
     {
-        Id = id;
         Guid = guid;
         ExerciseType = exerciseType;
         Time = time;

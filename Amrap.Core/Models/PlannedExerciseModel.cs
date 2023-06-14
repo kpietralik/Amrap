@@ -4,11 +4,7 @@ namespace Amrap.Core.Models;
 
 public class PlannedExerciseModel
 {
-    [PrimaryKey, AutoIncrement]
-    public int Id { get; set; }
-
-
-    [Indexed]
+    [PrimaryKey]
     public string Guid { get; set; }
 
     [Indexed]

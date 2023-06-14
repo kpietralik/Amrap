@@ -6,10 +6,7 @@ namespace Amrap.Core.Models;
 //[Table("Exercises")]
 public class CompletedExerciseModel
 {
-    [PrimaryKey, AutoIncrement]
-    public int Id { get; set; }
-
-    [Indexed]
+    [PrimaryKey]
     public string Guid { get; set; }
 
     // Not supported...
