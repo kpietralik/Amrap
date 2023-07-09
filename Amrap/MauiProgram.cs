@@ -26,6 +26,8 @@ public static class MauiProgram
 		builder.Services.AddSingleton<DatabaseHandler>();
 
 		builder.Services.AddSingleton<WorkoutPlanRetriever>();
+		builder.Services.AddSingleton<CompletedExerciseSaver>();
+		builder.Services.AddSingleton<CompletedExerciseReader>();
 
 		return builder.Build();
 	}

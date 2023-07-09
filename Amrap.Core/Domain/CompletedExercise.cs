@@ -4,7 +4,7 @@ namespace Amrap.Core.Domain;
 
 public class CompletedExercise
 {
-    public string Guid { get; set; }
+    public int Id { get; set; } 
 
     public ExerciseType ExerciseType { get; set; }
 
@@ -12,22 +12,29 @@ public class CompletedExercise
     public int Sets { get; set; }
     public int Reps { get; set; }
     public float Weight { get; set; }
+    public bool DropSet { get; set; }
 
     public static CompletedExercise FromModel(CompletedExerciseModel model, ExerciseType exerciseType)
     {
         if (model.ExerciseTypeGuid != exerciseType.Guid.ToString())
-            throw new Exception($"Data id missmatch: {nameof(CompletedExerciseModel)}, model={model.ExerciseTypeGuid}, data={exerciseType.Guid}");
+            throw new Exception(
+                $"Data id missmatch for {nameof(CompletedExercise)} {nameof(ExerciseType)}: " +
+                $"{nameof(CompletedExerciseModel)}, model={model.ExerciseTypeGuid}, data={exerciseType.Guid}");
 
-        return new CompletedExercise(model.Guid, exerciseType, model.Time, model.Sets, model.Reps, model.Weight);
+        return new CompletedExercise(model.Id, exerciseType, model.Time, model.Sets, model.Reps, model.Weight, model.DropSet);
     }
 
-    public CompletedExercise(string guid, ExerciseType exerciseType, DateTimeOffset time, int sets, int reps, float weight)
+    public CompletedExerciseModel ToModel() =>
+        new(ExerciseType.Guid, Time, Sets, Reps, Weight, DropSet);
+
+    public CompletedExercise(int id, ExerciseType exerciseType, DateTimeOffset time, int sets, int reps, float weight, bool dropSet = false)
     {
-        Guid = guid;
+        Id = id;
         ExerciseType = exerciseType;
         Time = time;
         Sets = sets;
         Reps = reps;
         Weight = weight;
+        DropSet = dropSet;
     }
 }

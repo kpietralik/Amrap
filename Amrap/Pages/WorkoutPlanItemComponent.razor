@@ -1,5 +1,8 @@
 ﻿@using Amrap.Core;
 @using Amrap.Core.Domain;
+@using Amrap.Core.Models;
+
+@inject CompletedExerciseSaver _completedExerciseSaver;
 
 <div id="component" class="flex flex-row justify-between">
     <div class="flex flex-col basis-3/4">
@@ -40,9 +43,20 @@
                     </div>
                 </div>
             </div>
+            <Button Grid.Column="0" Grid.Row="1" Margin="0,-50,0,0" HeightRequest="80" WidthRequest="80" CornerRadius="40" ImageSource="delete" BackgroundColor="White">
+              <Button.Shadow>
+                 <Shadow Brush="#bcbcbc"
+                   Offset="5,5"
+                   Opacity="0.6"/>
+              </Button.Shadow>
+            </Button>
+
+            <button class="btn btn-primary" @onclick="SaveCompletedExercise">Complete</button>
+            @*
             <NavLink href="@Item.Link">
                 <p>Complete</p>
             </NavLink>
+            *@
         </div>
     </div>
 </div>
@@ -50,4 +64,25 @@
 @code {
     [Parameter]
     public Amrap.Core.Domain.WorkoutPlanItem Item { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    public async Task SaveCompletedExercise()
+    {
+        // ToDo: box which reads these properties - defaults based on last completed exercise or planned exercise
+        // ToDo: model with LastCompletedStats for each PlannedExercise for easier storage of that data
+
+        int sets = Item.PlannedExercise.Sets;
+        int reps = Item.PlannedExercise.Reps;
+        float weight = Item.PlannedExercise.Weight;
+        bool dropSet = Item.PlannedExercise.DropSet;
+
+        //var completedExercise = new CompletedExercise(Item.PlannedExercise.ExerciseType, DateTimeOffset.Now, sets, reps, weight, dropSet);
+        var completedExercise = new CompletedExerciseModel(
+            Item.PlannedExercise.ExerciseType.Guid, DateTimeOffset.Now, sets, reps, weight, dropSet);
+
+        await _completedExerciseSaver.SaveCompletedExercise(completedExercise);
+    }
 }

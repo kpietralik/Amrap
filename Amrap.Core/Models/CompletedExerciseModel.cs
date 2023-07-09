@@ -6,8 +6,9 @@ namespace Amrap.Core.Models;
 //[Table("Exercises")]
 public class CompletedExerciseModel
 {
+    [AutoIncrement]
     [PrimaryKey]
-    public string Guid { get; set; }
+    public int Id { get; set; }
 
     // Not supported...
     //[ForeignKey(typeof(ExerciseType))]
@@ -19,17 +20,19 @@ public class CompletedExerciseModel
     public int Sets { get; set; }
     public int Reps { get; set; }
     public float Weight { get; set; }
+    public bool DropSet { get; set; }
 
     // For SQLite
     public CompletedExerciseModel() { }
 
-    public CompletedExerciseModel(string guid, ExerciseTypeModel exerciseType, DateTimeOffset time, int sets, int reps, float weight)
+    public CompletedExerciseModel(
+        string exerciseTypeGuid, DateTimeOffset time, int sets, int reps, float weight, bool dropSet = false)
     {
-        Guid = guid;
-        ExerciseTypeGuid = exerciseType.Guid;
+        ExerciseTypeGuid = exerciseTypeGuid;
         Time = time;
         Sets = sets;
         Reps = reps;
         Weight = weight;
+        DropSet = dropSet;
     }
 }

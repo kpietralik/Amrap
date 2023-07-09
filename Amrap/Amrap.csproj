@@ -82,6 +82,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <None Remove="Pages\WorkoutPlanItemComponent - Copy.razor.css" />
       <None Remove="Pages\WorkoutPlanItemComponent.razor.css" />
     </ItemGroup>
 

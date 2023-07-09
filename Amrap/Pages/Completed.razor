@@ -1,0 +1,34 @@
+﻿@page "/completed"
+@using Amrap.Core;
+@using Amrap.Core.Domain;
+@using Amrap.Infrastructure.Db;
+@using Amrap.Core.Models;
+
+@inject CompletedExerciseReader _completedExerciseReader;
+
+<PageTitle>Completed Exercises</PageTitle>
+@if (completedExerciseItems != null)
+{
+    <div class="container mx-auto font-mono flex-auto bg-gray-400">    
+        <div class="flex flex-row">
+            <div class="basis-3/4 py-2"><p class="text-xl font-bold">Completed Exercises (@completedExerciseItems.Count)</p> </div>
+        </div>
+        <div>
+            <ul class="flex flex-col w-full">
+                @foreach (var item in completedExerciseItems)
+                {
+                    <CompletedExerciseComponent Item="@item" />
+                }
+            </ul>
+        </div>
+    </div>
+}
+
+@code {
+    private IList<CompletedExercise> completedExerciseItems;
+
+    protected override async Task OnInitializedAsync()
+    {
+        completedExerciseItems = await _completedExerciseReader.ReadCompletedExercies();
+    }
+}

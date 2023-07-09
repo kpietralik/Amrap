@@ -6,6 +6,7 @@
 
 @inject DatabaseHandler _databaseHandler
 @inject WorkoutPlanRetriever _workoutPlanRetriever;
+@inject CompletedExerciseSaver _completedExerciseSaver;
 
 <PageTitle>Amrap App</PageTitle>
 <h1>AMRAP</h1>
@@ -57,16 +58,15 @@
         await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItemModel(Guid.NewGuid().ToString(), DayOfTheWeek.Wednesday, p2));
         await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItemModel(Guid.NewGuid().ToString(), DayOfTheWeek.Friday, p3));
 
-        var e1 = new CompletedExerciseModel(Guid.NewGuid().ToString(), t1, DateTimeOffset.Now, 3, 12, 100f);
-        var e2 = new CompletedExerciseModel(Guid.NewGuid().ToString(), t2, DateTimeOffset.Now, 2, 9, 99f);
+        //var e1 = new CompletedExercise( ExerciseType.FromModel(t1), DateTimeOffset.Now, 3, 12, 100f);
+        //var e2 = new CompletedExercise(ExerciseType.FromModel(t2), DateTimeOffset.Now, 2, 9, 99f);
+        //await _completedExerciseSaver.SaveCompletedExercise(e1);
+        //await _completedExerciseSaver.SaveCompletedExercise(e2);
 
-        await _databaseHandler.AddExercise(e1);
-        await _databaseHandler.AddExercise(e2);
-
-        var exerciseTypes = await _databaseHandler.GetExerciseTypes();
-        var plannedExercies = await _databaseHandler.GetPlannedExercises();
-        var workoutPlanItems = await _databaseHandler.GetWorkoutPlan();
-        var completedExercies = await _databaseHandler.GetCompletedExercises();
+        //var exerciseTypes = await _databaseHandler.GetExerciseTypes();
+        //var plannedExercies = await _databaseHandler.GetPlannedExercises();
+        //var workoutPlanItems = await _databaseHandler.GetWorkoutPlan();
+        //var completedExercies = await _databaseHandler.GetCompletedExercises();
 
         //this.workoutPlanItems = workoutPlanItems.AsReadOnly();
 
