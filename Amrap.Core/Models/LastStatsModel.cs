@@ -2,14 +2,13 @@
 
 namespace Amrap.Core.Models;
 
-public class CompletedExerciseModel
+public class LastStatsModel
 {
-    [AutoIncrement]
     [PrimaryKey]
-    public int Id { get; set; }
+    public string Guid { get; set; }
 
     [Indexed]
-    public string ExerciseTypeGuid { get; set; }
+    public string PlannedExerciseGuid { get; set; }
 
     public DateTimeOffset Time { get; set; }
     public int Sets { get; set; }
@@ -18,13 +17,13 @@ public class CompletedExerciseModel
     public bool DropSet { get; set; }
 
     // For SQLite
-    public CompletedExerciseModel() { }
+    public LastStatsModel() { }
 
-    public CompletedExerciseModel(
-        string exerciseTypeGuid, DateTimeOffset time, int sets, int reps, float weight, bool dropSet = false)
+    public LastStatsModel(string plannedExerciseGuid, int sets, int reps, float weight, bool dropSet)
     {
-        ExerciseTypeGuid = exerciseTypeGuid;
-        Time = time;
+        // At most 1 last stats for each planned exercise
+        Guid = plannedExerciseGuid;
+        PlannedExerciseGuid = plannedExerciseGuid;
         Sets = sets;
         Reps = reps;
         Weight = weight;

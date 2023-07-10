@@ -9,7 +9,7 @@ public class DatabaseHandler
 	private string _databasePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), _dbName);
 	private SQLiteAsyncConnection _db;
 
-	public bool HasConnection => _db != null;
+	public bool HasInitialized => _db != null;
 
 	public DatabaseHandler()
 	{
@@ -17,23 +17,31 @@ public class DatabaseHandler
 
 	public async Task CreateConnectionAndTables()
 	{
+        if (HasInitialized)
+            return;
+
 		_db = new SQLiteAsyncConnection(_databasePath);
 
+        // ToDo: TEMP
         await _db.DropTableAsync<ExerciseTypeModel>();
         await _db.DropTableAsync<CompletedExerciseModel>();
         await _db.DropTableAsync<PlannedExerciseModel>();
         await _db.DropTableAsync<WorkoutPlanItemModel>();
-        
+        await _db.DropTableAsync<LastStatsModel>();
+        // ToDo: end
+
 		await _db.CreateTableAsync<ExerciseTypeModel>();
 		await _db.CreateTableAsync<CompletedExerciseModel>();
 		await _db.CreateTableAsync<PlannedExerciseModel>();
 		await _db.CreateTableAsync<WorkoutPlanItemModel>();
+		await _db.CreateTableAsync<LastStatsModel>();
 
 
-        var items1 = await _db.QueryAsync<ExerciseTypeModel>($"select * from {nameof(ExerciseTypeModel)}");
-        var items2 = await _db.QueryAsync<CompletedExerciseModel>($"select * from {nameof(CompletedExerciseModel)}");
-        var items3 = await _db.QueryAsync<PlannedExerciseModel>($"select * from {nameof(PlannedExerciseModel)}");
-        var items4 = await _db.QueryAsync<WorkoutPlanItemModel>($"select * from {nameof(WorkoutPlanItemModel)}");
+        //var items1 = await _db.QueryAsync<ExerciseTypeModel>($"select * from {nameof(ExerciseTypeModel)}");
+        //var items2 = await _db.QueryAsync<CompletedExerciseModel>($"select * from {nameof(CompletedExerciseModel)}");
+        //var items3 = await _db.QueryAsync<PlannedExerciseModel>($"select * from {nameof(PlannedExerciseModel)}");
+        //var items4 = await _db.QueryAsync<WorkoutPlanItemModel>($"select * from {nameof(WorkoutPlanItemModel)}");
+        //var items5 = await _db.QueryAsync<LastStatsModel>($"select * from {nameof(LastStatsModel)}");
     }
 
     // SEED
@@ -94,6 +102,19 @@ public class DatabaseHandler
         await _db.DeleteAsync<WorkoutPlanItemModel>(workoutPlanItem);
     }
 
+    public async Task SetLastStats(LastStatsModel lastStatsModel)
+    {
+        await _db.InsertOrReplaceAsync(lastStatsModel);
+
+        var res0 = await _db.QueryAsync<LastStatsModel>($"select * from {nameof(LastStatsModel)}");
+
+    }
+
+    public async Task DeleteLastStats(LastStatsModel lastStatsModel)
+    {
+        await _db.DeleteAsync<LastStatsModel>(lastStatsModel);
+    }
+
     // READ
     public async Task<IList<ExerciseTypeModel>> GetExerciseTypes()
     {
@@ -113,11 +134,11 @@ public class DatabaseHandler
     {
         var res = await _db.QueryAsync<ExerciseTypeModel>($"select * from {nameof(ExerciseTypeModel)} where Guid = ?", guid);
 
-        if (res.Count == 0)
-            throw new Exception($"{nameof(ExerciseTypeModel)} with guid {guid} not found");
+        //if (res.Count == 0)
+        //    throw new Exception($"{nameof(ExerciseTypeModel)} with guid {guid} not found");
 
-        if (res.Count > 1)
-            throw new Exception($"{nameof(ExerciseTypeModel)} with guid {guid} has too many items");
+        //if (res.Count > 1)
+        //    throw new Exception($"{nameof(ExerciseTypeModel)} with guid {guid} has too many items");
 
         return res.Single();
     }
@@ -140,11 +161,11 @@ public class DatabaseHandler
     {
         var res = await _db.QueryAsync<PlannedExerciseModel>($"select * from {nameof(PlannedExerciseModel)} where Guid = ?", guid);
 
-        if (res.Count == 0)
-            throw new Exception($"{nameof(PlannedExerciseModel)} with guid {guid} not found");
+        //if (res.Count == 0)
+        //    throw new Exception($"{nameof(PlannedExerciseModel)} with guid {guid} not found");
 
-        if (res.Count > 1)
-            throw new Exception($"{nameof(PlannedExerciseModel)} with guid {guid} has too many items");
+        //if (res.Count > 1)
+        //    throw new Exception($"{nameof(PlannedExerciseModel)} with guid {guid} has too many items");
 
         return res.Single();
     }
@@ -167,11 +188,11 @@ public class DatabaseHandler
     {
         var res = await _db.QueryAsync<WorkoutPlanItemModel>($"select * from {nameof(WorkoutPlanItemModel)} where Guid = ?", guid);
 
-        if (res.Count == 0)
-            throw new Exception($"{nameof(WorkoutPlanItemModel)} with guid {guid} not found");
+        //if (res.Count == 0)
+        //    throw new Exception($"{nameof(WorkoutPlanItemModel)} with guid {guid} not found");
 
-        if (res.Count > 1)
-            throw new Exception($"{nameof(WorkoutPlanItemModel)} with guid {guid} has too many items");
+        //if (res.Count > 1)
+        //    throw new Exception($"{nameof(WorkoutPlanItemModel)} with guid {guid} has too many items");
 
         return res.Single();
     }
@@ -194,12 +215,22 @@ public class DatabaseHandler
     {
         var res = await _db.QueryAsync<CompletedExerciseModel>($"select * from {nameof(CompletedExerciseModel)} where Guid = ?", guid);
 
-        if (res.Count == 0)
-            throw new Exception($"{nameof(CompletedExerciseModel)} with guid {guid} not found");
+        //if (res.Count == 0)
+        //    throw new Exception($"{nameof(CompletedExerciseModel)} with guid {guid} not found");
 
-        if (res.Count > 1)
-            throw new Exception($"{nameof(CompletedExerciseModel)} with guid {guid} has too many items");
+        //if (res.Count > 1)
+        //    throw new Exception($"{nameof(CompletedExerciseModel)} with guid {guid} has too many items");
 
         return res.Single();
+    }
+
+    public async Task<LastStatsModel?> GetLastStats(string guid)
+    {
+        var res = await _db.QueryAsync<LastStatsModel>($"select * from {nameof(LastStatsModel)} where Guid = ?", guid);
+
+        //if (res.Count > 1)
+        //    throw new Exception($"{nameof(LastStatsModel)} with guid {guid} has too many items");
+
+        return res.SingleOrDefault();
     }
 }

@@ -26,8 +26,15 @@ public class WorkoutPlanRetriever
         var plannedExercises = new List<PlannedExercise>();
         foreach (var plannedExercise in plannedExerciseModels)
         {
-            plannedExercises.Add(
-                PlannedExercise.FromModel(plannedExercise, exercisesTypes.Single(x => x.Guid == plannedExercise.ExerciseTypeGuid)));
+            var exercise = PlannedExercise.FromModel(
+                plannedExercise, exercisesTypes.Single(x => x.Guid == plannedExercise.ExerciseTypeGuid));
+
+            var lastStats = await _databaseHandler.GetLastStats(plannedExercise.Guid); // 1 to at most 1 relationship
+
+            if (lastStats != null)
+                exercise.LastStats = LastStats.FromModel(lastStats, exercise);
+
+            plannedExercises.Add(exercise);
         }
 
         var workoutPlanModels = await _databaseHandler.GetWorkoutPlan();

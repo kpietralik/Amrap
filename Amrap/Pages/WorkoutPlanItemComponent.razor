@@ -21,42 +21,51 @@
                         <div class="divTableCell">Description</div>
                         <div class="divTableCell">@Item.PlannedExercise.ExerciseType.Description</div>
                     </div>
-                    <div class="divTableRow">
-                        <div class="divTableCell">Sets</div>
-                        <div class="divTableCell">@Item.PlannedExercise.Sets</div>
-                    </div>
-                    <div class="divTableRow">
-                        <div class="divTableCell">Reps</div>
-                        <div class="divTableCell">@Item.PlannedExercise.Reps</div>
-                    </div>
-                    <div class="divTableRow">
-                        <div class="divTableCell">Weight</div>
-                        <div class="divTableCell">@Item.PlannedExercise.Weight</div>
-                    </div>
+                    @if (Item.PlannedExercise.LastStats != default)
+                    {
+                        <div class="divTableRow">
+                            <div class="divTableCell">Last Sets</div>
+                            <div class="divTableCell">@Item.PlannedExercise.LastStats.Sets</div>
+                        </div>
+                        <div class="divTableRow">
+                            <div class="divTableCell">Last Reps</div>
+                            <div class="divTableCell">@Item.PlannedExercise.LastStats.Reps</div>
+                        </div>
+                        <div class="divTableRow">
+                            <div class="divTableCell">Last Weight</div>
+                            <div class="divTableCell">@Item.PlannedExercise.LastStats.Weight</div>
+                        </div>
+                        <div class="divTableRow">
+                            <div class="divTableCell">Was drop set</div>
+                            <div class="divTableCell">@(Item.PlannedExercise.LastStats.DropSet ? "Yes" : "No")</div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="divTableRow">
+                            <div class="divTableCell">Sets</div>
+                            <div class="divTableCell">@Item.PlannedExercise.Sets</div>
+                        </div>
+                        <div class="divTableRow">
+                            <div class="divTableCell">Reps</div>
+                            <div class="divTableCell">@Item.PlannedExercise.Reps</div>
+                        </div>
+                        <div class="divTableRow">
+                            <div class="divTableCell">Weight</div>
+                            <div class="divTableCell">@Item.PlannedExercise.Weight</div>
+                        </div>
+                        <div class="divTableRow">
+                            <div class="divTableCell">Drop set</div>
+                            <div class="divTableCell">@(Item.PlannedExercise.DropSet ? "Yes" : "No")</div>
+                        </div>
+                    }
                     <div class="divTableRow">
                         <div class="divTableCell">To failure</div>
                         <div class="divTableCell">@Item.PlannedExercise.ToFailure</div>
                     </div>
-                    <div class="divTableRow">
-                        <div class="divTableCell">Drop set</div>
-                        <div class="divTableCell">@Item.PlannedExercise.DropSet</div>
-                    </div>
                 </div>
             </div>
-            <Button Grid.Column="0" Grid.Row="1" Margin="0,-50,0,0" HeightRequest="80" WidthRequest="80" CornerRadius="40" ImageSource="delete" BackgroundColor="White">
-              <Button.Shadow>
-                 <Shadow Brush="#bcbcbc"
-                   Offset="5,5"
-                   Opacity="0.6"/>
-              </Button.Shadow>
-            </Button>
-
             <button class="btn btn-primary" @onclick="SaveCompletedExercise">Complete</button>
-            @*
-            <NavLink href="@Item.Link">
-                <p>Complete</p>
-            </NavLink>
-            *@
         </div>
     </div>
 </div>
@@ -83,6 +92,6 @@
         var completedExercise = new CompletedExerciseModel(
             Item.PlannedExercise.ExerciseType.Guid, DateTimeOffset.Now, sets, reps, weight, dropSet);
 
-        await _completedExerciseSaver.SaveCompletedExercise(completedExercise);
+        await _completedExerciseSaver.SaveCompletedExercise(completedExercise, Item.PlannedExercise.Guid);
     }
 }
