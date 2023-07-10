@@ -3,14 +3,13 @@
 @using Amrap.Core.Domain;
 @using Amrap.Infrastructure.Db;
 @using Amrap.Core.Models;
+@using Bit.BlazorUI
 
 @inject DatabaseHandler _databaseHandler
 @inject WorkoutPlanRetriever _workoutPlanRetriever;
 @inject CompletedExerciseSaver _completedExerciseSaver;
 
 <PageTitle>Amrap App</PageTitle>
-<h1>AMRAP</h1>
-<br />
 <h1>Workout plan</h1>
 @if (workoutPlanItems != null)
 {
@@ -31,6 +30,14 @@
 
 @code {
     private IList<WorkoutPlanItem> workoutPlanItems;
+    
+    private BitSnackBar BasicSnackBarRef = new();
+    private BitSnackBarType BasicSnackBarType = BitSnackBarType.Success;
+    private BitSnackBarPosition BasicSnackBarPosition = BitSnackBarPosition.TopLeft;
+    private string BasicSnackBarTitle = "Loaded";
+    private string? BasicSnackBarBody;
+    private bool BasicSnackBarAutoDismiss = true;
+    private int BasicSnackBarDismissSeconds = 3;
 
     protected override async Task OnInitializedAsync()
     {
@@ -74,5 +81,6 @@
         }
 
         this.workoutPlanItems = await _workoutPlanRetriever.GetWorkoutPlan();
+        //await BasicSnackBarRef.Show(BasicSnackBarTitle, BasicSnackBarBody, BasicSnackBarType);
     }
 }

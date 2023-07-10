@@ -82,7 +82,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Pages\WorkoutPlanItemComponent - Copy.razor.css" />
       <None Remove="Pages\WorkoutPlanItemComponent.razor.css" />
     </ItemGroup>
 
@@ -91,6 +90,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Bit.BlazorUI" Version="5.1.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
     </ItemGroup>
 

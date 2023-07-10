@@ -1,6 +1,7 @@
 ﻿@using Amrap.Core;
 @using Amrap.Core.Domain;
 @using Amrap.Core.Models;
+@using Bit.BlazorUI
 
 @inject CompletedExerciseSaver _completedExerciseSaver;
 
@@ -21,51 +22,38 @@
                         <div class="divTableCell">Description</div>
                         <div class="divTableCell">@Item.PlannedExercise.ExerciseType.Description</div>
                     </div>
-                    @if (Item.PlannedExercise.LastStats != default)
-                    {
-                        <div class="divTableRow">
-                            <div class="divTableCell">Last Sets</div>
-                            <div class="divTableCell">@Item.PlannedExercise.LastStats.Sets</div>
-                        </div>
-                        <div class="divTableRow">
-                            <div class="divTableCell">Last Reps</div>
-                            <div class="divTableCell">@Item.PlannedExercise.LastStats.Reps</div>
-                        </div>
-                        <div class="divTableRow">
-                            <div class="divTableCell">Last Weight</div>
-                            <div class="divTableCell">@Item.PlannedExercise.LastStats.Weight</div>
-                        </div>
-                        <div class="divTableRow">
-                            <div class="divTableCell">Was drop set</div>
-                            <div class="divTableCell">@(Item.PlannedExercise.LastStats.DropSet ? "Yes" : "No")</div>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="divTableRow">
-                            <div class="divTableCell">Sets</div>
-                            <div class="divTableCell">@Item.PlannedExercise.Sets</div>
-                        </div>
-                        <div class="divTableRow">
-                            <div class="divTableCell">Reps</div>
-                            <div class="divTableCell">@Item.PlannedExercise.Reps</div>
-                        </div>
-                        <div class="divTableRow">
-                            <div class="divTableCell">Weight</div>
-                            <div class="divTableCell">@Item.PlannedExercise.Weight</div>
-                        </div>
-                        <div class="divTableRow">
-                            <div class="divTableCell">Drop set</div>
-                            <div class="divTableCell">@(Item.PlannedExercise.DropSet ? "Yes" : "No")</div>
-                        </div>
-                    }
+                    <div class="divTableRow">
+                        <div class="divTableCell">Sets</div>
+                        <div class="divTableCell">@Item.GetSets()</div>
+                    </div>
+                    <div class="divTableRow">
+                        <div class="divTableCell">Reps</div>
+                        <div class="divTableCell">@Item.GetReps()</div>
+                    </div>
+                    <div class="divTableRow">
+                        <div class="divTableCell">Weight</div>
+                        <div class="divTableCell">@Item.GetWeight()</div>
+                    </div>
+                    <div class="divTableRow">
+                        <div class="divTableCell">Drop set</div>
+                        <div class="divTableCell">@(Item.GetDropSet() ? "Yes" : "No")</div>
+                    </div>
                     <div class="divTableRow">
                         <div class="divTableCell">To failure</div>
                         <div class="divTableCell">@Item.PlannedExercise.ToFailure</div>
                     </div>
                 </div>
             </div>
-            <button class="btn btn-primary" @onclick="SaveCompletedExercise">Complete</button>
+            <BitAccordion Title="more">
+                @*<button class="btn btn-primary" @onclick="SaveCompletedExercise">Complete</button>*@
+                <BitTextField Label="Sets" IsUnderlined="true" @bind-Value="@newSetsText" />
+                <BitTextField Label="Reps" IsUnderlined="true" @bind-Value="@newRepsText" />
+                <BitTextField Label="Weight" IsUnderlined="true" @bind-Value="@newWeightText" />
+                <BitCheckbox Label="Drop Set" @bind-Value="@newDropSet" BoxSide="@BitCheckBoxSide.End" />
+
+                <BitButton Style="margin-top: 20px;" OnClick="SaveCompletedExercise" >Complete</BitButton>
+
+            </BitAccordion>
         </div>
     </div>
 </div>
@@ -74,24 +62,51 @@
     [Parameter]
     public Amrap.Core.Domain.WorkoutPlanItem Item { get; set; }
 
+    private string newSetsText;
+    private int newSets;
+    private string newRepsText;
+    private int newReps;
+    private string newWeightText;
+    private float newWeight;
+    private bool newDropSet;
+
+
     protected override async Task OnInitializedAsync()
     {
+        newSets = Item.GetSets();
+        newSetsText = newSets.ToString();
+        newReps = Item.GetReps();
+        newRepsText = newReps.ToString();
+        newWeight = Item.GetWeight();
+        newWeightText = newWeight.ToString();
+        newDropSet = Item.GetDropSet();
     }
 
     public async Task SaveCompletedExercise()
     {
+        //await Application.Current.MainPage.DisplayActionSheet("tit", "canc", "dest", "button1");
+        //await Application.Current.MainPage.DisplayPromptAsync("tit", "canc", "dest", "button1");
+
         // ToDo: box which reads these properties - defaults based on last completed exercise or planned exercise
         // ToDo: model with LastCompletedStats for each PlannedExercise for easier storage of that data
 
-        int sets = Item.PlannedExercise.Sets;
-        int reps = Item.PlannedExercise.Reps;
-        float weight = Item.PlannedExercise.Weight;
-        bool dropSet = Item.PlannedExercise.DropSet;
+        if (
+            !int.TryParse(newSetsText, out var sets)   |
+            !int.TryParse(newRepsText, out var reps)   |
+            !float.TryParse(newWeightText, out var weight))
+        {
+            // ToDo: cancel save, display alert
+        }
+
+        bool dropSet = newDropSet;
 
         //var completedExercise = new CompletedExercise(Item.PlannedExercise.ExerciseType, DateTimeOffset.Now, sets, reps, weight, dropSet);
         var completedExercise = new CompletedExerciseModel(
             Item.PlannedExercise.ExerciseType.Guid, DateTimeOffset.Now, sets, reps, weight, dropSet);
 
         await _completedExerciseSaver.SaveCompletedExercise(completedExercise, Item.PlannedExercise.Guid);
+
+        // "The render handle is not yet assigned.
+        //await BasicSnackBarRef.Show(BasicSnackBarTitle, BasicSnackBarBody, BasicSnackBarType);
     }
 }

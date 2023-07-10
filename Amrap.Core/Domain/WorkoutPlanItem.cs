@@ -26,4 +26,9 @@ public class WorkoutPlanItem
         PlannedExercise = plannedExercise;
         Day = day;
     }
+
+    public int GetSets() => PlannedExercise.LastStats?.Sets ?? PlannedExercise.Sets;
+    public int GetReps() => PlannedExercise.LastStats?.Reps ?? PlannedExercise.Reps;
+    public float GetWeight() => PlannedExercise.LastStats?.Weight ?? PlannedExercise.Weight;
+    public bool GetDropSet() => PlannedExercise.LastStats?.DropSet ?? PlannedExercise.DropSet;
 }
