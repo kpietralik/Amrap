@@ -11,7 +11,7 @@
 {
     <div class="container mx-auto font-mono flex-auto bg-gray-400">    
         <div class="flex flex-row">
-            <div class="basis-3/4 py-2"><p class="text-xl font-bold">Completed Exercises (@completedExerciseItems.Count)</p> </div>
+            <div class="basis-3/4 py-2"><p class="text-xl font-bold">Completed Exercises (@completedExerciseItems.Count())</p> </div>
         </div>
         <div>
             <ul class="flex flex-col w-full">
@@ -25,7 +25,7 @@
 }
 
 @code {
-    private IList<CompletedExercise> completedExerciseItems;
+    private IOrderedEnumerable<CompletedExercise> completedExerciseItems;
 
     protected override async Task OnInitializedAsync()
     {

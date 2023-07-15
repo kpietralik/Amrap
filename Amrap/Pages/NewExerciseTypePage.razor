@@ -1,0 +1,44 @@
+﻿@page "/newexercisetype"
+
+@using Amrap.Core;
+@using Amrap.Core.Domain;
+@using Amrap.Core.Models;
+@using Amrap.Infrastructure.Db;
+@using Bit.BlazorUI
+
+@inject DatabaseHandler _databaseHandler;
+
+<BitTextField Label="Name" IsUnderlined="true" @bind-Value="@nameText" />
+<BitTextField Label="Description" IsUnderlined="true" @bind-Value="@descriptionText" />
+<BitTextField Label="Img" IsUnderlined="true" @bind-Value="@imgText" />
+
+<BitChoiceGroup Label="Kind" Items="exerciseKindItems" DefaultValue="@(ExerciseKind.Push)" @bind-Value="@exerciseKindEnum" />
+
+<BitButton Style="margin-top: 20px;" OnClick="Add" >Add</BitButton>
+
+@code {
+    private ExerciseKind exerciseKindEnum;
+    private string nameText;
+    private string descriptionText;
+    private string imgText;
+
+    private readonly List<BitChoiceGroupItem<ExerciseKind>> exerciseKindItems = new()
+    {
+        new () { Text = "Push", Value = ExerciseKind.Push },
+        new () { Text = "Pull", Value = ExerciseKind.Pull },
+        new () { Text = "Core", Value = ExerciseKind.Core },
+        new () { Text = "Legs", Value = ExerciseKind.Legs }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    // ToDo: refactor other domain types using this approach
+    private async Task Add()
+    {
+        var newExerciseType = new ExerciseType(Guid.NewGuid().ToString(), exerciseKindEnum, nameText, descriptionText, imgText);
+
+        await newExerciseType.Save(_databaseHandler);
+    }
+}

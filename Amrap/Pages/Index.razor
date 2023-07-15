@@ -10,21 +10,21 @@
 @inject CompletedExerciseSaver _completedExerciseSaver;
 
 <PageTitle>Amrap App</PageTitle>
-<h1>Workout plan</h1>
-@if (workoutPlanItems != null)
+
+@if (workoutPlanItems == null)
 {
+    <h1>Loading...</h1>
+}
+else if (workoutPlanItems != null)
+{
+    <h1>Workout plan (@workoutPlanItems.Count)</h1>
     <div class="container mx-auto font-mono flex-auto bg-gray-400">    
-        <div class="flex flex-row">
-            <div class="basis-3/4 py-2"><p class="text-xl font-bold">Exercises (@workoutPlanItems.Count)</p> </div>
-        </div>
-        <div>
-            <ul class="flex flex-col w-full">
-                @foreach (var item in workoutPlanItems)
-                {
-                    <WorkoutPlanItemComponent Item="@item" />
-                }
-            </ul>
-        </div>
+        <ul class="flex flex-col w-full">
+            @foreach (var item in workoutPlanItems)
+            {
+                <WorkoutPlanItemComponent Item="@item" />
+            }
+        </ul>
     </div>
 }
 
@@ -46,8 +46,8 @@
             await _databaseHandler.CreateConnectionAndTables();
 
             var t1 = new ExerciseTypeModel("ec2b1e30-d65b-42e1-9cd9-988e45790c5c", ExerciseKind.Push, "Deadlift", "Deadlift (standard)", null);
-            var t2 = new ExerciseTypeModel("84d9a6d2-7a03-4a06-91e5-227d96411adf", ExerciseKind.Push, "Bench press", null, null);
-            var t3 = new ExerciseTypeModel("3b14f0b8-cf1c-401f-9022-3de6c66a4240", ExerciseKind.Pull, "Cable upright row", null, null);
+            var t2 = new ExerciseTypeModel("84d9a6d2-7a03-4a06-91e5-227d96411adf", ExerciseKind.Push, "Bench press", null, "https://cdn-0.weighttraining.guide/wp-content/uploads/2016/10/push-up-tall-resized.png");
+            var t3 = new ExerciseTypeModel("3b14f0b8-cf1c-401f-9022-3de6c66a4240", ExerciseKind.Pull, "Cable upright row", null, "https://i.shgcdn.com/4a56b60f-112a-4090-b9c0-2bdb4b7891ac/-/format/auto/-/preview/3000x3000/-/quality/lighter/");
 
             await _databaseHandler.SeedExerciseTypes(new List<ExerciseTypeModel>() { t1, t2, t3 });
 
@@ -81,6 +81,9 @@
         }
 
         this.workoutPlanItems = await _workoutPlanRetriever.GetWorkoutPlan();
+
+        //await Application.Current.MainPage.
+
         //await BasicSnackBarRef.Show(BasicSnackBarTitle, BasicSnackBarBody, BasicSnackBarType);
     }
 }

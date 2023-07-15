@@ -1,0 +1,55 @@
+﻿@page "/workoutplanitem"
+
+@using Amrap.Core.Domain;
+@using Amrap.Core;
+@using Bit.BlazorUI
+
+@inject ExerciseTypeRetriever _exerciseTypeRetriever;
+
+<h3>Choose or add exercise type</h3>
+<NavLink href="/newexercisetype">
+    <BitActionButton IconName="BitIconName.CirclePlus" >New</BitActionButton>
+</NavLink>
+
+@if (ExerciseTypes != null)
+{
+    <BitBasicList Items="ExerciseTypes" EnableVirtualization="true" Style="border: 1px #a19f9d solid; border-radius: 3px;">
+        <RowTemplate Context="exerciseType">
+            @*            
+            @if (!string.IsNullOrEmpty(exerciseType.Img))
+            {
+                <img src="@exerciseType.Img" alt="img" loading="lazy" height="100">
+            }
+            *@
+
+            <div @key="exerciseType.Guid" style="border-bottom: 1px #8a8886 solid; padding: 5px 20px; margin: 10px;">
+                <div style="margin-left:3%; display: inline-block;">
+                    <p>Kind: <strong>@exerciseType.ExerciseKind</strong></p>
+                    <p>Name: <strong>@exerciseType.Name</strong></p>
+                    <p>Description: <strong>@exerciseType.Description</strong></p>
+                    <p>Img Link: <strong>@exerciseType.Img</strong></p>
+                    <BitActionButton IconName="BitIconName.Edit" OnClick="EditExerciseType">Edit</BitActionButton>
+                </div>
+            </div>
+        </RowTemplate>
+    </BitBasicList>
+}
+
+@code {
+    private IList<ExerciseType> ExerciseTypes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ExerciseTypes = await _exerciseTypeRetriever.GetExerciseTypes();
+    }
+
+    private async Task NewExerciseType()
+    {        
+        throw new NotImplementedException();
+    }    
+    
+    private async Task EditExerciseType()
+    {
+        throw new NotImplementedException();        
+    }
+}

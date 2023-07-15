@@ -96,6 +96,8 @@
             !float.TryParse(newWeightText, out var weight))
         {
             // ToDo: cancel save, display alert
+            await Application.Current.MainPage.DisplayAlert("Invalid input", "Pleas fix provided values", "Cancel");
+            return;
         }
 
         bool dropSet = newDropSet;

@@ -12,7 +12,7 @@ public class CompletedExerciseReader
         _databaseHandler = databaseHandler;
     }
 
-    public async Task<IList<CompletedExercise>> ReadCompletedExercies()
+    public async Task<IOrderedEnumerable<CompletedExercise>> ReadCompletedExercies()
     {
         // First get ExerciseType models
         
@@ -36,6 +36,6 @@ public class CompletedExerciseReader
                     exercisesTypes.Single(x => x.Guid == completedExercise.ExerciseTypeGuid)));
         }
 
-        return completedExercises;
+        return completedExercises.OrderByDescending(x => x.Time);
     }
 }
