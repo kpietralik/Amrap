@@ -1,0 +1,9 @@
+﻿# Markdown File
+
+ToDo: 
+switch to SwipeView https://www.youtube.com/watch?v=BHBYHC_9URc
+switch to blazor navigation using pop & push https://www.youtube.com/watch?v=8z8qz-PePlc
+switch to DB saving as in ExerciseType
+
+
+

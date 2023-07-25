@@ -1,0 +1,23 @@
+﻿@page "/debug"
+
+<PageTitle>Debug</PageTitle>
+@if (HasInternetAccess())
+{
+    <h1>Has internet access</h1>
+}
+else
+{
+    <h1>No internet access</h1>
+}
+
+@code {
+
+    public bool HasInternetAccess()
+    {
+        var accessType = Connectivity.Current.NetworkAccess;
+
+        return 
+            accessType is NetworkAccess.Internet ||
+            accessType is NetworkAccess.ConstrainedInternet;
+    }
+}
