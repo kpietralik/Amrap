@@ -13,6 +13,9 @@ public class ExerciseType
     public string Description { get; set; }
     public string Img { get; set; }
 
+    public string AddUrl => $"/newexercisetype";
+    public string EditUrl => $"/editexercisetype/{Guid}";
+
     public static ExerciseType FromModel(ExerciseTypeModel model) =>
         new(model.Guid, model.ExerciseKind, model.Name, model.Description, model.Img);
 
@@ -26,7 +29,8 @@ public class ExerciseType
     }
 
     // ToDo: refactor other domain types to use this persistence handling
-    public async Task Save(DatabaseHandler databaseHandler)
+    // ToDo: flatten by skipping DatabaseHandler methods?
+    public async Task Add(DatabaseHandler databaseHandler)
     {
         await databaseHandler.AddExerciseType(new ExerciseTypeModel 
         {
@@ -36,5 +40,16 @@ public class ExerciseType
             Description = Description,
             Img = Img 
         });
+    }
+
+    public async Task Update(DatabaseHandler databaseHandler)
+    {
+        await databaseHandler.UpdateExerciseType(
+            new ExerciseTypeModel(        
+                Guid,
+                ExerciseKind,
+                Name,
+                Description,
+                Img));
     }
 }

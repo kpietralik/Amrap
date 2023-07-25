@@ -64,6 +64,11 @@ public class DatabaseHandler
 		await _db.InsertAsync(exerciseType);
     }
 
+    public async Task UpdateExerciseType(ExerciseTypeModel exerciseType)
+    {
+        await _db.UpdateAsync(exerciseType);
+    }
+
     public async Task DeleteExerciseType(ExerciseTypeModel exerciseType)
     {
 		// ToDo: decide how to handle deletion in existing Exercise db items

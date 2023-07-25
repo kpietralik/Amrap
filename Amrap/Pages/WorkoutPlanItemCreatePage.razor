@@ -8,7 +8,7 @@
 
 <h3>Choose or add exercise type</h3>
 <NavLink href="/newexercisetype">
-    <BitActionButton IconName="BitIconName.CirclePlus" >New</BitActionButton>
+    <BitActionButton IconName="BitIconName.CirclePlus">New</BitActionButton>
 </NavLink>
 
 @if (ExerciseTypes != null)
@@ -28,7 +28,9 @@
                     <p>Name: <strong>@exerciseType.Name</strong></p>
                     <p>Description: <strong>@exerciseType.Description</strong></p>
                     <p>Img Link: <strong>@exerciseType.Img</strong></p>
-                    <BitActionButton IconName="BitIconName.Edit" OnClick="EditExerciseType">Edit</BitActionButton>
+                    <NavLink href="@exerciseType.EditUrl">
+                        <BitActionButton IconName="BitIconName.Edit">Edit</BitActionButton>
+                    </NavLink>
                 </div>
             </div>
         </RowTemplate>
@@ -42,11 +44,6 @@
     {
         ExerciseTypes = await _exerciseTypeRetriever.GetExerciseTypes();
     }
-
-    private async Task NewExerciseType()
-    {        
-        throw new NotImplementedException();
-    }    
     
     private async Task EditExerciseType()
     {
