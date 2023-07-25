@@ -14,7 +14,7 @@
 
 <BitChoiceGroup Label="Kind" Items="exerciseKindItems" DefaultValue="@(ExerciseKind.Push)" @bind-Value="@exerciseKindEnum" />
 
-<BitButton Style="margin-top: 20px;" OnClick="Add" >Add</BitButton>
+<BitButton Style="margin-top: 20px;" OnClick="Add">Add</BitButton>
 
 @code {
     private ExerciseKind exerciseKindEnum;
@@ -40,5 +40,16 @@
         var newExerciseType = new ExerciseType(Guid.NewGuid().ToString(), exerciseKindEnum, nameText, descriptionText, imgText);
 
         await newExerciseType.Save(_databaseHandler);
+
+        await App.Current.MainPage.DisplayAlert("Added", "Exercise type added", "OK");
+
+        // Shell not to be used in BlazorWebView
+        // https://learn.microsoft.com/en-us/aspnet/core/blazor/hybrid/routing?view=aspnetcore-7.0&pivots=maui#navigation-among-pages-and-razor-components
+        await Shell.Current.GoToAsync("/workoutplanitem");
+
+        // ToDo: Check whether toast (or similar) can be used instead of alert.
+        //       Even better -> navigate back to previous page.
+        //await App.Current.MainPage.Navigation.PopAsync();
+        //await App.Current.MainPage.Navigation.PopToRootAsync();
     }
 }

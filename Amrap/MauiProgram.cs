@@ -20,7 +20,8 @@ public static class MauiProgram
 
 #if DEBUG
 		builder.Services.AddBlazorWebViewDeveloperTools();
-		builder.Logging.AddDebug();
+        // builder.Services.AddMauiBlazorWebViewDeveloperTools instead of above?
+        builder.Logging.AddDebug();
 #endif
 
 		builder.Services.AddSingleton<DatabaseHandler>();
