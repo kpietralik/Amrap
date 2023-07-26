@@ -1,6 +1,10 @@
 ﻿@using Amrap.Core;
 @using Amrap.Core.Domain;
 @using Amrap.Core.Models;
+@using Amrap.Infrastructure.Db;
+@using Bit.BlazorUI
+
+@inject DatabaseHandler _databaseHandler;
 
 <div id="component" class="flex flex-row justify-between">
     <div class="flex flex-col basis-3/4">
@@ -42,20 +46,39 @@
                 </div>
             </div>
 
-            @*
-            ToDo: delete and edit buttons
-            *@
+            <BitActionButton Style="margin-top: 20px;" IconName="BitIconName.Delete" OnClick="Delete">Delete</BitActionButton>
 
+            @if (deleted)
+            {
+                <BitMessageBar MessageBarType="@BitMessageBarType.Warning">
+                    Deleted
+                </BitMessageBar>
+            }
         </div>
     </div>
 </div>
+<br />
 
 @code {
     [Parameter]
     public Amrap.Core.Domain.CompletedExercise Item { get; set; }
 
+    private bool deleted = false;
+
     protected override async Task OnInitializedAsync()
     {
 
+    }
+
+    public async Task Delete()
+    {
+        var r = await App.Current.MainPage.DisplayActionSheet(
+            $"Delete {Item.ExerciseType.Name}?", "Cancel", "Delete");
+
+        if (r == "Delete")
+        {
+            Item.Delete(_databaseHandler);
+            deleted = true;
+        }
     }
 }

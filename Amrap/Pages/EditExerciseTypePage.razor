@@ -3,11 +3,15 @@
 @using Amrap.Core;
 @using Amrap.Core.Domain;
 @using Amrap.Core.Models;
+@using Amrap.Enum;
 @using Amrap.Infrastructure.Db;
 @using Bit.BlazorUI
 
 @inject NavigationManager NavigationManager
 @inject DatabaseHandler _databaseHandler;
+
+<PageTitle>@title</PageTitle>
+<BitLabel>@title</BitLabel>
 
 @if (exerciseType != default)
 {
@@ -27,6 +31,8 @@ else
 @code {
     [Parameter]
     public string ExerciseTypeGuid { get; set; }
+
+    private const string title = "Edit exercise type";
 
     private ExerciseType exerciseType;
 

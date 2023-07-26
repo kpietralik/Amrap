@@ -3,28 +3,28 @@
 @using Amrap.Core.Domain;
 @using Amrap.Infrastructure.Db;
 @using Amrap.Core.Models;
+@using Bit.BlazorUI
 
 @inject CompletedExerciseReader _completedExerciseReader;
 
-<PageTitle>Completed Exercises</PageTitle>
+<PageTitle>@title</PageTitle>
+
 @if (completedExerciseItems != null)
 {
-    <div class="container mx-auto font-mono flex-auto bg-gray-400">    
-        <div class="flex flex-row">
-            <div class="basis-3/4 py-2"><p class="text-xl font-bold">Completed Exercises (@completedExerciseItems.Count())</p> </div>
-        </div>
-        <div>
-            <ul class="flex flex-col w-full">
-                @foreach (var item in completedExerciseItems)
-                {
-                    <CompletedExerciseComponent Item="@item" />
-                }
-            </ul>
-        </div>
+    <h1>Completed Exercises (@completedExerciseItems.Count())</h1>
+    <div class="container mx-auto font-mono flex-auto bg-gray-400">   
+        <ul class="flex flex-col w-full">
+            @foreach (var item in completedExerciseItems)
+            {
+                <CompletedExerciseComponent Item="@item" />
+            }
+        </ul>
     </div>
 }
 
 @code {
+    private const string title = "Completed Exercises";
+
     private IOrderedEnumerable<CompletedExercise> completedExerciseItems;
 
     protected override async Task OnInitializedAsync()

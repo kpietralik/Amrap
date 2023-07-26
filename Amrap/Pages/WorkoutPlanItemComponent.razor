@@ -55,10 +55,17 @@
                 <BitActionButton Style="margin-top: 20px;" IconName="BitIconName.Send" OnClick="Complete">Complete</BitActionButton>
                 <BitActionButton Style="margin-top: 20px;" IconName="BitIconName.Delete" OnClick="Delete">Delete</BitActionButton>
 
+                @if (deleted)
+                {
+                    <BitMessageBar MessageBarType="@BitMessageBarType.Warning">
+                        Deleted
+                    </BitMessageBar>
+                }
             </BitAccordion>
         </div>
     </div>
 </div>
+<br />
 
 @code {
     [Parameter]
@@ -72,6 +79,8 @@
     private float newWeight;
     private bool newDropSet;
     private bool newToFailure;
+
+    private bool deleted = false;
 
 
     protected override async Task OnInitializedAsync()
@@ -88,12 +97,6 @@
 
     public async Task Complete()
     {
-        //await Application.Current.MainPage.DisplayActionSheet("tit", "canc", "dest", "button1");
-        //await Application.Current.MainPage.DisplayPromptAsync("tit", "canc", "dest", "button1");
-
-        // ToDo: box which reads these properties - defaults based on last completed exercise or planned exercise
-        // ToDo: model with LastCompletedStats for each PlannedExercise for easier storage of that data
-
         if (!int.TryParse(newSetsText, out var sets) || sets < 0)
         {
             await App.Current.MainPage.DisplayAlert("Invalid input", "Sets must be a positive integer value", "Ok");
@@ -122,17 +125,17 @@
             newToFailure);
 
         await completedExercise.SaveCompletedExercise(_databaseHandler, Item.PlannedExercise.Guid);
-
-        // "The render handle is not yet assigned.
-        //await BasicSnackBarRef.Show(BasicSnackBarTitle, BasicSnackBarBody, BasicSnackBarType);
     }
 
     public async Task Delete()
     {
         var r = await App.Current.MainPage.DisplayActionSheet(
             $"Delete {Item.PlannedExercise.ExerciseType.Name}?", "Cancel", "Delete");
-        
+
         if (r == "Delete")
+        {
             Item.Delete(_databaseHandler);
+            deleted = true;
+        }
     }
 }

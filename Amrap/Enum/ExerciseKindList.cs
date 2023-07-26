@@ -1,6 +1,7 @@
-﻿using Bit.BlazorUI;
+﻿using Amrap.Core.Domain;
+using Bit.BlazorUI;
 
-namespace Amrap.Core.Domain;
+namespace Amrap.Enum;
 
 public static class ExerciseKindList
 {

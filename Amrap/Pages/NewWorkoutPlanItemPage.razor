@@ -3,13 +3,16 @@
 @using Amrap.Core;
 @using Amrap.Core.Domain;
 @using Amrap.Core.Models;
+@using Amrap.Enum;
 @using Amrap.Infrastructure.Db;
 @using Bit.BlazorUI
 
 @inject NavigationManager NavigationManager
 @inject DatabaseHandler _databaseHandler;
 
-<h3>PlannedExerciseListPage</h3>
+<PageTitle>@title</PageTitle>
+<BitLabel>@title</BitLabel>
+
 @if (exerciseType != default)
 {
     <h3>Exercise: @exerciseType.Name</h3>
@@ -29,6 +32,8 @@
 @code {
     [Parameter]
     public string ExerciseTypeGuid { get; set; }
+
+    private const string title = "New workout plan item";
 
     private ExerciseType exerciseType;
 

@@ -23,14 +23,16 @@ public class DatabaseHandler
 		_db = new SQLiteAsyncConnection(_databasePath);
 
         // ToDo: TEMP
+#if DEBUG
         await _db.DropTableAsync<ExerciseTypeModel>();
         await _db.DropTableAsync<CompletedExerciseModel>();
         await _db.DropTableAsync<PlannedExerciseModel>();
         await _db.DropTableAsync<WorkoutPlanItemModel>();
         await _db.DropTableAsync<LastStatsModel>();
+#endif
         // ToDo: end
 
-		await _db.CreateTableAsync<ExerciseTypeModel>();
+        await _db.CreateTableAsync<ExerciseTypeModel>();
 		await _db.CreateTableAsync<CompletedExerciseModel>();
 		await _db.CreateTableAsync<PlannedExerciseModel>();
 		await _db.CreateTableAsync<WorkoutPlanItemModel>();
@@ -82,9 +84,9 @@ public class DatabaseHandler
         //var items = await _db.QueryAsync<Exercise>($"select * from {nameof(CompletedExercise)}");
     }
 
-    public async Task DeleteExercise(CompletedExerciseModel exercise)
+    public async Task DeleteCompletedExercise(int id)
     {
-        await _db.DeleteAsync<CompletedExerciseModel>(exercise);
+        await _db.DeleteAsync<CompletedExerciseModel>(id);
     }
 
     public async Task AddPlannedExercise(PlannedExerciseModel plannedExercise)

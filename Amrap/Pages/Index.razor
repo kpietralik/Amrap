@@ -30,14 +30,6 @@ else if (workoutPlanItems != null)
 @code {
     private IList<WorkoutPlanItem> workoutPlanItems;
     
-    private BitSnackBar BasicSnackBarRef = new();
-    private BitSnackBarType BasicSnackBarType = BitSnackBarType.Success;
-    private BitSnackBarPosition BasicSnackBarPosition = BitSnackBarPosition.TopLeft;
-    private string BasicSnackBarTitle = "Loaded";
-    private string? BasicSnackBarBody;
-    private bool BasicSnackBarAutoDismiss = true;
-    private int BasicSnackBarDismissSeconds = 3;
-
     protected override async Task OnInitializedAsync()
     {
         if (!_databaseHandler.HasInitialized)
@@ -65,24 +57,8 @@ else if (workoutPlanItems != null)
             await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItemModel("1d5b70a9-868f-4204-ad50-9a9f14477d22", DayOfWeek.Wednesday, p1.Guid));
             await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItemModel("878cef86-3b4e-423d-822d-d5190498852d", DayOfWeek.Wednesday, p2.Guid));
             await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItemModel("07767dff-aa7a-4c09-8392-b6445ceed9b9", DayOfWeek.Friday, p3.Guid));
-
-            //var e1 = new CompletedExercise( ExerciseType.FromModel(t1), DateTimeOffset.Now, 3, 12, 100f);
-            //var e2 = new CompletedExercise(ExerciseType.FromModel(t2), DateTimeOffset.Now, 2, 9, 99f);
-            //await _completedExerciseSaver.SaveCompletedExercise(e1);
-            //await _completedExerciseSaver.SaveCompletedExercise(e2);
-
-            //var exerciseTypes = await _databaseHandler.GetExerciseTypes();
-            //var plannedExercies = await _databaseHandler.GetPlannedExercises();
-            //var workoutPlanItems = await _databaseHandler.GetWorkoutPlan();
-            //var completedExercies = await _databaseHandler.GetCompletedExercises();
-
-            //this.workoutPlanItems = workoutPlanItems.AsReadOnly();
         }
 
         this.workoutPlanItems = await _workoutPlanRetriever.GetWorkoutPlan();
-
-        //await Application.Current.MainPage.
-
-        //await BasicSnackBarRef.Show(BasicSnackBarTitle, BasicSnackBarBody, BasicSnackBarType);
     }
 }

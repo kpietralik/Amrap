@@ -1,4 +1,4 @@
-﻿namespace Amrap.Core;
+﻿namespace Amrap.Core.Domain;
 
 public enum ExerciseKind
 {

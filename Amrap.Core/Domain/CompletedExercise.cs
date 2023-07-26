@@ -66,4 +66,9 @@ public class CompletedExercise
 
         await databaseHandler.SetLastStats(lastStats);
     }
+
+    public async void Delete(DatabaseHandler databaseHandler)
+    {
+        await databaseHandler.DeleteCompletedExercise(Id);
+    }
 }

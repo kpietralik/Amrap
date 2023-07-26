@@ -3,11 +3,15 @@
 @using Amrap.Core;
 @using Amrap.Core.Domain;
 @using Amrap.Core.Models;
+@using Amrap.Enum;
 @using Amrap.Infrastructure.Db;
 @using Bit.BlazorUI
 
 @inject NavigationManager NavigationManager
 @inject DatabaseHandler _databaseHandler;
+
+<PageTitle>@title</PageTitle>
+<BitLabel>@title</BitLabel>
 
 <BitTextField Label="Name" IsUnderlined="true" @bind-Value="@nameText" />
 <BitTextField Label="Description" IsUnderlined="true" @bind-Value="@descriptionText" />
@@ -18,6 +22,8 @@
 <BitButton Style="margin-top: 20px;" OnClick="Add">Add</BitButton>
 
 @code {
+    private const string title = "New exercise type";
+
     private ExerciseKind exerciseKindEnum;
     private string nameText;
     private string descriptionText;

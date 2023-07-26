@@ -1,6 +1,9 @@
 ﻿@page "/debug"
+@using Bit.BlazorUI
 
-<PageTitle>Debug</PageTitle>
+<PageTitle>@title</PageTitle>
+<BitLabel>@title</BitLabel>
+
 @if (HasInternetAccess())
 {
     <h1>Has internet access</h1>
@@ -11,6 +14,7 @@ else
 }
 
 @code {
+    private const string title = "Debug";
 
     public bool HasInternetAccess()
     {

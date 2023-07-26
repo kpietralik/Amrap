@@ -1,6 +1,6 @@
 ﻿using Bit.BlazorUI;
 
-namespace Amrap.Core.Domain;
+namespace Amrap.Enum;
 
 public static class DayOfWeekList
 {
