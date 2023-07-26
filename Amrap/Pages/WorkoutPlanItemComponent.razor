@@ -1,9 +1,10 @@
 ﻿@using Amrap.Core;
 @using Amrap.Core.Domain;
 @using Amrap.Core.Models;
+@using Amrap.Infrastructure.Db;
 @using Bit.BlazorUI
 
-@inject CompletedExerciseSaver _completedExerciseSaver;
+@inject DatabaseHandler _databaseHandler;
 
 <div id="component" class="flex flex-row justify-between">
     <div class="flex flex-col basis-3/4">
@@ -45,14 +46,14 @@
                 </div>
             </div>
             <BitAccordion Title="more">
-                @*<button class="btn btn-primary" @onclick="SaveCompletedExercise">Complete</button>*@
                 <BitTextField Label="Sets" IsUnderlined="true" @bind-Value="@newSetsText" />
                 <BitTextField Label="Reps" IsUnderlined="true" @bind-Value="@newRepsText" />
                 <BitTextField Label="Weight" IsUnderlined="true" @bind-Value="@newWeightText" />
                 <BitCheckbox Label="Drop Set" @bind-Value="@newDropSet" BoxSide="@BitCheckBoxSide.End" />
                 <BitCheckbox Label="To failure" @bind-Value="@newToFailure" BoxSide="@BitCheckBoxSide.End" />
 
-                <BitButton Style="margin-top: 20px;" OnClick="SaveCompletedExercise" >Complete</BitButton>
+                <BitActionButton Style="margin-top: 20px;" IconName="BitIconName.Send" OnClick="Complete">Complete</BitActionButton>
+                <BitActionButton Style="margin-top: 20px;" IconName="BitIconName.Delete" OnClick="Delete">Delete</BitActionButton>
 
             </BitAccordion>
         </div>
@@ -85,7 +86,7 @@
         newToFailure = Item.GetToFailure();
     }
 
-    public async Task SaveCompletedExercise()
+    public async Task Complete()
     {
         //await Application.Current.MainPage.DisplayActionSheet("tit", "canc", "dest", "button1");
         //await Application.Current.MainPage.DisplayPromptAsync("tit", "canc", "dest", "button1");
@@ -111,13 +112,27 @@
             return;
         }
 
-        //var completedExercise = new CompletedExercise(Item.PlannedExercise.ExerciseType, DateTimeOffset.Now, sets, reps, weight, dropSet);
-        var completedExercise = new CompletedExerciseModel(
-            Item.PlannedExercise.ExerciseType.Guid, DateTimeOffset.Now, sets, reps, weight, newDropSet, newToFailure);
+        var completedExercise = new CompletedExercise(
+            Item.PlannedExercise.ExerciseType,
+            DateTimeOffset.Now,
+            sets,
+            reps,
+            weight,
+            newDropSet,
+            newToFailure);
 
-        await _completedExerciseSaver.SaveCompletedExercise(completedExercise, Item.PlannedExercise.Guid);
+        await completedExercise.SaveCompletedExercise(_databaseHandler, Item.PlannedExercise.Guid);
 
         // "The render handle is not yet assigned.
         //await BasicSnackBarRef.Show(BasicSnackBarTitle, BasicSnackBarBody, BasicSnackBarType);
+    }
+
+    public async Task Delete()
+    {
+        var r = await App.Current.MainPage.DisplayActionSheet(
+            $"Delete {Item.PlannedExercise.ExerciseType.Name}?", "Cancel", "Delete");
+        
+        if (r == "Delete")
+            Item.Delete(_databaseHandler);
     }
 }

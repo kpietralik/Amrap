@@ -46,6 +46,11 @@ public class WorkoutPlanItem
                 PlannedExercise.Guid));
     }
 
+    public async void Delete(DatabaseHandler databaseHandler)
+    {
+        await databaseHandler.DeleteWorkoutPlanItem(Guid);
+    }
+
     public int GetSets() => PlannedExercise.LastStats?.Sets ?? PlannedExercise.Sets;
     public int GetReps() => PlannedExercise.LastStats?.Reps ?? PlannedExercise.Reps;
     public float GetWeight() => PlannedExercise.LastStats?.Weight ?? PlannedExercise.Weight;

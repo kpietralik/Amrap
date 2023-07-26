@@ -1,4 +1,5 @@
 ﻿using Amrap.Core.Models;
+using Amrap.Infrastructure.Db;
 
 namespace Amrap.Core.Domain;
 
@@ -28,7 +29,18 @@ public class CompletedExercise
     public CompletedExerciseModel ToModel() =>
         new(ExerciseType.Guid, Time, Sets, Reps, Weight, DropSet, ToFailure);
 
-    public CompletedExercise(int id, ExerciseType exerciseType, DateTimeOffset time, int sets, int reps, float weight, bool dropSet = false, bool toFailure = false)
+    public CompletedExercise(ExerciseType exerciseType, DateTimeOffset time, int sets, int reps, float weight, bool dropSet = false, bool toFailure = false)
+    {
+        ExerciseType = exerciseType;
+        Time = time;
+        Sets = sets;
+        Reps = reps;
+        Weight = weight;
+        DropSet = dropSet;
+        ToFailure = toFailure;
+    }
+
+    private CompletedExercise(int id, ExerciseType exerciseType, DateTimeOffset time, int sets, int reps, float weight, bool dropSet = false, bool toFailure = false)
     {
         Id = id;
         ExerciseType = exerciseType;
@@ -38,5 +50,20 @@ public class CompletedExercise
         Weight = weight;
         DropSet = dropSet;
         ToFailure = toFailure;
+    }
+
+    public async Task SaveCompletedExercise(DatabaseHandler databaseHandler, string plannedExerciseGuid)
+    {
+        await databaseHandler.AddExercise(this.ToModel());
+
+        var lastStats = new LastStatsModel(
+            plannedExerciseGuid,
+            Sets,
+            Reps,
+            Weight,
+            DropSet,
+            ToFailure);
+
+        await databaseHandler.SetLastStats(lastStats);
     }
 }

@@ -112,9 +112,9 @@ public class DatabaseHandler
         await _db.UpdateAsync(workoutPlanItem);
     }
 
-    public async Task DeleteWorkoutPlanItem(WorkoutPlanItemModel workoutPlanItem)
+    public async Task DeleteWorkoutPlanItem(string guid)
     {
-        await _db.DeleteAsync<WorkoutPlanItemModel>(workoutPlanItem);
+        await _db.DeleteAsync<WorkoutPlanItemModel>(guid);
     }
 
     public async Task SetLastStats(LastStatsModel lastStatsModel)
@@ -122,7 +122,6 @@ public class DatabaseHandler
         await _db.InsertOrReplaceAsync(lastStatsModel);
 
         var res0 = await _db.QueryAsync<LastStatsModel>($"select * from {nameof(LastStatsModel)}");
-
     }
 
     public async Task DeleteLastStats(LastStatsModel lastStatsModel)
