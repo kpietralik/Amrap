@@ -2,14 +2,14 @@
 
 @using Amrap.Core.Domain;
 @using Amrap.Core;
+@using Amrap.Infrastructure.Db;
 @using Bit.BlazorUI
 
-@inject ExerciseTypeRetriever _exerciseTypeRetriever;
+@inject NavigationManager NavigationManager;
+@inject DatabaseHandler _databaseHandler;
 
 <h3>Choose or add exercise type</h3>
-<NavLink href="/newexercisetype">
-    <BitActionButton IconName="BitIconName.CirclePlus">New</BitActionButton>
-</NavLink>
+<BitActionButton IconName="BitIconName.CirclePlus" OnClick="NewExerciseType">New</BitActionButton>
 
 @if (ExerciseTypes != null)
 {
@@ -28,9 +28,8 @@
                     <p>Name: <strong>@exerciseType.Name</strong></p>
                     <p>Description: <strong>@exerciseType.Description</strong></p>
                     <p>Img Link: <strong>@exerciseType.Img</strong></p>
-                    <NavLink href="@exerciseType.EditUrl">
-                        <BitActionButton IconName="BitIconName.Edit">Edit</BitActionButton>
-                    </NavLink>
+                    <BitActionButton IconName="BitIconName.CheckMark" OnClick="() => PickExerciseType(exerciseType)">Pick</BitActionButton>
+                    <BitActionButton IconName="BitIconName.Edit" OnClick="() => EditExerciseType(exerciseType)">Edit</BitActionButton>
                 </div>
             </div>
         </RowTemplate>
@@ -42,11 +41,21 @@
 
     protected override async Task OnInitializedAsync()
     {
-        ExerciseTypes = await _exerciseTypeRetriever.GetExerciseTypes();
+        ExerciseTypes = await ExerciseType.GetExerciseTypes(_databaseHandler);
+    }
+
+    private void NewExerciseType()
+    {
+        NavigationManager.NavigateTo("/newexercisetype");
+    }
+
+    private void EditExerciseType(ExerciseType exerciseType)
+    {
+        NavigationManager.NavigateTo(exerciseType.EditUrl);
     }
     
-    private async Task EditExerciseType()
+    private void PickExerciseType(ExerciseType exerciseType)
     {
-        throw new NotImplementedException();        
+        NavigationManager.NavigateTo($"/newworkoutplanitem/{exerciseType.Guid}");
     }
 }

@@ -13,6 +13,7 @@ public class CompletedExercise
     public int Reps { get; set; }
     public float Weight { get; set; }
     public bool DropSet { get; set; }
+    public bool ToFailure { get; set; }
 
     public static CompletedExercise FromModel(CompletedExerciseModel model, ExerciseType exerciseType)
     {
@@ -21,13 +22,13 @@ public class CompletedExercise
                 $"Data id missmatch for {nameof(CompletedExercise)} {nameof(ExerciseType)}: " +
                 $"{nameof(CompletedExerciseModel)}, model={model.ExerciseTypeGuid}, data={exerciseType.Guid}");
 
-        return new CompletedExercise(model.Id, exerciseType, model.Time, model.Sets, model.Reps, model.Weight, model.DropSet);
+        return new CompletedExercise(model.Id, exerciseType, model.Time, model.Sets, model.Reps, model.Weight, model.DropSet, model.ToFailure);
     }
 
     public CompletedExerciseModel ToModel() =>
-        new(ExerciseType.Guid, Time, Sets, Reps, Weight, DropSet);
+        new(ExerciseType.Guid, Time, Sets, Reps, Weight, DropSet, ToFailure);
 
-    public CompletedExercise(int id, ExerciseType exerciseType, DateTimeOffset time, int sets, int reps, float weight, bool dropSet = false)
+    public CompletedExercise(int id, ExerciseType exerciseType, DateTimeOffset time, int sets, int reps, float weight, bool dropSet = false, bool toFailure = false)
     {
         Id = id;
         ExerciseType = exerciseType;
@@ -36,5 +37,6 @@ public class CompletedExercise
         Reps = reps;
         Weight = weight;
         DropSet = dropSet;
+        ToFailure = toFailure;
     }
 }

@@ -12,16 +12,17 @@ public class LastStats
     public int Reps { get; set; }
     public float Weight { get; set; }
     public bool DropSet { get; set; }
+    public bool ToFailure { get; set; }
 
     public static LastStats FromModel(LastStatsModel model, PlannedExercise plannedExercise)
     {
         if (model.PlannedExerciseGuid != plannedExercise.Guid)
             throw new Exception($"Data id missmatch: {nameof(PlannedExerciseModel)}, model={model.PlannedExerciseGuid}, data={plannedExercise.Guid}");
 
-        return new(plannedExercise, model.Sets, model.Reps, model.Weight, model.DropSet);
+        return new(plannedExercise, model.Sets, model.Reps, model.Weight, model.DropSet, model.ToFailure);
     }
 
-    public LastStats(PlannedExercise plannedExercise, int sets, int reps, float weight, bool dropSet)
+    public LastStats(PlannedExercise plannedExercise, int sets, int reps, float weight, bool dropSet, bool toFailure)
     {
         // At most 1 last stats for each planned exercise
         Guid = plannedExercise.Guid;
@@ -30,5 +31,6 @@ public class LastStats
         Reps = reps;
         Weight = weight;
         DropSet = dropSet;
+        ToFailure = toFailure;  
     }
 }

@@ -11,15 +11,15 @@ public class WorkoutPlanItemModel
     public string PlannedExerciseGuid { get; set; }
 
     [Indexed]
-    public DayOfTheWeek Day { get; set; }
+    public DayOfWeek Day { get; set; }
 
     // For SQLite
     public WorkoutPlanItemModel() { }
 
-    public WorkoutPlanItemModel(string guid, DayOfTheWeek day, PlannedExerciseModel plannedExercise)
+    public WorkoutPlanItemModel(string guid, DayOfWeek day, string plannedExerciseGuid)
     {
         Guid = guid;
         Day = day;
-        PlannedExerciseGuid = plannedExercise.Guid;
+        PlannedExerciseGuid = plannedExerciseGuid;
     }
 }

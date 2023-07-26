@@ -15,11 +15,12 @@ public class LastStatsModel
     public int Reps { get; set; }
     public float Weight { get; set; }
     public bool DropSet { get; set; }
+    public bool ToFailure { get; set; }
 
     // For SQLite
     public LastStatsModel() { }
 
-    public LastStatsModel(string plannedExerciseGuid, int sets, int reps, float weight, bool dropSet)
+    public LastStatsModel(string plannedExerciseGuid, int sets, int reps, float weight, bool dropSet, bool toFailure)
     {
         // At most 1 last stats for each planned exercise
         Guid = plannedExerciseGuid;
@@ -28,5 +29,6 @@ public class LastStatsModel
         Reps = reps;
         Weight = weight;
         DropSet = dropSet;
+        ToFailure = toFailure;
     }
 }

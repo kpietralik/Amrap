@@ -1,0 +1,83 @@
+﻿@page "/newworkoutplanitem/{ExerciseTypeGuid}"
+
+@using Amrap.Core;
+@using Amrap.Core.Domain;
+@using Amrap.Core.Models;
+@using Amrap.Infrastructure.Db;
+@using Bit.BlazorUI
+
+@inject NavigationManager NavigationManager
+@inject DatabaseHandler _databaseHandler;
+
+<h3>PlannedExerciseListPage</h3>
+@if (exerciseType != default)
+{
+    <h3>Exercise: @exerciseType.Name</h3>
+    <h3>Description: @exerciseType.Description</h3>
+
+    <BitChoiceGroup Label="Day" Items="DayOfWeekList.Items" @bind-Value="@dayOfWeek" />
+    <BitTextField Label="Sets" IsUnderlined="true" @bind-Value="@setsStr" />
+    <BitTextField Label="Reps" IsUnderlined="true" @bind-Value="@repsStr" />
+    <BitTextField Label="Weight" IsUnderlined="true" @bind-Value="@weightStr" />
+    <BitTextField Label="Note" IsUnderlined="true" @bind-Value="@note" />
+    <BitCheckbox Label="Drop set" IsUnderlined="true" @bind-Value="dropSet" />
+    <BitCheckbox Label="To failure" IsUnderlined="true" @bind-Value="toFailure" />
+    
+    <BitButton Style="margin-top: 20px;" OnClick="Add">Add</BitButton>
+}
+
+@code {
+
+    [Parameter]
+    public string ExerciseTypeGuid { get; set; }
+
+    private ExerciseType exerciseType;
+
+    private string setsStr { get; set; }
+    private string repsStr { get; set; }
+    private string weightStr { get; set; }
+    private string note { get; set; }
+    private bool dropSet { get; set; }
+    private bool toFailure { get; set; }
+    private DayOfWeek dayOfWeek { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var exerciseTypeModel = await _databaseHandler.GetExerciseType(ExerciseTypeGuid);
+        exerciseType = ExerciseType.FromModel(exerciseTypeModel);
+    }
+
+    private async Task Add()
+    {
+        // ToDo: uint could be used but is likely not compatible with SQLite
+        if (!int.TryParse(setsStr, out var sets) || sets < 0)
+        {
+            await App.Current.MainPage.DisplayAlert("Invalid input", "Sets must be a positive integer value", "Ok");
+            return;
+        }
+
+        if (!int.TryParse(repsStr, out var reps) || reps < 0)
+        {
+            await App.Current.MainPage.DisplayAlert("Invalid input", "Reps must be a positive integer value", "Ok");
+            return;
+        }
+
+        if (!float.TryParse(weightStr, out var weight) || weight < 0)
+        {
+            await App.Current.MainPage.DisplayAlert("Invalid input", "Sets must be a positive number", "Ok");
+            return;
+        }
+
+        var plannedExercise = new PlannedExercise(
+            Guid.NewGuid().ToString(), exerciseType, sets, reps, weight, note, dropSet, toFailure);
+
+        var workoutPlanItem = new WorkoutPlanItem(
+            Guid.NewGuid().ToString(), plannedExercise, dayOfWeek);
+
+        await plannedExercise.Add(_databaseHandler);
+        await workoutPlanItem.Add(_databaseHandler);
+
+        NavigationManager.NavigateTo("/");
+    }
+}
+}

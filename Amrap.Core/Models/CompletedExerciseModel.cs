@@ -16,12 +16,13 @@ public class CompletedExerciseModel
     public int Reps { get; set; }
     public float Weight { get; set; }
     public bool DropSet { get; set; }
+    public bool ToFailure { get; set; }
 
     // For SQLite
     public CompletedExerciseModel() { }
 
     public CompletedExerciseModel(
-        string exerciseTypeGuid, DateTimeOffset time, int sets, int reps, float weight, bool dropSet = false)
+        string exerciseTypeGuid, DateTimeOffset time, int sets, int reps, float weight, bool dropSet = false, bool toFailure = false)
     {
         ExerciseTypeGuid = exerciseTypeGuid;
         Time = time;
@@ -29,5 +30,6 @@ public class CompletedExerciseModel
         Reps = reps;
         Weight = weight;
         DropSet = dropSet;
+        ToFailure = toFailure;
     }
 }

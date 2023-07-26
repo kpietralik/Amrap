@@ -40,7 +40,7 @@
                     </div>
                     <div class="divTableRow">
                         <div class="divTableCell">To failure</div>
-                        <div class="divTableCell">@Item.PlannedExercise.ToFailure</div>
+                        <div class="divTableCell">@(Item.GetToFailure() ? "Yes" : "No")</div>
                     </div>
                 </div>
             </div>
@@ -50,6 +50,7 @@
                 <BitTextField Label="Reps" IsUnderlined="true" @bind-Value="@newRepsText" />
                 <BitTextField Label="Weight" IsUnderlined="true" @bind-Value="@newWeightText" />
                 <BitCheckbox Label="Drop Set" @bind-Value="@newDropSet" BoxSide="@BitCheckBoxSide.End" />
+                <BitCheckbox Label="To failure" @bind-Value="@newToFailure" BoxSide="@BitCheckBoxSide.End" />
 
                 <BitButton Style="margin-top: 20px;" OnClick="SaveCompletedExercise" >Complete</BitButton>
 
@@ -69,6 +70,7 @@
     private string newWeightText;
     private float newWeight;
     private bool newDropSet;
+    private bool newToFailure;
 
 
     protected override async Task OnInitializedAsync()
@@ -80,6 +82,7 @@
         newWeight = Item.GetWeight();
         newWeightText = newWeight.ToString();
         newDropSet = Item.GetDropSet();
+        newToFailure = Item.GetToFailure();
     }
 
     public async Task SaveCompletedExercise()
@@ -90,21 +93,27 @@
         // ToDo: box which reads these properties - defaults based on last completed exercise or planned exercise
         // ToDo: model with LastCompletedStats for each PlannedExercise for easier storage of that data
 
-        if (
-            !int.TryParse(newSetsText, out var sets)   |
-            !int.TryParse(newRepsText, out var reps)   |
-            !float.TryParse(newWeightText, out var weight))
+        if (!int.TryParse(newSetsText, out var sets) || sets < 0)
         {
-            // ToDo: cancel save, display alert
-            await Application.Current.MainPage.DisplayAlert("Invalid input", "Pleas fix provided values", "Cancel");
+            await App.Current.MainPage.DisplayAlert("Invalid input", "Sets must be a positive integer value", "Ok");
             return;
         }
 
-        bool dropSet = newDropSet;
+        if (!int.TryParse(newRepsText, out var reps) || reps < 0)
+        {
+            await App.Current.MainPage.DisplayAlert("Invalid input", "Reps must be a positive integer value", "Ok");
+            return;
+        }
+
+        if (!float.TryParse(newWeightText, out var weight) || weight < 0)
+        {
+            await App.Current.MainPage.DisplayAlert("Invalid input", "Sets must be a positive number", "Ok");
+            return;
+        }
 
         //var completedExercise = new CompletedExercise(Item.PlannedExercise.ExerciseType, DateTimeOffset.Now, sets, reps, weight, dropSet);
         var completedExercise = new CompletedExerciseModel(
-            Item.PlannedExercise.ExerciseType.Guid, DateTimeOffset.Now, sets, reps, weight, dropSet);
+            Item.PlannedExercise.ExerciseType.Guid, DateTimeOffset.Now, sets, reps, weight, newDropSet, newToFailure);
 
         await _completedExerciseSaver.SaveCompletedExercise(completedExercise, Item.PlannedExercise.Guid);
 

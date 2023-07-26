@@ -92,6 +92,11 @@ public class DatabaseHandler
         await _db.InsertAsync(plannedExercise);
     }
 
+    public async Task UpdatePlannedExercise(PlannedExerciseModel plannedExercise)
+    {
+        await _db.UpdateAsync(plannedExercise);
+    }
+
     public async Task DeletePlannedExercise(PlannedExerciseModel plannedExercise)
     {
         await _db.DeleteAsync<PlannedExerciseModel>(plannedExercise);
@@ -100,6 +105,11 @@ public class DatabaseHandler
     public async Task AddWorkoutPlanItem(WorkoutPlanItemModel workoutPlanItem)
     {
         await _db.InsertAsync(workoutPlanItem);
+    }
+
+    public async Task UpdateWorkoutPlanItem(WorkoutPlanItemModel workoutPlanItem)
+    {
+        await _db.UpdateAsync(workoutPlanItem);
     }
 
     public async Task DeleteWorkoutPlanItem(WorkoutPlanItemModel workoutPlanItem)

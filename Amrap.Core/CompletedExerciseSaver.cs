@@ -25,7 +25,8 @@ public class CompletedExerciseSaver
             completedExerciseModel.Sets,
             completedExerciseModel.Reps,
             completedExerciseModel.Weight,
-            completedExerciseModel.DropSet);
+            completedExerciseModel.DropSet,
+            completedExerciseModel.ToFailure);
 
         await _databaseHandler.SetLastStats(lastStats);
     }

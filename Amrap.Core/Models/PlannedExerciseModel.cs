@@ -20,10 +20,10 @@ public class PlannedExerciseModel
     // For SQLite
     public PlannedExerciseModel() { }
 
-    public PlannedExerciseModel(string guid, ExerciseTypeModel exerciseType, int sets, int reps, float weight, string note = default, bool dropSet = false, bool toFailure = false)
+    public PlannedExerciseModel(string guid, string exerciseTypeGuid, int sets, int reps, float weight, string note = default, bool dropSet = false, bool toFailure = false)
     {
         Guid = guid;
-        ExerciseTypeGuid = exerciseType.Guid;
+        ExerciseTypeGuid = exerciseTypeGuid;
         Sets = sets;
         Reps = reps;
         Note = note;

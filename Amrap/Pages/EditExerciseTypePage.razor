@@ -1,4 +1,4 @@
-﻿@page "/editexercisetype/{Id}"
+﻿@page "/editexercisetype/{ExerciseTypeGuid}"
 
 @using Amrap.Core;
 @using Amrap.Core.Domain;
@@ -26,17 +26,13 @@ else
 
 @code {
     [Parameter]
-    public string Id { get; set; }
+    public string ExerciseTypeGuid { get; set; }
 
     private ExerciseType exerciseType;
-    private ExerciseKind exerciseKindEnum;
-    private string nameText;
-    private string descriptionText;
-    private string imgText;
 
     protected override async Task OnInitializedAsync()
     {
-        var exerciseTypeModel = await _databaseHandler.GetExerciseType(Id);
+        var exerciseTypeModel = await _databaseHandler.GetExerciseType(ExerciseTypeGuid);
         exerciseType = ExerciseType.FromModel(exerciseTypeModel);
     }
 

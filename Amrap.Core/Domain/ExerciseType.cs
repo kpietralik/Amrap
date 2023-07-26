@@ -28,8 +28,6 @@ public class ExerciseType
         Img = img;
     }
 
-    // ToDo: refactor other domain types to use this persistence handling
-    // ToDo: flatten by skipping DatabaseHandler methods?
     public async Task Add(DatabaseHandler databaseHandler)
     {
         await databaseHandler.AddExerciseType(new ExerciseTypeModel 
@@ -51,5 +49,18 @@ public class ExerciseType
                 Name,
                 Description,
                 Img));
+    }
+
+    public static async Task<IList<ExerciseType>> GetExerciseTypes(DatabaseHandler databaseHandler)
+    {
+        var exerciseTypeModels = await databaseHandler.GetExerciseTypes();
+
+        var exercisesTypes = new List<ExerciseType>();
+        foreach (var exerciseType in exerciseTypeModels)
+        {
+            exercisesTypes.Add(FromModel(exerciseType));
+        }
+
+        return exercisesTypes;
     }
 }
