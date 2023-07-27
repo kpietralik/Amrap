@@ -19,7 +19,8 @@ public class CompletedExerciseModel
     public bool ToFailure { get; set; }
 
     // For SQLite
-    public CompletedExerciseModel() { }
+    public CompletedExerciseModel()
+    { }
 
     public CompletedExerciseModel(
         string exerciseTypeGuid, DateTimeOffset time, int sets, int reps, float weight, bool dropSet = false, bool toFailure = false)

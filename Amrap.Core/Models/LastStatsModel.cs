@@ -18,7 +18,8 @@ public class LastStatsModel
     public bool ToFailure { get; set; }
 
     // For SQLite
-    public LastStatsModel() { }
+    public LastStatsModel()
+    { }
 
     public LastStatsModel(string plannedExerciseGuid, int sets, int reps, float weight, bool dropSet, bool toFailure)
     {

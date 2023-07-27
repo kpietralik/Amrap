@@ -15,7 +15,8 @@ public class ExerciseTypeModel
     public string Img { get; set; }
 
     // For SQLite
-    public ExerciseTypeModel() { }
+    public ExerciseTypeModel()
+    { }
 
     public ExerciseTypeModel(string guid, ExerciseKind exerciseKind, string name, string description, string img = null)
     {

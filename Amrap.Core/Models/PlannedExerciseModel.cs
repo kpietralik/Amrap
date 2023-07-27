@@ -18,7 +18,8 @@ public class PlannedExerciseModel
     public bool ToFailure { get; set; }
 
     // For SQLite
-    public PlannedExerciseModel() { }
+    public PlannedExerciseModel()
+    { }
 
     public PlannedExerciseModel(string guid, string exerciseTypeGuid, int sets, int reps, float weight, string note = default, bool dropSet = false, bool toFailure = false)
     {

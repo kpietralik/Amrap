@@ -14,7 +14,8 @@ public class WorkoutPlanItemModel
     public DayOfWeek Day { get; set; }
 
     // For SQLite
-    public WorkoutPlanItemModel() { }
+    public WorkoutPlanItemModel()
+    { }
 
     public WorkoutPlanItemModel(string guid, DayOfWeek day, string plannedExerciseGuid)
     {
