@@ -30,7 +30,7 @@ internal static class DbSeed
             var backHyperextension = new ExerciseType("c18e7af1-4854-420c-9515-40b2e0b3c7ec", ExerciseKind.Core, "Back hyperextension", "", "");
             var pullUpWidegrip = new ExerciseType("3c06d986-e7af-4adb-a76b-7598fbcc4bb3", ExerciseKind.Pull, "Pull up", "Wide grip", "");
             var legPress = new ExerciseType("a7264596-c03a-4d4e-9f16-7684f627065e", ExerciseKind.Legs, "Leg press", "", "");
-            var chestSupportedRow = new ExerciseType("6c19e7f7-65d6-406e-9df3-f52105104060", ExerciseKind.Pull, "Check supported row", "", "");
+            var chestSupportedRow = new ExerciseType("6c19e7f7-65d6-406e-9df3-f52105104060", ExerciseKind.Pull, "Chest supported row", "", "");
             var standingArnoldPress = new ExerciseType("e549a95b-ad09-48ae-b74e-97c007462519", ExerciseKind.Push, "Standing arnold press", "", "");
             var seatedCalfRaises = new ExerciseType("205d8384-6493-4667-bdbb-717ccdd459e9", ExerciseKind.Legs, "Seated calf raises", "", "");
             var inclineDumbbellPress = new ExerciseType("806c3106-0a75-4501-942c-8980566e74c1", ExerciseKind.Push, "Incline dumbbell press", "", "");

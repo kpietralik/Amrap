@@ -105,6 +105,35 @@ public class DatabaseHandler
         return plannedExercises;
     }
 
+    public async Task<PlannedExercise> GetPlannedExercise(string guid)
+    {
+        var res = await _db.QueryAsync<PlannedExercise>($"select * from {nameof(PlannedExercise)} where Guid = ?", guid);
+
+        var plannedExercise = res.Single();
+
+        var exerciseType = await GetExerciseType(plannedExercise.ExerciseTypeGuid);
+        plannedExercise.SetExerciseType(exerciseType);
+
+        var lastStats = await GetLastStats(plannedExercise.Guid);
+        if (lastStats != default)
+            plannedExercise.SetLastStats(lastStats);
+
+        return plannedExercise;
+    }
+
+    public async Task<WorkoutPlanItem> GetWorkoutPlanItem(string guid)
+    {
+        var res = await _db.QueryAsync<WorkoutPlanItem>($"select * from {nameof(WorkoutPlanItem)} where Guid = ?", guid);
+
+        var workoutPlanItem = res.Single();
+
+        var plannedExercise = await GetPlannedExercise(workoutPlanItem.PlannedExerciseGuid);
+
+        workoutPlanItem.SetPlannedExercise(plannedExercise);
+
+        return workoutPlanItem;
+    }
+
     public async Task<IList<WorkoutPlanItem>> GetWorkoutPlan(IList<PlannedExercise> plannedExercises)
     {
         var workoutPlans = await _db.QueryAsync<WorkoutPlanItem>($"select * from {nameof(WorkoutPlanItem)}");

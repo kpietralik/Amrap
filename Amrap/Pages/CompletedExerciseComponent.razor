@@ -76,7 +76,7 @@
 
         if (r == "Delete")
         {
-            Item.Delete(_databaseHandler);
+            await Item.Delete(_databaseHandler);
             deleted = true;
         }
     }

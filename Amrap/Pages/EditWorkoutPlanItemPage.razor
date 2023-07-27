@@ -1,0 +1,66 @@
+﻿@page "/WorkoutPlanItem/{WorkoutPlanItemGuid}"
+
+@using Amrap.Core;
+@using Amrap.Core.Domain;
+@using Amrap.Enum;
+@using Amrap.Core.Infrastructure;
+@using Bit.BlazorUI
+
+@inject NavigationManager NavigationManager
+@inject DatabaseHandler _databaseHandler;
+
+<PageTitle>@title</PageTitle>
+<BitLabel>@title</BitLabel>
+
+@if (workoutPlanItem != default)
+{
+    // ToDo: unify and put here component for Exercise Type editing and saving
+
+    <ExerciseTypeViewComponent ExerciseType="@workoutPlanItem.PlannedExercise.ExerciseType">
+        <h3>Exercise Type (read only)</h3>
+    </ExerciseTypeViewComponent>
+    <br />
+    <h3>Workout Plan Item</h3>
+    <BitChoiceGroup Label="Day" Items="DayOfWeekList.Items" @bind-Value="workoutPlanItem.Day" />
+    <BitNumericTextField Label="Sets" IsUnderlined="true" Step="@(1)" Min="1" ShowArrows="true" @bind-Value="workoutPlanItem.PlannedExercise.Sets" />
+    <BitTextField Label="Last sets" IsUnderlined="true" IsReadonly="true" Value="@workoutPlanItem.GetSets().ToString()" />
+    <BitNumericTextField Label="Reps" IsUnderlined="true" Step="@(1)" Min="1" ShowArrows="true" @bind-Value="workoutPlanItem.PlannedExercise.Reps" />
+    <BitTextField Label="Last reps" IsUnderlined="true" IsReadonly="true" Value="@workoutPlanItem.GetReps().ToString()" />
+    <BitNumericTextField Label="Weight" IsUnderlined="true" Min="0" IconName="BitIconName.Weights" Suffix=" kg" @bind-Value="workoutPlanItem.PlannedExercise.Weight" />
+    <BitTextField Label="Last weight" IsUnderlined="true" IsReadonly="true" Value="@workoutPlanItem.GetWeight().ToString()" />
+    <BitTextField Label="Note" IsUnderlined="true" @bind-Value="workoutPlanItem.PlannedExercise.Note" />
+    <BitCheckbox Label="Drop set" IsUnderlined="true" @bind-Value="workoutPlanItem.PlannedExercise.DropSet" />
+    <BitCheckbox Label="To failure" IsUnderlined="true" @bind-Value="workoutPlanItem.PlannedExercise.ToFailure" />
+    <BitNumericTextField Label="Priority" IsUnderlined="true" @bind-Value="workoutPlanItem.Priority" />
+
+    <BitButton Style="margin-top: 20px;" OnClick="Save">Save</BitButton>
+}
+else
+{
+    <h3>Loading..</h3>
+}
+
+@code {
+    [Parameter]
+    public string WorkoutPlanItemGuid { get; set; }
+
+    private const string title = "Edit workout plan item";
+
+    private WorkoutPlanItem workoutPlanItem;
+
+    private const string InvalidInput = "Invalid input";
+    private const string Ok = "Ok";
+
+    protected override async Task OnInitializedAsync()
+    {
+        workoutPlanItem = await _databaseHandler.GetWorkoutPlanItem(WorkoutPlanItemGuid);
+    }
+
+    private async Task Save()
+    {
+        await workoutPlanItem.PlannedExercise.Update(_databaseHandler);
+        await workoutPlanItem.Update(_databaseHandler);
+
+        NavigationManager.NavigateTo("/");
+    }
+}

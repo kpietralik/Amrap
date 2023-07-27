@@ -3,93 +3,57 @@
 @using Amrap.Core.Infrastructure;
 @using Bit.BlazorUI
 
+@inject NavigationManager NavigationManager;
 @inject DatabaseHandler _databaseHandler;
 
-<div id="component" class="flex flex-row justify-between">
-    <div class="flex flex-col basis-3/4">
-        <div class="flex-row">
-            <div class="divTable" style="border: 4px solid #000;">
-                <div class="divTableBody">
-                    <div class="divTableRow">
-                        <div class="divTableCell">Day</div>
-                        <div class="divTableCell"><b>@Item.Day</b></div>
-                    </div>
-                    <div class="divTableRow">
-                        <div class="divTableCell">Exercise</div>
-                        <div class="divTableCell">@Item.PlannedExercise.ExerciseType.Name</div>
-                    </div>
-                    <div class="divTableRow">
-                        <div class="divTableCell">Description</div>
-                        <div class="divTableCell">@Item.PlannedExercise.ExerciseType.Description</div>
-                    </div>
-                    <div class="divTableRow">
-                        <div class="divTableCell">Note</div>
-                        <div class="divTableCell">@Item.PlannedExercise.Note</div>
-                    </div>
-                    <div class="divTableRow">
-                        <div class="divTableCell">Sets</div>
-                        <div class="divTableCell">@Item.GetSets()</div>
-                    </div>
-                    <div class="divTableRow">
-                        <div class="divTableCell">Reps</div>
-                        <div class="divTableCell">@Item.GetReps()</div>
-                    </div>
-                    <div class="divTableRow">
-                        <div class="divTableCell">Weight</div>
-                        <div class="divTableCell">@Item.GetWeight()</div>
-                    </div>
-                    <div class="divTableRow">
-                        <div class="divTableCell">Drop set</div>
-                        <div class="divTableCell">@(Item.GetDropSet() ? "Yes" : "No")</div>
-                    </div>
-                    <div class="divTableRow">
-                        <div class="divTableCell">To failure</div>
-                        <div class="divTableCell">@(Item.GetToFailure() ? "Yes" : "No")</div>
-                    </div>
-                    <div class="divTableRow">
-                        <div class="divTableCell">Priority</div>
-                        <div class="divTableCell">@Item.Priority</div>
-                    </div>
-                </div>
-            </div>
-            <BitAccordion Title="more">
-                <BitTextField Label="Sets" IsUnderlined="true" @bind-Value="@newSetsText" />
-                <BitTextField Label="Reps" IsUnderlined="true" @bind-Value="@newRepsText" />
-                <BitTextField Label="Weight" IsUnderlined="true" @bind-Value="@newWeightText" />
-                <BitCheckbox Label="Drop Set" @bind-Value="@newDropSet" BoxSide="@BitCheckBoxSide.Start" />
-                <BitCheckbox Label="To failure" @bind-Value="@newToFailure" BoxSide="@BitCheckBoxSide.Start" />
-                <BitTextField Label="Priority" IsUnderlined="true" @bind-Value="@newPriorityText" />
-
-                <BitActionButton Style="margin-top: 20px;" IconName="BitIconName.Send" OnClick="Complete">Complete</BitActionButton>
-                <BitActionButton Style="margin-top: 20px;" IconName="BitIconName.Delete" OnClick="Delete">Delete</BitActionButton>
-                @if (completed)
-                {
-                    <BitMessageBar MessageBarType="@BitMessageBarType.Success">
-                        Completed
-                    </BitMessageBar>
-                }
-                @if (deleted)
-                {
-                    <BitMessageBar MessageBarType="@BitMessageBarType.Warning">
-                        Deleted
-                    </BitMessageBar>
-                }
-            </BitAccordion>
+<WorkoutPlanItemViewComponent WorkoutPlanItem="@Item" />
+<BitAccordion>
+    <HeaderTemplate Context="isExpanded">
+        <BitIconButton IconName="isExpanded ? BitIconName.ChevronDown : BitIconName.ChevronRight" />
+        <div class="custom-header">
+            <span class="custom-title">more</span>
         </div>
-    </div>
-</div>
+    </HeaderTemplate>
+    <ChildContent>
+        <BitNumericTextField Label="Sets" IsUnderlined="true" Step="@(1)" Min="1" ShowArrows="true" @bind-Value="@newSets" />
+        <BitNumericTextField Label="Reps" IsUnderlined="true" Step="@(1)" Min="1" ShowArrows="true" @bind-Value="@newReps" />
+        <BitNumericTextField Label="Weight" IsUnderlined="true" Step="@(0.5)" Min="1" IconName="BitIconName.Weights" 
+            Suffix=" kg" ShowArrows="true" @bind-Value="@newWeight" />
+        <BitCheckbox Label="Drop Set" @bind-Value="@newDropSet" BoxSide="@BitCheckBoxSide.Start" />
+        <BitCheckbox Label="To failure" @bind-Value="@newToFailure" BoxSide="@BitCheckBoxSide.Start" />
+        <BitNumericTextField Label="Priority" IsUnderlined="true" Min="0" @bind-Value="@newPriority" />
+
+        <BitActionButton Style="margin-top: 20px;" IconName="BitIconName.Send" OnClick="Complete">Complete</BitActionButton>
+        @if (completed)
+        {
+            <BitMessageBar MessageBarType="@BitMessageBarType.Success">
+                Completed
+            </BitMessageBar>
+        }
+        <br />
+        <BitActionButton Style="margin-top: 20px;" IconName="BitIconName.Edit" OnClick="Edit">Edit</BitActionButton>
+        <br />
+        <BitActionButton Style="margin-top: 20px;" IconName="BitIconName.Delete" OnClick="Delete">Delete</BitActionButton>
+        @if (deleted)
+        {
+            <BitMessageBar MessageBarType="@BitMessageBarType.Warning">
+                Deleted
+            </BitMessageBar>
+        }
+    </ChildContent>
+</BitAccordion>
 <br />
 
 @code {
     [Parameter]
     public Amrap.Core.Domain.WorkoutPlanItem Item { get; set; }
 
-    private string newSetsText;
-    private string newRepsText;
-    private string newWeightText;
+    private int newSets { get; set; }
+    private int newReps { get; set; }
+    private double newWeight { get; set; }
+    private double newPriority { get; set; }
     private bool newDropSet;
     private bool newToFailure;
-    private string newPriorityText;
 
     private bool completed = false;
     private bool deleted = false;
@@ -99,57 +63,39 @@
 
     protected override async Task OnInitializedAsync()
     {
-        newSetsText = Item.GetSets().ToString();
-        newRepsText = Item.GetReps().ToString();
-        newWeightText = Item.GetWeight().ToString();
+        newSets = Item.GetSets();
+        newReps = Item.GetReps();
+        newWeight = Item.GetWeight();
         newDropSet = Item.GetDropSet();
         newToFailure = Item.GetToFailure();
-        newPriorityText = Item.Priority.ToString();
+        newPriority = Item.Priority;
     }
 
     public async Task Complete()
     {
-        if (!int.TryParse(newSetsText, out var sets) || sets < 0)
+        var newPriorityF = (float)newPriority;
+        if (newPriorityF != Item.Priority)
         {
-            await App.Current.MainPage.DisplayAlert(InvalidInput, "Sets must be a positive integer value", Ok);
-            return;
-        }
-
-        if (!int.TryParse(newRepsText, out var reps) || reps < 0)
-        {
-            await App.Current.MainPage.DisplayAlert(InvalidInput, "Reps must be a positive integer value", Ok);
-            return;
-        }
-
-        if (!float.TryParse(newWeightText, out var weight) || weight < 0)
-        {
-            await App.Current.MainPage.DisplayAlert(InvalidInput, "Weight must be a positive number", Ok);
-            return;
-        }
-
-        if (!float.TryParse(newPriorityText, out var priority) || weight < 0)
-        {
-            await App.Current.MainPage.DisplayAlert(InvalidInput, "Priority must be a positive number", Ok);
-            return;
-        }
-
-        if (priority != Item.Priority)
-        {
-            Item.Priority = priority;
+            Item.Priority = newPriorityF;
             await Item.Update(_databaseHandler);
         }
 
         var completedExercise = new CompletedExercise(
             Item.PlannedExercise.ExerciseType,
             DateTimeOffset.Now,
-            sets,
-            reps,
-            weight,
+            newSets,
+            newReps,
+            (float)newWeight,
             newDropSet,
             newToFailure);
 
         await completedExercise.SaveCompletedExercise(_databaseHandler, Item.PlannedExercise);
         completed = true;
+    }
+
+    public void Edit()
+    {
+        NavigationManager.NavigateTo(Item.Link);
     }
 
     public async Task Delete()
@@ -159,7 +105,7 @@
 
         if (r == "Delete")
         {
-            Item.Delete(_databaseHandler);
+            await Item.Delete(_databaseHandler);
             deleted = true;
         }
     }
