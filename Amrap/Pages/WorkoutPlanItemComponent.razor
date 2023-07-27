@@ -5,7 +5,7 @@
 
 @inject NavigationManager NavigationManager;
 @inject DatabaseHandler _databaseHandler;
-
+<ExerciseTypeViewComponent ExerciseType="@Item.PlannedExercise.ExerciseType" />
 <WorkoutPlanItemViewComponent WorkoutPlanItem="@Item" />
 <BitAccordion>
     <HeaderTemplate Context="isExpanded">
