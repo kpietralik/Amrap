@@ -8,28 +8,38 @@
 @inject WorkoutPlanReader _workoutPlanReader;
 
 <PageTitle>Amrap App</PageTitle>
+<style>
+    .exerciseImg {
+        max-width: 100px;
+        height: auto
+    }
+</style>
 
-@if (workoutPlanItems == null)
+@if (orderedWorkoutPlanItems == null)
 {
     <h1>Loading...</h1>
 }
-else if (workoutPlanItems != null)
+else if (orderedWorkoutPlanItems != null)
 {
-    <h1>Workout plan (@workoutPlanItems.Count())</h1>
-    <div class="container mx-auto font-mono flex-auto bg-gray-400">    
-        <ul class="flex flex-col w-full">
-        @foreach (var item in workoutPlanItems)
-        { 
-            <li>
-            <WorkoutPlanItemComponent Item="@item" />
-            </li>
-        }
-        </ul>
-    </div>
+    <h1>Workout plan (@orderedWorkoutPlanItems.Count())</h1>
+
+    <BitBasicList Items="items"
+                  EnableVirtualization="false"
+                  Style="border: 1px #a19f9d solid; border-radius: 3px;">
+        <RowTemplate Context="item">
+            <div @key="item.Guid" style="border-bottom: 1px #8a8886 solid; padding: 5px 20px; margin: 10px;">
+                <img class="exerciseImg" src="@(item.PlannedExercise.ExerciseType.Img)" >
+                <div style="margin-left:3%; display: inline-block;">
+                    <WorkoutPlanItemComponent Item="@item" />
+                </div>
+            </div>
+        </RowTemplate>
+    </BitBasicList>
 }
 
 @code {
-    private IOrderedEnumerable<WorkoutPlanItem> workoutPlanItems;
+    private IOrderedEnumerable<WorkoutPlanItem> orderedWorkoutPlanItems;
+    private IList<WorkoutPlanItem> items => orderedWorkoutPlanItems.ToList();
 
     protected override async Task OnInitializedAsync()
     {
@@ -40,6 +50,6 @@ else if (workoutPlanItems != null)
             await DbSeed.SeedDataIfNeeded(_databaseHandler);
         }
 
-        this.workoutPlanItems = await _workoutPlanReader.GetWorkoutPlan();
+        this.orderedWorkoutPlanItems = await _workoutPlanReader.GetWorkoutPlan();
     }
 }
