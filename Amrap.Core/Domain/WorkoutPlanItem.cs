@@ -28,28 +28,19 @@ public class WorkoutPlanItem
         Day = day;
     }
 
-    public async Task Add(DatabaseHandler databaseHandler)
-    {
-        await databaseHandler.AddWorkoutPlanItem(
+    public Task Add(DatabaseHandler databaseHandler) => databaseHandler.AddWorkoutPlanItem(
             new WorkoutPlanItemModel(
                 Guid,
                 Day,
                 PlannedExercise.Guid));
-    }
 
-    public async Task Update(DatabaseHandler databaseHandler)
-    {
-        await databaseHandler.UpdateWorkoutPlanItem(
+    public Task Update(DatabaseHandler databaseHandler) => databaseHandler.UpdateWorkoutPlanItem(
             new WorkoutPlanItemModel(
                 Guid,
                 Day,
                 PlannedExercise.Guid));
-    }
 
-    public async void Delete(DatabaseHandler databaseHandler)
-    {
-        await databaseHandler.DeleteWorkoutPlanItem(Guid);
-    }
+    public Task Delete(DatabaseHandler databaseHandler) => databaseHandler.DeleteWorkoutPlanItem(Guid);
 
     public int GetSets() => PlannedExercise.LastStats?.Sets ?? PlannedExercise.Sets;
     public int GetReps() => PlannedExercise.LastStats?.Reps ?? PlannedExercise.Reps;

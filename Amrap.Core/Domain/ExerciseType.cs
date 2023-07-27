@@ -28,28 +28,22 @@ public class ExerciseType
         Img = img;
     }
 
-    public async Task Add(DatabaseHandler databaseHandler)
+    public Task Add(DatabaseHandler databaseHandler) => databaseHandler.AddExerciseType(new ExerciseTypeModel
     {
-        await databaseHandler.AddExerciseType(new ExerciseTypeModel 
-        {
-            Guid = Guid,
-            ExerciseKind = ExerciseKind,
-            Name = Name,
-            Description = Description,
-            Img = Img 
-        });
-    }
+        Guid = Guid,
+        ExerciseKind = ExerciseKind,
+        Name = Name,
+        Description = Description,
+        Img = Img
+    });
 
-    public async Task Update(DatabaseHandler databaseHandler)
-    {
-        await databaseHandler.UpdateExerciseType(
-            new ExerciseTypeModel(        
+    public Task Update(DatabaseHandler databaseHandler) => databaseHandler.UpdateExerciseType(
+            new ExerciseTypeModel(
                 Guid,
                 ExerciseKind,
                 Name,
                 Description,
                 Img));
-    }
 
     public static async Task<IList<ExerciseType>> GetExerciseTypes(DatabaseHandler databaseHandler)
     {

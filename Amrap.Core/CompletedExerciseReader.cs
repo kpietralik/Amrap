@@ -15,9 +15,9 @@ public class CompletedExerciseReader
     public async Task<IOrderedEnumerable<CompletedExercise>> ReadCompletedExercies()
     {
         // First get ExerciseType models
-        
+
         var exerciseTypeModels = await _databaseHandler.GetExerciseTypes();
-        
+
         var exercisesTypes = new List<ExerciseType>();
         foreach (var exerciseType in exerciseTypeModels)
         {

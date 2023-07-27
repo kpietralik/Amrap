@@ -5,7 +5,7 @@ namespace Amrap.Core.Domain;
 
 public class CompletedExercise
 {
-    public int Id { get; set; } 
+    public int Id { get; set; }
 
     public ExerciseType ExerciseType { get; set; }
 
@@ -67,8 +67,5 @@ public class CompletedExercise
         await databaseHandler.SetLastStats(lastStats);
     }
 
-    public async void Delete(DatabaseHandler databaseHandler)
-    {
-        await databaseHandler.DeleteCompletedExercise(Id);
-    }
+    public Task Delete(DatabaseHandler databaseHandler) => databaseHandler.DeleteCompletedExercise(Id);
 }

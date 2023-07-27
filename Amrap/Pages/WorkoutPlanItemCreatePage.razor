@@ -42,23 +42,11 @@
 
     private IList<ExerciseType> ExerciseTypes;
 
-    protected override async Task OnInitializedAsync()
-    {
-        ExerciseTypes = await ExerciseType.GetExerciseTypes(_databaseHandler);
-    }
+        protected override async Task OnInitializedAsync() => ExerciseTypes = await ExerciseType.GetExerciseTypes(_databaseHandler);
 
-    private void NewExerciseType()
-    {
-        NavigationManager.NavigateTo("/newexercisetype");
-    }
+        private void NewExerciseType() => NavigationManager.NavigateTo("/newexercisetype");
 
-    private void EditExerciseType(ExerciseType exerciseType)
-    {
-        NavigationManager.NavigateTo(exerciseType.EditUrl);
-    }
-    
-    private void PickExerciseType(ExerciseType exerciseType)
-    {
-        NavigationManager.NavigateTo($"/newworkoutplanitem/{exerciseType.Guid}");
-    }
+        private void EditExerciseType(ExerciseType exerciseType) => NavigationManager.NavigateTo(exerciseType.EditUrl);
+
+        private void PickExerciseType(ExerciseType exerciseType) => NavigationManager.NavigateTo($"/newworkoutplanitem/{exerciseType.Guid}");
 }

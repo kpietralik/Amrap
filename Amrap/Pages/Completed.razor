@@ -27,8 +27,5 @@
 
     private IOrderedEnumerable<CompletedExercise> completedExerciseItems;
 
-    protected override async Task OnInitializedAsync()
-    {
-        completedExerciseItems = await _completedExerciseReader.ReadCompletedExercies();
-    }
+        protected override async Task OnInitializedAsync() => completedExerciseItems = await _completedExerciseReader.ReadCompletedExercies();
 }

@@ -5,22 +5,22 @@ namespace Amrap.Infrastructure.Db;
 
 public class DatabaseHandler
 {
-	private const string _dbName = "Amrap.db";
-	private string _databasePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), _dbName);
-	private SQLiteAsyncConnection _db;
+    private const string _dbName = "Amrap.db";
+    private string _databasePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), _dbName);
+    private SQLiteAsyncConnection _db;
 
-	public bool HasInitialized => _db != null;
+    public bool HasInitialized => _db != null;
 
-	public DatabaseHandler()
-	{
-	}
+    public DatabaseHandler()
+    {
+    }
 
-	public async Task CreateConnectionAndTables()
-	{
+    public async Task CreateConnectionAndTables()
+    {
         if (HasInitialized)
             return;
 
-		_db = new SQLiteAsyncConnection(_databasePath);
+        _db = new SQLiteAsyncConnection(_databasePath);
 
         // ToDo: TEMP
 #if DEBUG
@@ -33,26 +33,26 @@ public class DatabaseHandler
         // ToDo: end
 
         await _db.CreateTableAsync<ExerciseTypeModel>();
-		await _db.CreateTableAsync<CompletedExerciseModel>();
-		await _db.CreateTableAsync<PlannedExerciseModel>();
-		await _db.CreateTableAsync<WorkoutPlanItemModel>();
-		await _db.CreateTableAsync<LastStatsModel>();
+        await _db.CreateTableAsync<CompletedExerciseModel>();
+        await _db.CreateTableAsync<PlannedExerciseModel>();
+        await _db.CreateTableAsync<WorkoutPlanItemModel>();
+        await _db.CreateTableAsync<LastStatsModel>();
     }
 
     // SEED
     public async Task SeedExerciseTypes(IList<ExerciseTypeModel> exerciseTypes)
     {
-		var dbExerciesTypes = await _db.QueryAsync<ExerciseTypeModel>($"select * from {nameof(ExerciseTypeModel)}");
+        var dbExerciesTypes = await _db.QueryAsync<ExerciseTypeModel>($"select * from {nameof(ExerciseTypeModel)}");
 
         foreach (var exerciseType in exerciseTypes)
-		{
-			if (dbExerciesTypes.Any(x => string.Equals(
+        {
+            if (dbExerciesTypes.Any(x => string.Equals(
                     x.Name,
                     exerciseType.Name,
                     StringComparison.InvariantCultureIgnoreCase)))
-				continue;
-	
-			await AddExerciseType(exerciseType);
+                continue;
+
+            await AddExerciseType(exerciseType);
         }
     }
 
@@ -73,7 +73,7 @@ public class DatabaseHandler
     public Task UpdatePlannedExercise(PlannedExerciseModel plannedExercise) => _db.UpdateAsync(plannedExercise);
 
     // ToDo: use or delete
-    public Task DeletePlannedExercise(PlannedExerciseModel plannedExercise) => 
+    public Task DeletePlannedExercise(PlannedExerciseModel plannedExercise) =>
         _db.DeleteAsync<PlannedExerciseModel>(plannedExercise);
 
     public Task AddWorkoutPlanItem(WorkoutPlanItemModel workoutPlanItem) => _db.InsertAsync(workoutPlanItem);
@@ -88,7 +88,7 @@ public class DatabaseHandler
     public Task DeleteLastStats(LastStatsModel lastStatsModel) => _db.DeleteAsync<LastStatsModel>(lastStatsModel);
 
     // READ
-    public async Task<IList<ExerciseTypeModel>> GetExerciseTypes() => 
+    public async Task<IList<ExerciseTypeModel>> GetExerciseTypes() =>
         await _db.QueryAsync<ExerciseTypeModel>($"select * from {nameof(ExerciseTypeModel)}");
 
     // ToDo: use or delete
@@ -120,7 +120,7 @@ public class DatabaseHandler
         return res.Single();
     }
 
-    public async Task<IList<WorkoutPlanItemModel>> GetWorkoutPlan() => 
+    public async Task<IList<WorkoutPlanItemModel>> GetWorkoutPlan() =>
         await _db.QueryAsync<WorkoutPlanItemModel>($"select * from {nameof(WorkoutPlanItemModel)}");
 
     // ToDo: use or delete
@@ -134,7 +134,7 @@ public class DatabaseHandler
         return res.Single();
     }
 
-    public async Task<IList<CompletedExerciseModel>> GetCompletedExercises() => 
+    public async Task<IList<CompletedExerciseModel>> GetCompletedExercises() =>
         await _db.QueryAsync<CompletedExerciseModel>($"select * from {nameof(CompletedExerciseModel)}");
 
     // ToDo: use or delete

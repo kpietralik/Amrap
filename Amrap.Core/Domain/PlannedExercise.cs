@@ -36,9 +36,7 @@ public class PlannedExercise
         LastStats = lastStats;
     }
 
-    public async Task Add(DatabaseHandler databaseHandler)
-    {
-        await databaseHandler.AddPlannedExercise(
+    public Task Add(DatabaseHandler databaseHandler) => databaseHandler.AddPlannedExercise(
             new PlannedExerciseModel(
                 Guid,
                 ExerciseType.Guid,
@@ -48,11 +46,8 @@ public class PlannedExercise
                 Note,
                 DropSet,
                 ToFailure));
-    }
 
-    public async Task Update(DatabaseHandler databaseHandler)
-    {
-        await databaseHandler.UpdatePlannedExercise(
+    public Task Update(DatabaseHandler databaseHandler) => databaseHandler.UpdatePlannedExercise(
             new PlannedExerciseModel(
                 Guid,
                 ExerciseType.Guid,
@@ -62,7 +57,6 @@ public class PlannedExercise
                 Note,
                 DropSet,
                 ToFailure));
-    }
 
     public static async Task<IList<PlannedExercise>> GetPlannedExercises(DatabaseHandler databaseHandler, ExerciseType exerciseType)
     {

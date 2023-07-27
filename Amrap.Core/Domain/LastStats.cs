@@ -31,6 +31,6 @@ public class LastStats
         Reps = reps;
         Weight = weight;
         DropSet = dropSet;
-        ToFailure = toFailure;  
+        ToFailure = toFailure;
     }
 }
