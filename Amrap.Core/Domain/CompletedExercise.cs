@@ -1,5 +1,4 @@
-﻿using Amrap.Core.Models;
-using Amrap.Infrastructure.Db;
+﻿using Amrap.Core.Infrastructure;
 using SQLite;
 
 namespace Amrap.Core.Domain;
@@ -15,6 +14,7 @@ public class CompletedExercise
     /// </remarks>
     [Indexed]
     public string ExerciseTypeGuid { get; set; }
+
     private ExerciseType _exerciseType;
     public ExerciseType ExerciseType => _exerciseType;
 
@@ -29,6 +29,7 @@ public class CompletedExercise
     /// SQLite only
     /// </remarks>
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
     public CompletedExercise()
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     { }
@@ -47,19 +48,19 @@ public class CompletedExercise
 
     public void SetExerciseType(ExerciseType exerciseType)
     {
-        if (exerciseType != null && 
+        if (exerciseType != null &&
             string.Equals(ExerciseTypeGuid, exerciseType?.Guid, StringComparison.InvariantCultureIgnoreCase))
             _exerciseType = exerciseType;
         else
             throw new Exception($"Provided {nameof(ExerciseType)} guid '{exerciseType?.Guid}' does not match expected '{ExerciseTypeGuid}'");
     }
 
-    public async Task SaveCompletedExercise(DatabaseHandler databaseHandler, string plannedExerciseGuid)
+    public async Task SaveCompletedExercise(DatabaseHandler databaseHandler, PlannedExercise plannedExercise)
     {
         await databaseHandler.AddExercise(this);
 
-        var lastStats = new LastStatsModel(
-            plannedExerciseGuid,
+        var lastStats = new LastStats(
+            plannedExercise,
             Sets,
             Reps,
             Weight,

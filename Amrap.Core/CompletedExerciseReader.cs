@@ -1,5 +1,5 @@
 ﻿using Amrap.Core.Domain;
-using Amrap.Infrastructure.Db;
+using Amrap.Core.Infrastructure;
 
 namespace Amrap.Core;
 

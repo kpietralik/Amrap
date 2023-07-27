@@ -1,4 +1,4 @@
-﻿using Amrap.Infrastructure.Db;
+﻿using Amrap.Core.Infrastructure;
 using SQLite;
 
 namespace Amrap.Core.Domain;
@@ -13,12 +13,13 @@ public class PlannedExercise
     /// </remarks>
     [Indexed]
     public string ExerciseTypeGuid { get; set; }
+
     private ExerciseType _exerciseType;
     public ExerciseType ExerciseType => _exerciseType;
 
     private LastStats _lastStats;
     public LastStats LastStats => _lastStats;
-    
+
     public int Sets { get; set; }
     public int Reps { get; set; }
     public float Weight { get; set; }
@@ -30,12 +31,13 @@ public class PlannedExercise
     /// SQLite only
     /// </remarks>
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
     public PlannedExercise()
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     { }
 
     public PlannedExercise(
-        string guid, ExerciseType exerciseType, int sets, int reps, float weight, 
+        string guid, ExerciseType exerciseType, int sets, int reps, float weight,
         string note, bool dropSet, bool toFailure, LastStats? lastStats = default)
     {
         Guid = guid;

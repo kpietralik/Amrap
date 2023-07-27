@@ -1,4 +1,4 @@
-﻿using Amrap.Infrastructure.Db;
+﻿using Amrap.Core.Infrastructure;
 using SQLite;
 
 namespace Amrap.Core.Domain;
@@ -13,6 +13,7 @@ public class WorkoutPlanItem
     /// </remarks>
     [Indexed]
     public string PlannedExerciseGuid { get; set; }
+
     private PlannedExercise _plannedExercise;
     public PlannedExercise PlannedExercise => _plannedExercise;
 
@@ -25,6 +26,7 @@ public class WorkoutPlanItem
     /// SQLite only
     /// </remarks>
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
     public WorkoutPlanItem()
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     { }
@@ -43,7 +45,7 @@ public class WorkoutPlanItem
             string.Equals(PlannedExerciseGuid, plannedExercise?.Guid, StringComparison.InvariantCultureIgnoreCase))
             _plannedExercise = plannedExercise;
         else
-            throw new Exception(                $"Provided {nameof(PlannedExercise)} guid '{plannedExercise?.Guid}' does not match expected '{PlannedExerciseGuid}'");
+            throw new Exception($"Provided {nameof(PlannedExercise)} guid '{plannedExercise?.Guid}' does not match expected '{PlannedExerciseGuid}'");
     }
 
     public Task Add(DatabaseHandler databaseHandler) => databaseHandler.AddWorkoutPlanItem(this);

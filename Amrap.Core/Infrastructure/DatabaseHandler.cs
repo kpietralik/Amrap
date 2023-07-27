@@ -1,8 +1,7 @@
 ﻿using Amrap.Core.Domain;
-using Amrap.Core.Models;
 using SQLite;
 
-namespace Amrap.Infrastructure.Db;
+namespace Amrap.Core.Infrastructure;
 
 public class DatabaseHandler
 {
@@ -29,7 +28,7 @@ public class DatabaseHandler
         await _db.DropTableAsync<CompletedExercise>();
         await _db.DropTableAsync<PlannedExercise>();
         await _db.DropTableAsync<WorkoutPlanItem>();
-        await _db.DropTableAsync<LastStatsModel>();
+        await _db.DropTableAsync<LastStats>();
 #endif
         // ToDo: end
 
@@ -37,7 +36,7 @@ public class DatabaseHandler
         await _db.CreateTableAsync<CompletedExercise>();
         await _db.CreateTableAsync<PlannedExercise>();
         await _db.CreateTableAsync<WorkoutPlanItem>();
-        await _db.CreateTableAsync<LastStatsModel>();
+        await _db.CreateTableAsync<LastStats>();
     }
 
     // SEED
@@ -76,7 +75,7 @@ public class DatabaseHandler
 
     public Task DeleteWorkoutPlanItem(string guid) => _db.DeleteAsync<WorkoutPlanItem>(guid);
 
-    public Task SetLastStats(LastStatsModel lastStatsModel) => _db.InsertOrReplaceAsync(lastStatsModel);
+    public Task SetLastStats(LastStats lastStatsModel) => _db.InsertOrReplaceAsync(lastStatsModel);
 
     // READ
     public async Task<IList<ExerciseType>> GetExerciseTypes() =>
@@ -92,7 +91,7 @@ public class DatabaseHandler
     public async Task<IList<PlannedExercise>> GetPlannedExercises(IList<ExerciseType> exerciseTypes)
     {
         var plannedExercises = await _db.QueryAsync<PlannedExercise>($"select * from {nameof(PlannedExercise)}");
-        
+
         foreach (var plannedExercise in plannedExercises)
         {
             plannedExercise.SetExerciseType(exerciseTypes.Single(x => x.Guid == plannedExercise.ExerciseTypeGuid));
@@ -100,7 +99,7 @@ public class DatabaseHandler
             var lastStats = await GetLastStats(plannedExercise.Guid); // 1 to at most 1 relationship
 
             if (lastStats != null)
-                plannedExercise.SetLastStats(LastStats.FromModel(lastStats, plannedExercise));
+                plannedExercise.SetLastStats(lastStats);
         }
 
         return plannedExercises;
@@ -109,7 +108,7 @@ public class DatabaseHandler
     public async Task<IList<WorkoutPlanItem>> GetWorkoutPlan(IList<PlannedExercise> plannedExercises)
     {
         var workoutPlans = await _db.QueryAsync<WorkoutPlanItem>($"select * from {nameof(WorkoutPlanItem)}");
-        
+
         foreach (var workoutPlan in workoutPlans)
         {
             workoutPlan.SetPlannedExercise(plannedExercises.Single(x => x.Guid == workoutPlan.PlannedExerciseGuid));
@@ -130,9 +129,9 @@ public class DatabaseHandler
         return completedExercises;
     }
 
-    public async Task<LastStatsModel?> GetLastStats(string guid)
+    public async Task<LastStats?> GetLastStats(string guid)
     {
-        var res = await _db.QueryAsync<LastStatsModel>($"select * from {nameof(LastStatsModel)} where Guid = ?", guid);
+        var res = await _db.QueryAsync<LastStats>($"select * from {nameof(LastStats)} where Guid = ?", guid);
 
         return res.SingleOrDefault();
     }

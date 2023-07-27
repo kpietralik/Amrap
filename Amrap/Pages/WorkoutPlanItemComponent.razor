@@ -1,7 +1,6 @@
 ﻿@using Amrap.Core;
 @using Amrap.Core.Domain;
-@using Amrap.Core.Models;
-@using Amrap.Infrastructure.Db;
+@using Amrap.Core.Infrastructure;
 @using Bit.BlazorUI
 
 @inject DatabaseHandler _databaseHandler;
@@ -134,7 +133,7 @@
             newDropSet,
             newToFailure);
 
-        await completedExercise.SaveCompletedExercise(_databaseHandler, Item.PlannedExercise.Guid);
+        await completedExercise.SaveCompletedExercise(_databaseHandler, Item.PlannedExercise);
         completed = true;
     }
 

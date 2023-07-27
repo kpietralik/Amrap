@@ -1,4 +1,4 @@
-﻿using Amrap.Infrastructure.Db;
+﻿using Amrap.Core.Infrastructure;
 using SQLite;
 
 namespace Amrap.Core.Domain;
@@ -21,6 +21,7 @@ public class ExerciseType
     /// SQLite only
     /// </remarks>
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
     public ExerciseType()
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     { }

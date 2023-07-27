@@ -1,5 +1,5 @@
 ﻿using Amrap.Core;
-using Amrap.Infrastructure.Db;
+using Amrap.Core.Infrastructure;
 using Microsoft.Extensions.Logging;
 
 namespace Amrap;
