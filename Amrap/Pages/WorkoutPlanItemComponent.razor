@@ -54,7 +54,12 @@
 
                 <BitActionButton Style="margin-top: 20px;" IconName="BitIconName.Send" OnClick="Complete">Complete</BitActionButton>
                 <BitActionButton Style="margin-top: 20px;" IconName="BitIconName.Delete" OnClick="Delete">Delete</BitActionButton>
-
+                @if (completed)
+                {
+                    <BitMessageBar MessageBarType="@BitMessageBarType.Success">
+                        Completed
+                    </BitMessageBar>
+                }
                 @if (deleted)
                 {
                     <BitMessageBar MessageBarType="@BitMessageBarType.Warning">
@@ -80,6 +85,7 @@
     private bool newDropSet;
     private bool newToFailure;
 
+    private bool completed = false;
     private bool deleted = false;
 
 
@@ -125,6 +131,7 @@
             newToFailure);
 
         await completedExercise.SaveCompletedExercise(_databaseHandler, Item.PlannedExercise.Guid);
+        completed = true;
     }
 
     public async Task Delete()
