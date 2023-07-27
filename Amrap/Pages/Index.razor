@@ -28,34 +28,14 @@ else if (workoutPlanItems != null)
 
 @code {
     private IOrderedEnumerable<WorkoutPlanItem> workoutPlanItems;
-    
+
     protected override async Task OnInitializedAsync()
     {
         if (!_databaseHandler.HasInitialized)
         {
             await _databaseHandler.CreateConnectionAndTables();
 
-            var t1 = new ExerciseType("ec2b1e30-d65b-42e1-9cd9-988e45790c5c", ExerciseKind.Push, "Deadlift", "Deadlift (standard)", null);
-            var t2 = new ExerciseType("84d9a6d2-7a03-4a06-91e5-227d96411adf", ExerciseKind.Push, "Bench press", null, "https://cdn-0.weighttraining.guide/wp-content/uploads/2016/10/push-up-tall-resized.png");
-            var t3 = new ExerciseType("3b14f0b8-cf1c-401f-9022-3de6c66a4240", ExerciseKind.Pull, "Cable upright row", null, "https://i.shgcdn.com/4a56b60f-112a-4090-b9c0-2bdb4b7891ac/-/format/auto/-/preview/3000x3000/-/quality/lighter/");
-
-            await _databaseHandler.SeedExerciseTypes(new List<ExerciseType>() { t1, t2, t3 });
-
-            var p1 = new PlannedExercise("f99c6db3-420e-466a-86d6-99e792031cc5", t1, 2, 5, 65, null, false, false);
-            var p2 = new PlannedExercise("e33fc5f8-42ff-4232-81db-4b88a9cc2eea", t2, 3, 6, 45, null, false, false);
-            var p3 = new PlannedExercise("9b4dc290-cff8-4362-b737-efe1bbceb1db", t3, 3, 12, 60, null, false, false);
-
-            // TODO resolved Missmatch. Ids are updated by different thread?
-            await _databaseHandler.AddPlannedExercise(p1);
-            await _databaseHandler.AddPlannedExercise(p2);
-            await _databaseHandler.AddPlannedExercise(p3);
-
-            await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItem("1a660c51-6c74-4cce-bfe7-b5d03f5e3d4d", p1, DayOfWeek.Monday, 1f));
-            await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItem("f1c4e31c-ddfd-4880-9d8d-b9c278f86d8c", p2, DayOfWeek.Monday, 2f));
-            await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItem("da4c62b3-d01d-4616-868a-e7a8b89885a2", p3, DayOfWeek.Monday, 3f));
-            await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItem("1d5b70a9-868f-4204-ad50-9a9f14477d22", p1, DayOfWeek.Wednesday, 6f));
-            await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItem("878cef86-3b4e-423d-822d-d5190498852d", p2, DayOfWeek.Wednesday, 5.4f));
-            await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItem("07767dff-aa7a-4c09-8392-b6445ceed9b9", p3, DayOfWeek.Friday, 5.3f));
+            await DbSeed.SeedDataIfNeeded(_databaseHandler);
         }
 
         this.workoutPlanItems = await _workoutPlanReader.GetWorkoutPlan();

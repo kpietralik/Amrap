@@ -1,5 +1,8 @@
 ﻿@page "/debug"
+@using Amrap.Core.Infrastructure;
 @using Bit.BlazorUI
+
+@inject DatabaseHandler _databaseHandler;
 
 <PageTitle>@title</PageTitle>
 <BitLabel>@title</BitLabel>
@@ -12,9 +15,66 @@ else
 {
     <h1>No internet access</h1>
 }
+<br />
+<br />
+<h1>First run: @firstRun</h1>
+<BitButton Style="margin-top: 20px;" OnClick="ClearFirstRun">Clear FirstRun</BitButton>
+@if (firstRunCleared)
+{
+    <BitMessageBar MessageBarType="@BitMessageBarType.Success">
+        Cleared first run flag
+    </BitMessageBar>
+}
+<br />
+<h1>KP first run: @kpFirstRun</h1>
+<BitButton Style="margin-top: 20px;" OnClick="ClearKpFirstRun">Clear KpFirstRun</BitButton>
+@if (kpFirstRunCleared)
+{
+    <BitMessageBar MessageBarType="@BitMessageBarType.Success">
+        Cleared KP first run flag
+    </BitMessageBar>
+}
+
+<br />
+<br />
+<h1>Recreate database</h1>
+<BitButton Style="margin-top: 20px;" OnClick="RecreateDatabase">Recreate Database</BitButton>
+@if (databaseRecreated)
+{
+    <BitMessageBar MessageBarType="@BitMessageBarType.Success">
+        Database recreated
+    </BitMessageBar>
+}
+<br />
+<br />
+<h1>Seed database</h1>
+<BitButton Style="margin-top: 20px;" OnClick="SeedDatabase">Seed Database</BitButton>
+@if (databaseSeeded)
+{
+    <BitMessageBar MessageBarType="@BitMessageBarType.Success">
+        Database seeded
+    </BitMessageBar>
+}
 
 @code {
     private const string title = "Debug";
+
+    private string firstRun;
+    private bool firstRunCleared = false;
+
+    private string kpFirstRun;
+    private bool kpFirstRunCleared = false;
+
+    private bool databaseRecreated = false;
+
+    private bool databaseSeeded = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        firstRun = await SecureStorage.Default.GetAsync(Consts.FirstRunKey);
+        kpFirstRun = await SecureStorage.Default.GetAsync(Consts.KpFirstRunKey);
+
+    }
 
     public bool HasInternetAccess()
     {
@@ -23,5 +83,29 @@ else
         return 
             accessType is NetworkAccess.Internet ||
             accessType is NetworkAccess.ConstrainedInternet;
+    }
+
+    public async Task ClearFirstRun()
+    {
+        await SecureStorage.Default.SetAsync(Consts.FirstRunKey, Consts.NullValue);
+        firstRunCleared = true;
+    }
+
+    public async Task ClearKpFirstRun()
+    {
+        await SecureStorage.Default.SetAsync(Consts.KpFirstRunKey, Consts.NullValue);
+        kpFirstRunCleared = true;
+    }
+
+    public async Task RecreateDatabase()
+    {
+        await _databaseHandler.CreateConnectionAndTables(true);
+        databaseRecreated = true;
+    }
+
+    public async Task SeedDatabase()
+    {
+        await DbSeed.SeedDataIfNeeded(_databaseHandler, true);
+        databaseSeeded = true;
     }
 }

@@ -1,6 +1,8 @@
 ﻿# Markdown File
 
 ToDo: 
+editing workoutplanitem to set different day
+JSON export & import
 switch to SwipeView https://www.youtube.com/watch?v=BHBYHC_9URc
 switch to blazor navigation using pop & push https://www.youtube.com/watch?v=8z8qz-PePlc
 remove models -> save domain object in DB directly in order to simplify app's code
