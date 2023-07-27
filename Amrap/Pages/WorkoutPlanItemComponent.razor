@@ -46,14 +46,19 @@
                         <div class="divTableCell">To failure</div>
                         <div class="divTableCell">@(Item.GetToFailure() ? "Yes" : "No")</div>
                     </div>
+                    <div class="divTableRow">
+                        <div class="divTableCell">Priority</div>
+                        <div class="divTableCell">@Item.Priority</div>
+                    </div>
                 </div>
             </div>
             <BitAccordion Title="more">
                 <BitTextField Label="Sets" IsUnderlined="true" @bind-Value="@newSetsText" />
                 <BitTextField Label="Reps" IsUnderlined="true" @bind-Value="@newRepsText" />
                 <BitTextField Label="Weight" IsUnderlined="true" @bind-Value="@newWeightText" />
-                <BitCheckbox Label="Drop Set" @bind-Value="@newDropSet" BoxSide="@BitCheckBoxSide.End" />
-                <BitCheckbox Label="To failure" @bind-Value="@newToFailure" BoxSide="@BitCheckBoxSide.End" />
+                <BitCheckbox Label="Drop Set" @bind-Value="@newDropSet" BoxSide="@BitCheckBoxSide.Start" />
+                <BitCheckbox Label="To failure" @bind-Value="@newToFailure" BoxSide="@BitCheckBoxSide.Start" />
+                <BitTextField Label="Priority" IsUnderlined="true" @bind-Value="@newPriorityText" />
 
                 <BitActionButton Style="margin-top: 20px;" IconName="BitIconName.Send" OnClick="Complete">Complete</BitActionButton>
                 <BitActionButton Style="margin-top: 20px;" IconName="BitIconName.Delete" OnClick="Delete">Delete</BitActionButton>
@@ -80,48 +85,58 @@
     public Amrap.Core.Domain.WorkoutPlanItem Item { get; set; }
 
     private string newSetsText;
-    private int newSets;
     private string newRepsText;
-    private int newReps;
     private string newWeightText;
-    private float newWeight;
     private bool newDropSet;
     private bool newToFailure;
+    private string newPriorityText;
 
     private bool completed = false;
     private bool deleted = false;
 
+    private const string InvalidInput = "Invalid input";
+    private const string Ok = "Ok";
 
     protected override async Task OnInitializedAsync()
     {
-        newSets = Item.GetSets();
-        newSetsText = newSets.ToString();
-        newReps = Item.GetReps();
-        newRepsText = newReps.ToString();
-        newWeight = Item.GetWeight();
-        newWeightText = newWeight.ToString();
+        newSetsText = Item.GetSets().ToString();
+        newRepsText = Item.GetReps().ToString();
+        newWeightText = Item.GetWeight().ToString();
         newDropSet = Item.GetDropSet();
         newToFailure = Item.GetToFailure();
+        newPriorityText = Item.Priority.ToString();
     }
 
     public async Task Complete()
     {
         if (!int.TryParse(newSetsText, out var sets) || sets < 0)
         {
-            await App.Current.MainPage.DisplayAlert("Invalid input", "Sets must be a positive integer value", "Ok");
+            await App.Current.MainPage.DisplayAlert(InvalidInput, "Sets must be a positive integer value", Ok);
             return;
         }
 
         if (!int.TryParse(newRepsText, out var reps) || reps < 0)
         {
-            await App.Current.MainPage.DisplayAlert("Invalid input", "Reps must be a positive integer value", "Ok");
+            await App.Current.MainPage.DisplayAlert(InvalidInput, "Reps must be a positive integer value", Ok);
             return;
         }
 
         if (!float.TryParse(newWeightText, out var weight) || weight < 0)
         {
-            await App.Current.MainPage.DisplayAlert("Invalid input", "Sets must be a positive number", "Ok");
+            await App.Current.MainPage.DisplayAlert(InvalidInput, "Weight must be a positive number", Ok);
             return;
+        }
+
+        if (!float.TryParse(newPriorityText, out var priority) || weight < 0)
+        {
+            await App.Current.MainPage.DisplayAlert(InvalidInput, "Priority must be a positive number", Ok);
+            return;
+        }
+
+        if (priority != Item.Priority)
+        {
+            Item.Priority = priority;
+            await Item.Update(_databaseHandler);
         }
 
         var completedExercise = new CompletedExercise(

@@ -24,6 +24,7 @@
     <BitTextField Label="Note" IsUnderlined="true" @bind-Value="@note" />
     <BitCheckbox Label="Drop set" IsUnderlined="true" @bind-Value="dropSet" />
     <BitCheckbox Label="To failure" IsUnderlined="true" @bind-Value="toFailure" />
+    <BitTextField Label="Priority" IsUnderlined="true" @bind-Value="@priorityStr" />
     
     <BitButton Style="margin-top: 20px;" OnClick="Add">Add</BitButton>
 }
@@ -39,10 +40,14 @@
     private string setsStr { get; set; }
     private string repsStr { get; set; }
     private string weightStr { get; set; }
+    private string priorityStr { get; set; }
     private string note { get; set; }
     private bool dropSet { get; set; }
     private bool toFailure { get; set; }
     private DayOfWeek dayOfWeek { get; set; }
+
+    private const string InvalidInput = "Invalid input";
+    private const string Ok = "Ok";
 
     protected override async Task OnInitializedAsync()
     {
@@ -51,22 +56,27 @@
 
     private async Task Add()
     {
-        // ToDo: uint could be used but is likely not compatible with SQLite
         if (!int.TryParse(setsStr, out var sets) || sets < 0)
         {
-            await App.Current.MainPage.DisplayAlert("Invalid input", "Sets must be a positive integer value", "Ok");
+            await App.Current.MainPage.DisplayAlert(InvalidInput, "Sets must be a positive integer value", Ok);
             return;
         }
 
         if (!int.TryParse(repsStr, out var reps) || reps < 0)
         {
-            await App.Current.MainPage.DisplayAlert("Invalid input", "Reps must be a positive integer value", "Ok");
+            await App.Current.MainPage.DisplayAlert(InvalidInput, "Reps must be a positive integer value", Ok);
             return;
         }
 
         if (!float.TryParse(weightStr, out var weight) || weight < 0)
         {
-            await App.Current.MainPage.DisplayAlert("Invalid input", "Sets must be a positive number", "Ok");
+            await App.Current.MainPage.DisplayAlert(InvalidInput, "Weight must be a positive number", Ok);
+            return;
+        }
+
+        if (!float.TryParse(priorityStr, out var priority) || weight < 0)
+        {
+            await App.Current.MainPage.DisplayAlert(InvalidInput, "Priority must be a positive number", Ok);
             return;
         }
 
@@ -74,7 +84,7 @@
             Guid.NewGuid().ToString(), exerciseType, sets, reps, weight, note, dropSet, toFailure);
 
         var workoutPlanItem = new WorkoutPlanItem(
-            Guid.NewGuid().ToString(), plannedExercise, dayOfWeek);
+            Guid.NewGuid().ToString(), plannedExercise, dayOfWeek, priority);
 
         await plannedExercise.Add(_databaseHandler);
         await workoutPlanItem.Add(_databaseHandler);

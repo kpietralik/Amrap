@@ -15,7 +15,7 @@
 }
 else if (workoutPlanItems != null)
 {
-    <h1>Workout plan (@workoutPlanItems.Count)</h1>
+    <h1>Workout plan (@workoutPlanItems.Count())</h1>
     <div class="container mx-auto font-mono flex-auto bg-gray-400">    
         <ul class="flex flex-col w-full">
             @foreach (var item in workoutPlanItems)
@@ -27,7 +27,7 @@ else if (workoutPlanItems != null)
 }
 
 @code {
-    private IList<WorkoutPlanItem> workoutPlanItems;
+    private IOrderedEnumerable<WorkoutPlanItem> workoutPlanItems;
     
     protected override async Task OnInitializedAsync()
     {
@@ -50,12 +50,12 @@ else if (workoutPlanItems != null)
             await _databaseHandler.AddPlannedExercise(p2);
             await _databaseHandler.AddPlannedExercise(p3);
 
-            await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItem("1a660c51-6c74-4cce-bfe7-b5d03f5e3d4d", p1, DayOfWeek.Monday));
-            await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItem("f1c4e31c-ddfd-4880-9d8d-b9c278f86d8c", p2, DayOfWeek.Monday));
-            await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItem("da4c62b3-d01d-4616-868a-e7a8b89885a2", p3, DayOfWeek.Monday));
-            await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItem("1d5b70a9-868f-4204-ad50-9a9f14477d22", p1, DayOfWeek.Wednesday));
-            await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItem("878cef86-3b4e-423d-822d-d5190498852d", p2, DayOfWeek.Wednesday));
-            await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItem("07767dff-aa7a-4c09-8392-b6445ceed9b9", p3, DayOfWeek.Friday));
+            await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItem("1a660c51-6c74-4cce-bfe7-b5d03f5e3d4d", p1, DayOfWeek.Monday, 1f));
+            await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItem("f1c4e31c-ddfd-4880-9d8d-b9c278f86d8c", p2, DayOfWeek.Monday, 2f));
+            await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItem("da4c62b3-d01d-4616-868a-e7a8b89885a2", p3, DayOfWeek.Monday, 3f));
+            await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItem("1d5b70a9-868f-4204-ad50-9a9f14477d22", p1, DayOfWeek.Wednesday, 6f));
+            await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItem("878cef86-3b4e-423d-822d-d5190498852d", p2, DayOfWeek.Wednesday, 5.4f));
+            await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItem("07767dff-aa7a-4c09-8392-b6445ceed9b9", p3, DayOfWeek.Friday, 5.3f));
         }
 
         this.workoutPlanItems = await _workoutPlanReader.GetWorkoutPlan();

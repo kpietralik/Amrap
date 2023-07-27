@@ -20,6 +20,8 @@ public class WorkoutPlanItem
     [Indexed]
     public DayOfWeek Day { get; set; }
 
+    public float Priority { get; set; }
+
     public string Link => $"/WorkoutPlanItem/{Guid}";
 
     /// <remarks>
@@ -31,12 +33,13 @@ public class WorkoutPlanItem
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     { }
 
-    public WorkoutPlanItem(string guid, PlannedExercise plannedExercise, DayOfWeek day)
+    public WorkoutPlanItem(string guid, PlannedExercise plannedExercise, DayOfWeek day, float priority)
     {
         Guid = guid;
         _plannedExercise = plannedExercise;
         PlannedExerciseGuid = plannedExercise.Guid;
         Day = day;
+        Priority = priority;
     }
 
     public void SetPlannedExercise(PlannedExercise plannedExercise)

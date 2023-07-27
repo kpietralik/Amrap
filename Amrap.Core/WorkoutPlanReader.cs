@@ -12,12 +12,12 @@ public class WorkoutPlanReader
         _databaseHandler = databaseHandler;
     }
 
-    public async Task<IList<WorkoutPlanItem>> GetWorkoutPlan()
+    public async Task<IOrderedEnumerable<WorkoutPlanItem>> GetWorkoutPlan()
     {
         var exerciseTypes = await _databaseHandler.GetExerciseTypes();
         var plannedExercises = await _databaseHandler.GetPlannedExercises(exerciseTypes);
         var workoutPlans = await _databaseHandler.GetWorkoutPlan(plannedExercises);
 
-        return workoutPlans;
+        return workoutPlans.OrderBy(x => x.Day).ThenBy(x => x.Priority);
     }
 }
