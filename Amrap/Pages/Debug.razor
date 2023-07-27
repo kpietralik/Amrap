@@ -37,14 +37,15 @@ else
 
 <br />
 <br />
-<h1>Recreate database</h1>
-<BitButton Style="margin-top: 20px;" OnClick="RecreateDatabase">Recreate Database</BitButton>
+<h1>Recreate database keep achievements</h1>
+<BitButton Style="margin-top: 20px;" OnClick="RecreateDatabaseKeepAchievements">Recreate Database keeping achievements</BitButton>
 @if (databaseRecreated)
 {
     <BitMessageBar MessageBarType="@BitMessageBarType.Success">
-        Database recreated
+        Database recreated and kept achievements
     </BitMessageBar>
 }
+
 <br />
 <br />
 <h1>Seed database</h1>
@@ -53,6 +54,17 @@ else
 {
     <BitMessageBar MessageBarType="@BitMessageBarType.Success">
         Database seeded
+    </BitMessageBar>
+}
+
+<br />
+<br />
+<h1>Recreate whole database</h1>
+<BitButton Style="margin-top: 20px;" OnClick="RecreateDatabaseDeleteAll">Recreate Database deleting all data</BitButton>
+@if (wholeDatabaseRecreated)
+{
+    <BitMessageBar MessageBarType="@BitMessageBarType.Success">
+        Database recreated
     </BitMessageBar>
 }
 
@@ -68,6 +80,8 @@ else
     private bool databaseRecreated = false;
 
     private bool databaseSeeded = false;
+
+    private bool wholeDatabaseRecreated = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -97,9 +111,21 @@ else
         kpFirstRunCleared = true;
     }
 
-    public async Task RecreateDatabase()
+    public async Task RecreateDatabaseDeleteAll()
     {
-        await _databaseHandler.CreateConnectionAndTables(true);
+        var r = await App.Current.MainPage.DisplayActionSheet(
+            $"Delete all data?", "Cancel", "Delete");
+
+        if (r == "Delete")
+        {
+            await _databaseHandler.CreateConnectionAndTables(true, false);
+            wholeDatabaseRecreated = true;
+        }
+    }
+
+    public async Task RecreateDatabaseKeepAchievements()
+    {
+        await _databaseHandler.CreateConnectionAndTables(true, true);
         databaseRecreated = true;
     }
 

@@ -15,7 +15,7 @@ public class DatabaseHandler
     {
     }
 
-    public async Task CreateConnectionAndTables(bool force = false)
+    public async Task CreateConnectionAndTables(bool force = false, bool keepAchievements = true)
     {
         if (HasInitialized && !force)
             return;
@@ -26,16 +26,20 @@ public class DatabaseHandler
         {
             // This will remove all of application's data.
             await _db.DropTableAsync<ExerciseType>();
-            await _db.DropTableAsync<CompletedExercise>();
             await _db.DropTableAsync<PlannedExercise>();
             await _db.DropTableAsync<WorkoutPlanItem>();
-            await _db.DropTableAsync<LastStats>();
+
+            if (!keepAchievements)
+            {
+                await _db.DropTableAsync<CompletedExercise>();
+                await _db.DropTableAsync<LastStats>();
+            }
         }
 
         await _db.CreateTableAsync<ExerciseType>();
-        await _db.CreateTableAsync<CompletedExercise>();
         await _db.CreateTableAsync<PlannedExercise>();
         await _db.CreateTableAsync<WorkoutPlanItem>();
+        await _db.CreateTableAsync<CompletedExercise>();
         await _db.CreateTableAsync<LastStats>();
     }
 
