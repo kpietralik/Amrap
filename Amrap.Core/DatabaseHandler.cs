@@ -61,9 +61,6 @@ public class DatabaseHandler
 
     public Task UpdateExerciseType(ExerciseTypeModel exerciseType) => _db.UpdateAsync(exerciseType);
 
-    // ToDo: use or delete
-    public Task DeleteExerciseType(ExerciseTypeModel exerciseType) => _db.DeleteAsync<ExerciseTypeModel>(exerciseType);
-
     public Task AddExercise(CompletedExerciseModel exercise) => _db.InsertAsync(exercise);
 
     public Task DeleteCompletedExercise(int id) => _db.DeleteAsync<CompletedExerciseModel>(id);
@@ -71,10 +68,6 @@ public class DatabaseHandler
     public Task AddPlannedExercise(PlannedExerciseModel plannedExercise) => _db.InsertAsync(plannedExercise);
 
     public Task UpdatePlannedExercise(PlannedExerciseModel plannedExercise) => _db.UpdateAsync(plannedExercise);
-
-    // ToDo: use or delete
-    public Task DeletePlannedExercise(PlannedExerciseModel plannedExercise) =>
-        _db.DeleteAsync<PlannedExerciseModel>(plannedExercise);
 
     public Task AddWorkoutPlanItem(WorkoutPlanItemModel workoutPlanItem) => _db.InsertAsync(workoutPlanItem);
 
@@ -84,15 +77,9 @@ public class DatabaseHandler
 
     public Task SetLastStats(LastStatsModel lastStatsModel) => _db.InsertOrReplaceAsync(lastStatsModel);
 
-    // ToDo: use or delete
-    public Task DeleteLastStats(LastStatsModel lastStatsModel) => _db.DeleteAsync<LastStatsModel>(lastStatsModel);
-
     // READ
     public async Task<IList<ExerciseTypeModel>> GetExerciseTypes() =>
         await _db.QueryAsync<ExerciseTypeModel>($"select * from {nameof(ExerciseTypeModel)}");
-
-    // ToDo: use or delete
-    public Task<ExerciseTypeModel> GetExerciseType(int id) => _db.GetAsync<ExerciseTypeModel>(id);
 
     public async Task<ExerciseTypeModel> GetExerciseType(string guid)
     {
@@ -108,45 +95,11 @@ public class DatabaseHandler
         return res;
     }
 
-    // ToDo: use or delete
-    public Task<PlannedExerciseModel> GetPlannedExercise(int id) => _db.GetAsync<PlannedExerciseModel>(id);
-
-    // ToDo: use or delete
-    public async Task<PlannedExerciseModel> GetPlannedExercise(string guid)
-    {
-        var res = await _db.QueryAsync<PlannedExerciseModel>(
-            $"select * from {nameof(PlannedExerciseModel)} where Guid = ?", guid);
-
-        return res.Single();
-    }
-
     public async Task<IList<WorkoutPlanItemModel>> GetWorkoutPlan() =>
         await _db.QueryAsync<WorkoutPlanItemModel>($"select * from {nameof(WorkoutPlanItemModel)}");
 
-    // ToDo: use or delete
-    public Task<WorkoutPlanItemModel> GetWorkoutPlan(int id) => _db.GetAsync<WorkoutPlanItemModel>(id);
-
-    // ToDo: use or delete
-    public async Task<WorkoutPlanItemModel> GetWorkoutPlanItem(string guid)
-    {
-        var res = await _db.QueryAsync<WorkoutPlanItemModel>($"select * from {nameof(WorkoutPlanItemModel)} where Guid = ?", guid);
-
-        return res.Single();
-    }
-
     public async Task<IList<CompletedExerciseModel>> GetCompletedExercises() =>
         await _db.QueryAsync<CompletedExerciseModel>($"select * from {nameof(CompletedExerciseModel)}");
-
-    // ToDo: use or delete
-    public Task<CompletedExerciseModel> GetCompletedExercise(int id) => _db.GetAsync<CompletedExerciseModel>(id);
-
-    // ToDo: use or delete
-    public async Task<CompletedExerciseModel> GetCompletedExercise(string guid)
-    {
-        var res = await _db.QueryAsync<CompletedExerciseModel>($"select * from {nameof(CompletedExerciseModel)} where Guid = ?", guid);
-
-        return res.Single();
-    }
 
     public async Task<LastStatsModel?> GetLastStats(string guid)
     {
