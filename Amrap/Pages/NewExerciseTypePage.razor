@@ -33,7 +33,6 @@
     {
     }
 
-    // ToDo: refactor other domain types using this approach
     private async Task Add()
     {
         var newExerciseType = new ExerciseType(Guid.NewGuid().ToString(), exerciseKindEnum, nameText, descriptionText, imgText);

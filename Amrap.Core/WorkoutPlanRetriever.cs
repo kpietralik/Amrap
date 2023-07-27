@@ -15,7 +15,7 @@ public class WorkoutPlanRetriever
     public async Task<IList<WorkoutPlanItem>> GetWorkoutPlan()
     {
         var exerciseTypeModels = await _databaseHandler.GetExerciseTypes();
-        // ToDo: convert to domain objects
+
         var exercisesTypes = new List<ExerciseType>();
         foreach (var exerciseType in exerciseTypeModels)
         {
