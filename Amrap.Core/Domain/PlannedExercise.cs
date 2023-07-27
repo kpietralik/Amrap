@@ -1,13 +1,24 @@
-﻿using Amrap.Core.Models;
-using Amrap.Infrastructure.Db;
+﻿using Amrap.Infrastructure.Db;
+using SQLite;
 
 namespace Amrap.Core.Domain;
 
 public class PlannedExercise
 {
+    [PrimaryKey]
     public string Guid { get; set; }
-    public ExerciseType ExerciseType { get; set; }
-    public LastStats LastStats { get; set; }
+
+    /// <remarks>
+    /// SQLite only
+    /// </remarks>
+    [Indexed]
+    public string ExerciseTypeGuid { get; set; }
+    private ExerciseType _exerciseType;
+    public ExerciseType ExerciseType => _exerciseType;
+
+    private LastStats _lastStats;
+    public LastStats LastStats => _lastStats;
+    
     public int Sets { get; set; }
     public int Reps { get; set; }
     public float Weight { get; set; }
@@ -15,59 +26,49 @@ public class PlannedExercise
     public bool DropSet { get; set; }
     public bool ToFailure { get; set; }
 
-    public static PlannedExercise FromModel(PlannedExerciseModel model, ExerciseType exerciseType, LastStats? lastStats = default)
-    {
-        if (model.ExerciseTypeGuid != exerciseType.Guid)
-            throw new Exception($"Data id missmatch: {nameof(PlannedExerciseModel)}, model={model.ExerciseTypeGuid}, data={exerciseType.Guid}");
+    /// <remarks>
+    /// SQLite only
+    /// </remarks>
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    public PlannedExercise()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    { }
 
-        return new(model.Guid, exerciseType, model.Sets, model.Reps, model.Weight, model.Note, model.DropSet, model.ToFailure, lastStats);
-    }
-
-    public PlannedExercise(string guid, ExerciseType exerciseType, int sets, int reps, float weight, string note, bool dropSet, bool toFailure, LastStats? lastStats = default)
+    public PlannedExercise(
+        string guid, ExerciseType exerciseType, int sets, int reps, float weight, 
+        string note, bool dropSet, bool toFailure, LastStats? lastStats = default)
     {
         Guid = guid;
-        ExerciseType = exerciseType;
+        _exerciseType = exerciseType;
+        ExerciseTypeGuid = exerciseType.Guid;
         Sets = sets;
         Reps = reps;
         Note = note;
         Weight = weight;
         DropSet = dropSet;
         ToFailure = toFailure;
-        LastStats = lastStats;
+        _lastStats = lastStats;
     }
 
-    public Task Add(DatabaseHandler databaseHandler) => databaseHandler.AddPlannedExercise(
-            new PlannedExerciseModel(
-                Guid,
-                ExerciseType.Guid,
-                Sets,
-                Reps,
-                Weight,
-                Note,
-                DropSet,
-                ToFailure));
-
-    public Task Update(DatabaseHandler databaseHandler) => databaseHandler.UpdatePlannedExercise(
-            new PlannedExerciseModel(
-                Guid,
-                ExerciseType.Guid,
-                Sets,
-                Reps,
-                Weight,
-                Note,
-                DropSet,
-                ToFailure));
-
-    public static async Task<IList<PlannedExercise>> GetPlannedExercises(DatabaseHandler databaseHandler, ExerciseType exerciseType)
+    public void SetExerciseType(ExerciseType exerciseType)
     {
-        var plannedExerciseModels = await databaseHandler.GetPlannedExercises();
-
-        var plannedExercises = new List<PlannedExercise>();
-        foreach (var plannedExercise in plannedExerciseModels)
-        {
-            plannedExercises.Add(FromModel(plannedExercise, exerciseType));
-        }
-
-        return plannedExercises;
+        if (exerciseType != null &&
+            string.Equals(ExerciseTypeGuid, exerciseType?.Guid, StringComparison.InvariantCultureIgnoreCase))
+            _exerciseType = exerciseType;
+        else
+            throw new Exception($"Provided {nameof(ExerciseType)} guid '{exerciseType?.Guid}' does not match expected '{ExerciseTypeGuid}'");
     }
+
+    public void SetLastStats(LastStats lastStats)
+    {
+        if (lastStats != null &&
+            string.Equals(Guid, lastStats.Guid, StringComparison.InvariantCultureIgnoreCase))
+            _lastStats = lastStats;
+        else
+            throw new Exception($"Provided {nameof(LastStats)} guid '{lastStats?.Guid}' does not match expected '{Guid}'");
+    }
+
+    public Task Add(DatabaseHandler databaseHandler) => databaseHandler.AddPlannedExercise(this);
+
+    public Task Update(DatabaseHandler databaseHandler) => databaseHandler.UpdatePlannedExercise(this);
 }

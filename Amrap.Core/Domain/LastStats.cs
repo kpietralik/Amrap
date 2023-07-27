@@ -17,7 +17,7 @@ public class LastStats
     public static LastStats FromModel(LastStatsModel model, PlannedExercise plannedExercise)
     {
         if (model.PlannedExerciseGuid != plannedExercise.Guid)
-            throw new Exception($"Data id missmatch: {nameof(PlannedExerciseModel)}, model={model.PlannedExerciseGuid}, data={plannedExercise.Guid}");
+            throw new Exception($"Data id missmatch: {nameof(PlannedExercise)}, model={model.PlannedExerciseGuid}, data={plannedExercise.Guid}");
 
         return new(plannedExercise, model.Sets, model.Reps, model.Weight, model.DropSet, model.ToFailure);
     }

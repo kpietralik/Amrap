@@ -27,7 +27,7 @@ public class DatabaseHandler
 #if DEBUG
         await _db.DropTableAsync<ExerciseType>();
         await _db.DropTableAsync<CompletedExercise>();
-        await _db.DropTableAsync<PlannedExerciseModel>();
+        await _db.DropTableAsync<PlannedExercise>();
         await _db.DropTableAsync<WorkoutPlanItemModel>();
         await _db.DropTableAsync<LastStatsModel>();
 #endif
@@ -35,7 +35,7 @@ public class DatabaseHandler
 
         await _db.CreateTableAsync<ExerciseType>();
         await _db.CreateTableAsync<CompletedExercise>();
-        await _db.CreateTableAsync<PlannedExerciseModel>();
+        await _db.CreateTableAsync<PlannedExercise>();
         await _db.CreateTableAsync<WorkoutPlanItemModel>();
         await _db.CreateTableAsync<LastStatsModel>();
     }
@@ -66,9 +66,9 @@ public class DatabaseHandler
 
     public Task DeleteCompletedExercise(int id) => _db.DeleteAsync<CompletedExercise>(id);
 
-    public Task AddPlannedExercise(PlannedExerciseModel plannedExercise) => _db.InsertAsync(plannedExercise);
+    public Task AddPlannedExercise(PlannedExercise plannedExercise) => _db.InsertAsync(plannedExercise);
 
-    public Task UpdatePlannedExercise(PlannedExerciseModel plannedExercise) => _db.UpdateAsync(plannedExercise);
+    public Task UpdatePlannedExercise(PlannedExercise plannedExercise) => _db.UpdateAsync(plannedExercise);
 
     public Task AddWorkoutPlanItem(WorkoutPlanItemModel workoutPlanItem) => _db.InsertAsync(workoutPlanItem);
 
@@ -89,11 +89,16 @@ public class DatabaseHandler
         return res.Single();
     }
 
-    public async Task<IList<PlannedExerciseModel>> GetPlannedExercises()
+    public async Task<IList<PlannedExercise>> GetPlannedExercises(IList<ExerciseType> exerciseTypes)
     {
-        var res = await _db.QueryAsync<PlannedExerciseModel>($"select * from {nameof(PlannedExerciseModel)}");
+        var plannedExercises = await _db.QueryAsync<PlannedExercise>($"select * from {nameof(PlannedExercise)}");
+        
+        foreach (var plannedExercise in plannedExercises)
+        {
+            plannedExercise.SetExerciseType(exerciseTypes.Single(x => x.Guid == plannedExercise.ExerciseTypeGuid));
+        }
 
-        return res;
+        return plannedExercises;
     }
 
     public async Task<IList<WorkoutPlanItemModel>> GetWorkoutPlan() =>

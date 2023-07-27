@@ -42,9 +42,9 @@ else if (workoutPlanItems != null)
 
             await _databaseHandler.SeedExerciseTypes(new List<ExerciseType>() { t1, t2, t3 });
 
-            var p1 = new PlannedExerciseModel("f99c6db3-420e-466a-86d6-99e792031cc5", t1.Guid, 2, 5, 65, null, false, false);
-            var p2 = new PlannedExerciseModel("e33fc5f8-42ff-4232-81db-4b88a9cc2eea", t2.Guid, 3, 6, 45, null, false, false);
-            var p3 = new PlannedExerciseModel("9b4dc290-cff8-4362-b737-efe1bbceb1db", t3.Guid, 3, 12, 60, null, false, false);
+            var p1 = new PlannedExercise("f99c6db3-420e-466a-86d6-99e792031cc5", t1, 2, 5, 65, null, false, false);
+            var p2 = new PlannedExercise("e33fc5f8-42ff-4232-81db-4b88a9cc2eea", t2, 3, 6, 45, null, false, false);
+            var p3 = new PlannedExercise("9b4dc290-cff8-4362-b737-efe1bbceb1db", t3, 3, 12, 60, null, false, false);
 
             // TODO resolved Missmatch. Ids are updated by different thread?
             await _databaseHandler.AddPlannedExercise(p1);
