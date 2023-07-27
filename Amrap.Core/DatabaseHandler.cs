@@ -37,13 +37,6 @@ public class DatabaseHandler
 		await _db.CreateTableAsync<PlannedExerciseModel>();
 		await _db.CreateTableAsync<WorkoutPlanItemModel>();
 		await _db.CreateTableAsync<LastStatsModel>();
-
-
-        //var items1 = await _db.QueryAsync<ExerciseTypeModel>($"select * from {nameof(ExerciseTypeModel)}");
-        //var items2 = await _db.QueryAsync<CompletedExerciseModel>($"select * from {nameof(CompletedExerciseModel)}");
-        //var items3 = await _db.QueryAsync<PlannedExerciseModel>($"select * from {nameof(PlannedExerciseModel)}");
-        //var items4 = await _db.QueryAsync<WorkoutPlanItemModel>($"select * from {nameof(WorkoutPlanItemModel)}");
-        //var items5 = await _db.QueryAsync<LastStatsModel>($"select * from {nameof(LastStatsModel)}");
     }
 
     // SEED
@@ -53,7 +46,10 @@ public class DatabaseHandler
 
         foreach (var exerciseType in exerciseTypes)
 		{
-			if (dbExerciesTypes.Any(x => string.Equals(x.Name, exerciseType.Name, StringComparison.InvariantCultureIgnoreCase)))
+			if (dbExerciesTypes.Any(x => string.Equals(
+                    x.Name,
+                    exerciseType.Name,
+                    StringComparison.InvariantCultureIgnoreCase)))
 				continue;
 	
 			await AddExerciseType(exerciseType);
@@ -61,100 +57,46 @@ public class DatabaseHandler
     }
 
     // WRITE
-    public async Task AddExerciseType(ExerciseTypeModel exerciseType)
-	{
-		await _db.InsertAsync(exerciseType);
-    }
+    public Task AddExerciseType(ExerciseTypeModel exerciseType) => _db.InsertAsync(exerciseType);
 
-    public async Task UpdateExerciseType(ExerciseTypeModel exerciseType)
-    {
-        await _db.UpdateAsync(exerciseType);
-    }
+    public Task UpdateExerciseType(ExerciseTypeModel exerciseType) => _db.UpdateAsync(exerciseType);
 
-    public async Task DeleteExerciseType(ExerciseTypeModel exerciseType)
-    {
-		// ToDo: decide how to handle deletion in existing Exercise db items
-        await _db.DeleteAsync<ExerciseTypeModel>(exerciseType);
-    }
+    // ToDo: use or delete
+    public Task DeleteExerciseType(ExerciseTypeModel exerciseType) => _db.DeleteAsync<ExerciseTypeModel>(exerciseType);
 
-    public async Task AddExercise(CompletedExerciseModel exercise)
-	{
-		await _db.InsertAsync(exercise);
+    public Task AddExercise(CompletedExerciseModel exercise) => _db.InsertAsync(exercise);
 
-        //var items = await _db.QueryAsync<Exercise>($"select * from {nameof(CompletedExercise)}");
-    }
+    public Task DeleteCompletedExercise(int id) => _db.DeleteAsync<CompletedExerciseModel>(id);
 
-    public async Task DeleteCompletedExercise(int id)
-    {
-        await _db.DeleteAsync<CompletedExerciseModel>(id);
-    }
+    public Task AddPlannedExercise(PlannedExerciseModel plannedExercise) => _db.InsertAsync(plannedExercise);
 
-    public async Task AddPlannedExercise(PlannedExerciseModel plannedExercise)
-    {
-        await _db.InsertAsync(plannedExercise);
-    }
+    public Task UpdatePlannedExercise(PlannedExerciseModel plannedExercise) => _db.UpdateAsync(plannedExercise);
 
-    public async Task UpdatePlannedExercise(PlannedExerciseModel plannedExercise)
-    {
-        await _db.UpdateAsync(plannedExercise);
-    }
+    // ToDo: use or delete
+    public Task DeletePlannedExercise(PlannedExerciseModel plannedExercise) => 
+        _db.DeleteAsync<PlannedExerciseModel>(plannedExercise);
 
-    public async Task DeletePlannedExercise(PlannedExerciseModel plannedExercise)
-    {
-        await _db.DeleteAsync<PlannedExerciseModel>(plannedExercise);
-    }
+    public Task AddWorkoutPlanItem(WorkoutPlanItemModel workoutPlanItem) => _db.InsertAsync(workoutPlanItem);
 
-    public async Task AddWorkoutPlanItem(WorkoutPlanItemModel workoutPlanItem)
-    {
-        await _db.InsertAsync(workoutPlanItem);
-    }
+    public Task UpdateWorkoutPlanItem(WorkoutPlanItemModel workoutPlanItem) => _db.UpdateAsync(workoutPlanItem);
 
-    public async Task UpdateWorkoutPlanItem(WorkoutPlanItemModel workoutPlanItem)
-    {
-        await _db.UpdateAsync(workoutPlanItem);
-    }
+    public Task DeleteWorkoutPlanItem(string guid) => _db.DeleteAsync<WorkoutPlanItemModel>(guid);
 
-    public async Task DeleteWorkoutPlanItem(string guid)
-    {
-        await _db.DeleteAsync<WorkoutPlanItemModel>(guid);
-    }
+    public Task SetLastStats(LastStatsModel lastStatsModel) => _db.InsertOrReplaceAsync(lastStatsModel);
 
-    public async Task SetLastStats(LastStatsModel lastStatsModel)
-    {
-        await _db.InsertOrReplaceAsync(lastStatsModel);
-
-        var res0 = await _db.QueryAsync<LastStatsModel>($"select * from {nameof(LastStatsModel)}");
-    }
-
-    public async Task DeleteLastStats(LastStatsModel lastStatsModel)
-    {
-        await _db.DeleteAsync<LastStatsModel>(lastStatsModel);
-    }
+    // ToDo: use or delete
+    public Task DeleteLastStats(LastStatsModel lastStatsModel) => _db.DeleteAsync<LastStatsModel>(lastStatsModel);
 
     // READ
-    public async Task<IList<ExerciseTypeModel>> GetExerciseTypes()
-    {
-        var res = await _db.QueryAsync<ExerciseTypeModel>($"select * from {nameof(ExerciseTypeModel)}");
+    public async Task<IList<ExerciseTypeModel>> GetExerciseTypes() => 
+        await _db.QueryAsync<ExerciseTypeModel>($"select * from {nameof(ExerciseTypeModel)}");
 
-        return res;
-    }
-
-    public async Task<ExerciseTypeModel> GetExerciseType(int id)
-    {
-        var res = await _db.GetAsync<ExerciseTypeModel>(id);
-
-        return res;
-    }
+    // ToDo: use or delete
+    public Task<ExerciseTypeModel> GetExerciseType(int id) => _db.GetAsync<ExerciseTypeModel>(id);
 
     public async Task<ExerciseTypeModel> GetExerciseType(string guid)
     {
         var res = await _db.QueryAsync<ExerciseTypeModel>($"select * from {nameof(ExerciseTypeModel)} where Guid = ?", guid);
-
-        //if (res.Count == 0)
-        //    throw new Exception($"{nameof(ExerciseTypeModel)} with guid {guid} not found");
-
-        //if (res.Count > 1)
-        //    throw new Exception($"{nameof(ExerciseTypeModel)} with guid {guid} has too many items");
 
         return res.Single();
     }
@@ -166,76 +108,42 @@ public class DatabaseHandler
         return res;
     }
 
-    public async Task<PlannedExerciseModel> GetPlannedExercise(int id)
-    {
-        var res = await _db.GetAsync<PlannedExerciseModel>(id);
+    // ToDo: use or delete
+    public Task<PlannedExerciseModel> GetPlannedExercise(int id) => _db.GetAsync<PlannedExerciseModel>(id);
 
-        return res;
-    }
-
+    // ToDo: use or delete
     public async Task<PlannedExerciseModel> GetPlannedExercise(string guid)
     {
-        var res = await _db.QueryAsync<PlannedExerciseModel>($"select * from {nameof(PlannedExerciseModel)} where Guid = ?", guid);
-
-        //if (res.Count == 0)
-        //    throw new Exception($"{nameof(PlannedExerciseModel)} with guid {guid} not found");
-
-        //if (res.Count > 1)
-        //    throw new Exception($"{nameof(PlannedExerciseModel)} with guid {guid} has too many items");
+        var res = await _db.QueryAsync<PlannedExerciseModel>(
+            $"select * from {nameof(PlannedExerciseModel)} where Guid = ?", guid);
 
         return res.Single();
     }
 
-    public async Task<IList<WorkoutPlanItemModel>> GetWorkoutPlan()
-    {
-        var res = await _db.QueryAsync<WorkoutPlanItemModel>($"select * from {nameof(WorkoutPlanItemModel)}");
+    public async Task<IList<WorkoutPlanItemModel>> GetWorkoutPlan() => 
+        await _db.QueryAsync<WorkoutPlanItemModel>($"select * from {nameof(WorkoutPlanItemModel)}");
 
-        return res;
-    }
+    // ToDo: use or delete
+    public Task<WorkoutPlanItemModel> GetWorkoutPlan(int id) => _db.GetAsync<WorkoutPlanItemModel>(id);
 
-    public async Task<WorkoutPlanItemModel> GetWorkoutPlan(int id)
-    {
-        var res = await _db.GetAsync<WorkoutPlanItemModel>(id);
-
-        return res;
-    }
-
+    // ToDo: use or delete
     public async Task<WorkoutPlanItemModel> GetWorkoutPlanItem(string guid)
     {
         var res = await _db.QueryAsync<WorkoutPlanItemModel>($"select * from {nameof(WorkoutPlanItemModel)} where Guid = ?", guid);
 
-        //if (res.Count == 0)
-        //    throw new Exception($"{nameof(WorkoutPlanItemModel)} with guid {guid} not found");
-
-        //if (res.Count > 1)
-        //    throw new Exception($"{nameof(WorkoutPlanItemModel)} with guid {guid} has too many items");
-
         return res.Single();
     }
 
-    public async Task<IList<CompletedExerciseModel>> GetCompletedExercises()
-    {
-        var res = await _db.QueryAsync<CompletedExerciseModel>($"select * from {nameof(CompletedExerciseModel)}");
+    public async Task<IList<CompletedExerciseModel>> GetCompletedExercises() => 
+        await _db.QueryAsync<CompletedExerciseModel>($"select * from {nameof(CompletedExerciseModel)}");
 
-        return res;
-    }
+    // ToDo: use or delete
+    public Task<CompletedExerciseModel> GetCompletedExercise(int id) => _db.GetAsync<CompletedExerciseModel>(id);
 
-    public async Task<CompletedExerciseModel> GetCompletedExercise(int id)
-    {
-        var res = await _db.GetAsync<CompletedExerciseModel>(id);
-
-        return res;
-    }
-
+    // ToDo: use or delete
     public async Task<CompletedExerciseModel> GetCompletedExercise(string guid)
     {
         var res = await _db.QueryAsync<CompletedExerciseModel>($"select * from {nameof(CompletedExerciseModel)} where Guid = ?", guid);
-
-        //if (res.Count == 0)
-        //    throw new Exception($"{nameof(CompletedExerciseModel)} with guid {guid} not found");
-
-        //if (res.Count > 1)
-        //    throw new Exception($"{nameof(CompletedExerciseModel)} with guid {guid} has too many items");
 
         return res.Single();
     }
@@ -243,9 +151,6 @@ public class DatabaseHandler
     public async Task<LastStatsModel?> GetLastStats(string guid)
     {
         var res = await _db.QueryAsync<LastStatsModel>($"select * from {nameof(LastStatsModel)} where Guid = ?", guid);
-
-        //if (res.Count > 1)
-        //    throw new Exception($"{nameof(LastStatsModel)} with guid {guid} has too many items");
 
         return res.SingleOrDefault();
     }
