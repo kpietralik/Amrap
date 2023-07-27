@@ -38,8 +38,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var exerciseTypeModel = await _databaseHandler.GetExerciseType(ExerciseTypeGuid);
-        exerciseType = ExerciseType.FromModel(exerciseTypeModel);
+        exerciseType = await _databaseHandler.GetExerciseType(ExerciseTypeGuid);
     }
 
     private async Task Save()

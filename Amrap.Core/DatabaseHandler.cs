@@ -25,7 +25,7 @@ public class DatabaseHandler
 
         // ToDo: TEMP
 #if DEBUG
-        await _db.DropTableAsync<ExerciseTypeModel>();
+        await _db.DropTableAsync<ExerciseType>();
         await _db.DropTableAsync<CompletedExercise>();
         await _db.DropTableAsync<PlannedExerciseModel>();
         await _db.DropTableAsync<WorkoutPlanItemModel>();
@@ -33,7 +33,7 @@ public class DatabaseHandler
 #endif
         // ToDo: end
 
-        await _db.CreateTableAsync<ExerciseTypeModel>();
+        await _db.CreateTableAsync<ExerciseType>();
         await _db.CreateTableAsync<CompletedExercise>();
         await _db.CreateTableAsync<PlannedExerciseModel>();
         await _db.CreateTableAsync<WorkoutPlanItemModel>();
@@ -41,9 +41,9 @@ public class DatabaseHandler
     }
 
     // SEED
-    public async Task SeedExerciseTypes(IList<ExerciseTypeModel> exerciseTypes)
+    public async Task SeedExerciseTypes(IList<ExerciseType> exerciseTypes)
     {
-        var dbExerciesTypes = await _db.QueryAsync<ExerciseTypeModel>($"select * from {nameof(ExerciseTypeModel)}");
+        var dbExerciesTypes = await _db.QueryAsync<ExerciseType>($"select * from {nameof(ExerciseType)}");
 
         foreach (var exerciseType in exerciseTypes)
         {
@@ -58,9 +58,9 @@ public class DatabaseHandler
     }
 
     // WRITE
-    public Task AddExerciseType(ExerciseTypeModel exerciseType) => _db.InsertAsync(exerciseType);
+    public Task AddExerciseType(ExerciseType exerciseType) => _db.InsertAsync(exerciseType);
 
-    public Task UpdateExerciseType(ExerciseTypeModel exerciseType) => _db.UpdateAsync(exerciseType);
+    public Task UpdateExerciseType(ExerciseType exerciseType) => _db.UpdateAsync(exerciseType);
 
     public Task AddExercise(CompletedExercise exercise) => _db.InsertAsync(exercise);
 
@@ -79,12 +79,12 @@ public class DatabaseHandler
     public Task SetLastStats(LastStatsModel lastStatsModel) => _db.InsertOrReplaceAsync(lastStatsModel);
 
     // READ
-    public async Task<IList<ExerciseTypeModel>> GetExerciseTypes() =>
-        await _db.QueryAsync<ExerciseTypeModel>($"select * from {nameof(ExerciseTypeModel)}");
+    public async Task<IList<ExerciseType>> GetExerciseTypes() =>
+        await _db.QueryAsync<ExerciseType>($"select * from {nameof(ExerciseType)}");
 
-    public async Task<ExerciseTypeModel> GetExerciseType(string guid)
+    public async Task<ExerciseType> GetExerciseType(string guid)
     {
-        var res = await _db.QueryAsync<ExerciseTypeModel>($"select * from {nameof(ExerciseTypeModel)} where Guid = ?", guid);
+        var res = await _db.QueryAsync<ExerciseType>($"select * from {nameof(ExerciseType)} where Guid = ?", guid);
 
         return res.Single();
     }

@@ -14,20 +14,14 @@ public class WorkoutPlanRetriever
 
     public async Task<IList<WorkoutPlanItem>> GetWorkoutPlan()
     {
-        var exerciseTypeModels = await _databaseHandler.GetExerciseTypes();
-
-        var exercisesTypes = new List<ExerciseType>();
-        foreach (var exerciseType in exerciseTypeModels)
-        {
-            exercisesTypes.Add(ExerciseType.FromModel(exerciseType));
-        }
+        var exerciseTypes = await _databaseHandler.GetExerciseTypes();
 
         var plannedExerciseModels = await _databaseHandler.GetPlannedExercises();
         var plannedExercises = new List<PlannedExercise>();
         foreach (var plannedExercise in plannedExerciseModels)
         {
             var exercise = PlannedExercise.FromModel(
-                plannedExercise, exercisesTypes.Single(x => x.Guid == plannedExercise.ExerciseTypeGuid));
+                plannedExercise, exerciseTypes.Single(x => x.Guid == plannedExercise.ExerciseTypeGuid));
 
             var lastStats = await _databaseHandler.GetLastStats(plannedExercise.Guid); // 1 to at most 1 relationship
 
