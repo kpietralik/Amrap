@@ -1,44 +1,54 @@
-﻿using Amrap.Core.Models;
-using Amrap.Infrastructure.Db;
+﻿using Amrap.Infrastructure.Db;
+using SQLite;
 
 namespace Amrap.Core.Domain;
 
 public class WorkoutPlanItem
 {
+    [PrimaryKey]
     public string Guid { get; set; }
 
-    public PlannedExercise PlannedExercise { get; set; }
+    /// <remarks>
+    /// SQLite only
+    /// </remarks>
+    [Indexed]
+    public string PlannedExerciseGuid { get; set; }
+    private PlannedExercise _plannedExercise;
+    public PlannedExercise PlannedExercise => _plannedExercise;
 
+    [Indexed]
     public DayOfWeek Day { get; set; }
 
     public string Link => $"/WorkoutPlanItem/{Guid}";
 
-    public static WorkoutPlanItem FromModel(WorkoutPlanItemModel model, PlannedExercise plannedExercise)
-    {
-        if (model.PlannedExerciseGuid != plannedExercise.Guid.ToString())
-            throw new Exception($"Data id missmatch: {nameof(WorkoutPlanItemModel)}, model={model.PlannedExerciseGuid}, data={plannedExercise.Guid}");
-
-        return new(model.Guid, plannedExercise, model.Day);
-    }
+    /// <remarks>
+    /// SQLite only
+    /// </remarks>
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    public WorkoutPlanItem()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    { }
 
     public WorkoutPlanItem(string guid, PlannedExercise plannedExercise, DayOfWeek day)
     {
         Guid = guid;
-        PlannedExercise = plannedExercise;
+        _plannedExercise = plannedExercise;
+        PlannedExerciseGuid = plannedExercise.Guid;
         Day = day;
     }
 
-    public Task Add(DatabaseHandler databaseHandler) => databaseHandler.AddWorkoutPlanItem(
-            new WorkoutPlanItemModel(
-                Guid,
-                Day,
-                PlannedExercise.Guid));
+    public void SetPlannedExercise(PlannedExercise plannedExercise)
+    {
+        if (plannedExercise != null &&
+            string.Equals(PlannedExerciseGuid, plannedExercise?.Guid, StringComparison.InvariantCultureIgnoreCase))
+            _plannedExercise = plannedExercise;
+        else
+            throw new Exception(                $"Provided {nameof(PlannedExercise)} guid '{plannedExercise?.Guid}' does not match expected '{PlannedExerciseGuid}'");
+    }
 
-    public Task Update(DatabaseHandler databaseHandler) => databaseHandler.UpdateWorkoutPlanItem(
-            new WorkoutPlanItemModel(
-                Guid,
-                Day,
-                PlannedExercise.Guid));
+    public Task Add(DatabaseHandler databaseHandler) => databaseHandler.AddWorkoutPlanItem(this);
+
+    public Task Update(DatabaseHandler databaseHandler) => databaseHandler.UpdateWorkoutPlanItem(this);
 
     public Task Delete(DatabaseHandler databaseHandler) => databaseHandler.DeleteWorkoutPlanItem(Guid);
 
