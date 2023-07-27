@@ -5,7 +5,7 @@
 @using Bit.BlazorUI
 
 @inject DatabaseHandler _databaseHandler
-@inject WorkoutPlanRetriever _workoutPlanRetriever;
+@inject WorkoutPlanReader _workoutPlanReader;
 
 <PageTitle>Amrap App</PageTitle>
 
@@ -58,6 +58,6 @@ else if (workoutPlanItems != null)
             await _databaseHandler.AddWorkoutPlanItem(new WorkoutPlanItem("07767dff-aa7a-4c09-8392-b6445ceed9b9", p3, DayOfWeek.Friday));
         }
 
-        this.workoutPlanItems = await _workoutPlanRetriever.GetWorkoutPlan();
+        this.workoutPlanItems = await _workoutPlanReader.GetWorkoutPlan();
     }
 }
