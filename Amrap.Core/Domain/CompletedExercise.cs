@@ -1,13 +1,22 @@
 ﻿using Amrap.Core.Models;
 using Amrap.Infrastructure.Db;
+using SQLite;
 
 namespace Amrap.Core.Domain;
 
 public class CompletedExercise
 {
+    [AutoIncrement]
+    [PrimaryKey]
     public int Id { get; set; }
 
-    public ExerciseType ExerciseType { get; set; }
+    /// <remarks>
+    /// SQLite only
+    /// </remarks>
+    [Indexed]
+    public string ExerciseTypeGuid { get; set; }
+    private ExerciseType _exerciseType;
+    public ExerciseType ExerciseType => _exerciseType;
 
     public DateTimeOffset Time { get; set; }
     public int Sets { get; set; }
@@ -16,22 +25,16 @@ public class CompletedExercise
     public bool DropSet { get; set; }
     public bool ToFailure { get; set; }
 
-    public static CompletedExercise FromModel(CompletedExerciseModel model, ExerciseType exerciseType)
-    {
-        if (model.ExerciseTypeGuid != exerciseType.Guid.ToString())
-            throw new Exception(
-                $"Data id missmatch for {nameof(CompletedExercise)} {nameof(ExerciseType)}: " +
-                $"{nameof(CompletedExerciseModel)}, model={model.ExerciseTypeGuid}, data={exerciseType.Guid}");
-
-        return new CompletedExercise(model.Id, exerciseType, model.Time, model.Sets, model.Reps, model.Weight, model.DropSet, model.ToFailure);
-    }
-
-    public CompletedExerciseModel ToModel() =>
-        new(ExerciseType.Guid, Time, Sets, Reps, Weight, DropSet, ToFailure);
+    /// <remarks>
+    /// SQLite only
+    /// </remarks>
+    public CompletedExercise()
+    { }
 
     public CompletedExercise(ExerciseType exerciseType, DateTimeOffset time, int sets, int reps, float weight, bool dropSet = false, bool toFailure = false)
     {
-        ExerciseType = exerciseType;
+        _exerciseType = exerciseType;
+        ExerciseTypeGuid = exerciseType.Guid;
         Time = time;
         Sets = sets;
         Reps = reps;
@@ -40,21 +43,18 @@ public class CompletedExercise
         ToFailure = toFailure;
     }
 
-    private CompletedExercise(int id, ExerciseType exerciseType, DateTimeOffset time, int sets, int reps, float weight, bool dropSet = false, bool toFailure = false)
+    public void SetExerciseType(ExerciseType exerciseType)
     {
-        Id = id;
-        ExerciseType = exerciseType;
-        Time = time;
-        Sets = sets;
-        Reps = reps;
-        Weight = weight;
-        DropSet = dropSet;
-        ToFailure = toFailure;
+        if (exerciseType != null && 
+            string.Equals(ExerciseTypeGuid, exerciseType?.Guid, StringComparison.InvariantCultureIgnoreCase))
+            _exerciseType = exerciseType;
+        else
+            throw new Exception($"Provided {nameof(ExerciseType)} guid '{exerciseType?.Guid}' does not match expected '{ExerciseTypeGuid}'");
     }
 
     public async Task SaveCompletedExercise(DatabaseHandler databaseHandler, string plannedExerciseGuid)
     {
-        await databaseHandler.AddExercise(this.ToModel());
+        await databaseHandler.AddExercise(this);
 
         var lastStats = new LastStatsModel(
             plannedExerciseGuid,

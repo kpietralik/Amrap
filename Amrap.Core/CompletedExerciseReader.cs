@@ -24,17 +24,7 @@ public class CompletedExerciseReader
             exercisesTypes.Add(ExerciseType.FromModel(exerciseType));
         }
 
-        var completedExerciseModels = await _databaseHandler.GetCompletedExercises();
-
-        var completedExercises = new List<CompletedExercise>();
-
-        foreach (var completedExercise in completedExerciseModels)
-        {
-            completedExercises.Add(
-                CompletedExercise.FromModel(
-                    completedExercise,
-                    exercisesTypes.Single(x => x.Guid == completedExercise.ExerciseTypeGuid)));
-        }
+        var completedExercises = await _databaseHandler.GetCompletedExercises(exercisesTypes);
 
         return completedExercises.OrderByDescending(x => x.Time);
     }

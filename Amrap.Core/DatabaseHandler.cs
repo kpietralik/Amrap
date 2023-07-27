@@ -1,4 +1,5 @@
-﻿using Amrap.Core.Models;
+﻿using Amrap.Core.Domain;
+using Amrap.Core.Models;
 using SQLite;
 
 namespace Amrap.Infrastructure.Db;
@@ -25,7 +26,7 @@ public class DatabaseHandler
         // ToDo: TEMP
 #if DEBUG
         await _db.DropTableAsync<ExerciseTypeModel>();
-        await _db.DropTableAsync<CompletedExerciseModel>();
+        await _db.DropTableAsync<CompletedExercise>();
         await _db.DropTableAsync<PlannedExerciseModel>();
         await _db.DropTableAsync<WorkoutPlanItemModel>();
         await _db.DropTableAsync<LastStatsModel>();
@@ -33,7 +34,7 @@ public class DatabaseHandler
         // ToDo: end
 
         await _db.CreateTableAsync<ExerciseTypeModel>();
-        await _db.CreateTableAsync<CompletedExerciseModel>();
+        await _db.CreateTableAsync<CompletedExercise>();
         await _db.CreateTableAsync<PlannedExerciseModel>();
         await _db.CreateTableAsync<WorkoutPlanItemModel>();
         await _db.CreateTableAsync<LastStatsModel>();
@@ -61,9 +62,9 @@ public class DatabaseHandler
 
     public Task UpdateExerciseType(ExerciseTypeModel exerciseType) => _db.UpdateAsync(exerciseType);
 
-    public Task AddExercise(CompletedExerciseModel exercise) => _db.InsertAsync(exercise);
+    public Task AddExercise(CompletedExercise exercise) => _db.InsertAsync(exercise);
 
-    public Task DeleteCompletedExercise(int id) => _db.DeleteAsync<CompletedExerciseModel>(id);
+    public Task DeleteCompletedExercise(int id) => _db.DeleteAsync<CompletedExercise>(id);
 
     public Task AddPlannedExercise(PlannedExerciseModel plannedExercise) => _db.InsertAsync(plannedExercise);
 
@@ -98,8 +99,17 @@ public class DatabaseHandler
     public async Task<IList<WorkoutPlanItemModel>> GetWorkoutPlan() =>
         await _db.QueryAsync<WorkoutPlanItemModel>($"select * from {nameof(WorkoutPlanItemModel)}");
 
-    public async Task<IList<CompletedExerciseModel>> GetCompletedExercises() =>
-        await _db.QueryAsync<CompletedExerciseModel>($"select * from {nameof(CompletedExerciseModel)}");
+    public async Task<IList<CompletedExercise>> GetCompletedExercises(IList<ExerciseType> exerciseTypes)
+    {
+        var completedExercises = await _db.QueryAsync<CompletedExercise>($"select * from {nameof(CompletedExercise)}");
+
+        foreach (var completedExercise in completedExercises)
+        {
+            completedExercise.SetExerciseType(exerciseTypes.Single(x => x.Guid == completedExercise.ExerciseTypeGuid));
+        }
+
+        return completedExercises;
+    }
 
     public async Task<LastStatsModel?> GetLastStats(string guid)
     {
