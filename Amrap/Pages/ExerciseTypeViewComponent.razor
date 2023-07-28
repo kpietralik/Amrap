@@ -1,0 +1,16 @@
+﻿@using Amrap.Core.Domain;
+@using Bit.BlazorUI
+
+@ChildContent
+<BitTextField Label="Name" IsReadonly="true" IsUnderlined="true" Value="@ExerciseType.Name" />
+<BitTextField Label="Description" IsReadonly="true" IsUnderlined="true" Value="@ExerciseType.Description" />
+<BitTextField Label="Kind" IsReadonly="true" IsUnderlined="true" Value="@ExerciseType.ExerciseKind.ToString()" />
+<BitTextField Label="Img" IsReadonly="true" IsUnderlined="true" Value="@ExerciseType.Img" />
+
+@code {
+    [Parameter]
+    public ExerciseType ExerciseType { get; set; }
+        
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+}

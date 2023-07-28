@@ -1,0 +1,30 @@
+﻿@page "/completed"
+@using Amrap.Core;
+@using Amrap.Core.Domain;
+@using Amrap.Core.Infrastructure;
+@using Bit.BlazorUI
+
+@inject CompletedExerciseReader _completedExerciseReader;
+
+<PageTitle>@title</PageTitle>
+
+@if (completedExerciseItems != null)
+{
+    <h1>Completed Exercises (@completedExerciseItems.Count())</h1>
+    <div class="container mx-auto font-mono flex-auto bg-gray-400">   
+        <ul class="flex flex-col w-full">
+            @foreach (var item in completedExerciseItems)
+            {
+                <CompletedExerciseComponent Item="@item" />
+            }
+        </ul>
+    </div>
+}
+
+@code {
+    private const string title = "Completed Exercises";
+
+    private IOrderedEnumerable<CompletedExercise> completedExerciseItems;
+
+        protected override async Task OnInitializedAsync() => completedExerciseItems = await _completedExerciseReader.ReadCompletedExercies();
+}

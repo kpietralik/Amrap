@@ -1,0 +1,52 @@
+﻿@page "/workoutplanitem"
+
+@using Amrap.Core.Domain;
+@using Amrap.Core;
+@using Amrap.Core.Infrastructure;
+@using Bit.BlazorUI
+
+@inject NavigationManager NavigationManager;
+@inject DatabaseHandler _databaseHandler;
+
+<PageTitle>@title</PageTitle>
+<BitLabel>@title</BitLabel>
+
+<BitActionButton IconName="BitIconName.CirclePlus" OnClick="NewExerciseType">New</BitActionButton>
+
+@if (ExerciseTypes != null)
+{
+    <BitBasicList Items="ExerciseTypes" EnableVirtualization="true" Style="border: 1px #a19f9d solid; border-radius: 3px;">
+        <RowTemplate Context="exerciseType">
+                       
+            @*@if (!string.IsNullOrEmpty(exerciseType.Img))
+            {
+                <img src="@exerciseType.Img" alt="img" loading="lazy" height="100", width="100">
+            }*@
+            
+            <div @key="exerciseType.Guid" style="border-bottom: 1px #8a8886 solid; padding: 5px 20px; margin: 10px;">
+                <div style="margin-left:3%; display: inline-block;">
+                    <p>Kind: <strong>@exerciseType.ExerciseKind</strong></p>
+                    <p>Name: <strong>@exerciseType.Name</strong></p>
+                    <p>Description: <strong>@exerciseType.Description</strong></p>
+                    <p>Img Link: <strong>@exerciseType.Img</strong></p>
+                    <BitActionButton IconName="BitIconName.CheckMark" OnClick="() => PickExerciseType(exerciseType)">Pick</BitActionButton>
+                    <BitActionButton IconName="BitIconName.Edit" OnClick="() => EditExerciseType(exerciseType)">Edit</BitActionButton>
+                </div>
+            </div>
+        </RowTemplate>
+    </BitBasicList>
+}
+
+@code {
+    private const string title = "Choose or add exercise type";
+
+    private IList<ExerciseType> ExerciseTypes;
+
+        protected override async Task OnInitializedAsync() => ExerciseTypes = await ExerciseType.GetExerciseTypes(_databaseHandler);
+
+        private void NewExerciseType() => NavigationManager.NavigateTo("/newexercisetype");
+
+        private void EditExerciseType(ExerciseType exerciseType) => NavigationManager.NavigateTo(exerciseType.EditUrl);
+
+        private void PickExerciseType(ExerciseType exerciseType) => NavigationManager.NavigateTo($"/newworkoutplanitem/{exerciseType.Guid}");
+}

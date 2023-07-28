@@ -1,0 +1,49 @@
+﻿@page "/editexercisetype/{ExerciseTypeGuid}"
+
+@using Amrap.Core;
+@using Amrap.Core.Domain;
+@using Amrap.Enum;
+@using Amrap.Core.Infrastructure;
+@using Bit.BlazorUI
+
+@inject NavigationManager NavigationManager
+@inject DatabaseHandler _databaseHandler;
+
+<PageTitle>@title</PageTitle>
+<BitLabel>@title</BitLabel>
+
+@if (exerciseType != default)
+{
+    <BitTextField Label="Name" IsUnderlined="true" @bind-Value="exerciseType.Name" />
+    <BitTextField Label="Description" IsUnderlined="true" @bind-Value="exerciseType.Description" />
+    <BitTextField Label="Img" IsUnderlined="true" @bind-Value="exerciseType.Img" />
+
+    <BitChoiceGroup Label="Kind" Items="ExerciseKindList.Items" @bind-Value="exerciseType.ExerciseKind" />
+
+    <BitButton Style="margin-top: 20px;" OnClick="Save">Save</BitButton>
+}
+else
+{
+    <h3>Loading..</h3>
+}
+
+@code {
+    [Parameter]
+    public string ExerciseTypeGuid { get; set; }
+
+    private const string title = "Edit exercise type";
+
+    private ExerciseType exerciseType;
+
+    protected override async Task OnInitializedAsync()
+    {
+        exerciseType = await _databaseHandler.GetExerciseType(ExerciseTypeGuid);
+    }
+
+    private async Task Save()
+    {
+        await exerciseType.Update(_databaseHandler);
+
+        NavigationManager.NavigateTo("workoutplanitem");
+    }
+}

@@ -1,0 +1,137 @@
+﻿@page "/debug"
+@using Amrap.Core.Infrastructure;
+@using Bit.BlazorUI
+
+@inject DatabaseHandler _databaseHandler;
+
+<PageTitle>@title</PageTitle>
+<BitLabel>@title</BitLabel>
+
+@if (HasInternetAccess())
+{
+    <h1>Has internet access</h1>
+}
+else
+{
+    <h1>No internet access</h1>
+}
+<br />
+<br />
+<h1>First run: @firstRun</h1>
+<BitButton Style="margin-top: 20px;" OnClick="ClearFirstRun">Clear FirstRun</BitButton>
+@if (firstRunCleared)
+{
+    <BitMessageBar MessageBarType="@BitMessageBarType.Success">
+        Cleared first run flag
+    </BitMessageBar>
+}
+<br />
+<h1>KP first run: @kpFirstRun</h1>
+<BitButton Style="margin-top: 20px;" OnClick="ClearKpFirstRun">Clear KpFirstRun</BitButton>
+@if (kpFirstRunCleared)
+{
+    <BitMessageBar MessageBarType="@BitMessageBarType.Success">
+        Cleared KP first run flag
+    </BitMessageBar>
+}
+
+<br />
+<br />
+<h1>Recreate database keep achievements</h1>
+<BitButton Style="margin-top: 20px;" OnClick="RecreateDatabaseKeepAchievements">Recreate Database keeping achievements</BitButton>
+@if (databaseRecreated)
+{
+    <BitMessageBar MessageBarType="@BitMessageBarType.Success">
+        Database recreated and kept achievements
+    </BitMessageBar>
+}
+
+<br />
+<br />
+<h1>Seed database</h1>
+<BitButton Style="margin-top: 20px;" OnClick="SeedDatabase">Seed Database</BitButton>
+@if (databaseSeeded)
+{
+    <BitMessageBar MessageBarType="@BitMessageBarType.Success">
+        Database seeded
+    </BitMessageBar>
+}
+
+<br />
+<br />
+<h1>Recreate whole database</h1>
+<BitButton Style="margin-top: 20px;" OnClick="RecreateDatabaseDeleteAll">Recreate Database deleting all data</BitButton>
+@if (wholeDatabaseRecreated)
+{
+    <BitMessageBar MessageBarType="@BitMessageBarType.Success">
+        Database recreated
+    </BitMessageBar>
+}
+
+@code {
+    private const string title = "Debug";
+
+    private string firstRun;
+    private bool firstRunCleared = false;
+
+    private string kpFirstRun;
+    private bool kpFirstRunCleared = false;
+
+    private bool databaseRecreated = false;
+
+    private bool databaseSeeded = false;
+
+    private bool wholeDatabaseRecreated = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        firstRun = await SecureStorage.Default.GetAsync(Consts.FirstRunKey);
+        kpFirstRun = await SecureStorage.Default.GetAsync(Consts.KpFirstRunKey);
+
+    }
+
+    public bool HasInternetAccess()
+    {
+        var accessType = Connectivity.Current.NetworkAccess;
+
+        return 
+            accessType is NetworkAccess.Internet ||
+            accessType is NetworkAccess.ConstrainedInternet;
+    }
+
+    public async Task ClearFirstRun()
+    {
+        await SecureStorage.Default.SetAsync(Consts.FirstRunKey, Consts.NullValue);
+        firstRunCleared = true;
+    }
+
+    public async Task ClearKpFirstRun()
+    {
+        await SecureStorage.Default.SetAsync(Consts.KpFirstRunKey, Consts.NullValue);
+        kpFirstRunCleared = true;
+    }
+
+    public async Task RecreateDatabaseDeleteAll()
+    {
+        var r = await App.Current.MainPage.DisplayActionSheet(
+            $"Delete all data?", "Cancel", "Delete");
+
+        if (r == "Delete")
+        {
+            await _databaseHandler.CreateConnectionAndTables(true, false);
+            wholeDatabaseRecreated = true;
+        }
+    }
+
+    public async Task RecreateDatabaseKeepAchievements()
+    {
+        await _databaseHandler.CreateConnectionAndTables(true, true);
+        databaseRecreated = true;
+    }
+
+    public async Task SeedDatabase()
+    {
+        await DbSeed.SeedDataIfNeeded(_databaseHandler, true);
+        databaseSeeded = true;
+    }
+}
