@@ -39,7 +39,7 @@ else if (orderedWorkoutPlanItems != null)
 
 @code {
     private IOrderedEnumerable<WorkoutPlanItem> orderedWorkoutPlanItems;
-    private IList<WorkoutPlanItem> items => orderedWorkoutPlanItems.ToList();
+    private IList<WorkoutPlanItem> items => orderedWorkoutPlanItems?.ToList();
 
     protected override async Task OnInitializedAsync()
     {

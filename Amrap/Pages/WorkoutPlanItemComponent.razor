@@ -5,8 +5,9 @@
 
 @inject NavigationManager NavigationManager;
 @inject DatabaseHandler _databaseHandler;
+
 <ExerciseTypeViewComponent ExerciseType="@Item.PlannedExercise.ExerciseType" />
-<WorkoutPlanItemViewComponent WorkoutPlanItem="@Item" />
+<WorkoutPlanItemViewComponent WorkoutPlanItem="@Item" ShowStartingExercisePlan="false" />
 <BitAccordion>
     <HeaderTemplate Context="isExpanded">
         <BitIconButton IconName="isExpanded ? BitIconName.ChevronDown : BitIconName.ChevronRight" />
@@ -42,7 +43,6 @@
         }
     </ChildContent>
 </BitAccordion>
-<br />
 
 @code {
     [Parameter]
@@ -57,9 +57,6 @@
 
     private bool completed = false;
     private bool deleted = false;
-
-    private const string InvalidInput = "Invalid input";
-    private const string Ok = "Ok";
 
     protected override async Task OnInitializedAsync()
     {

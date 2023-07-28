@@ -1,0 +1,49 @@
+﻿@page "/completed"
+@using Amrap.Core;
+@using Amrap.Core.Domain;
+@using Amrap.Core.Infrastructure;
+@using Bit.BlazorUI
+
+@inject CompletedExerciseReader _completedExerciseReader;
+
+<PageTitle>@title</PageTitle>
+<style>
+    .exerciseImg {
+        max-width: 100px;
+        height: auto
+    }
+</style>
+
+@if (items == null)
+{
+    <h1>Loading...</h1>
+}
+else if (items != null)
+{
+    <h1>Completed exercises (@items.Count())</h1>
+
+    <BitBasicList Items="items"
+                  EnableVirtualization="false"
+                  Style="border: 1px #a19f9d solid; border-radius: 3px; height: 100%">
+        <RowTemplate Context="item">
+            <div @key="item.Id" style="border-bottom: 1px #8a8886 solid; padding: 2px 10px; margin: 5px;">
+                <img class="exerciseImg" src="@(item.ExerciseType.Img)">
+                <div style="margin-left:3%; display: inline-block;">
+                    <CompletedExerciseComponent Item="@item" />
+                </div>
+            </div>
+        </RowTemplate>
+    </BitBasicList>
+}
+
+@code {
+    private const string title = "Completed Exercises";
+
+    private IOrderedEnumerable<CompletedExercise> completedExerciseItems;
+    private IList<CompletedExercise> items => completedExerciseItems?.ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        completedExerciseItems = await _completedExerciseReader.ReadCompletedExercies();
+    }
+}
