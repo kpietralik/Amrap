@@ -162,6 +162,22 @@ public class DatabaseHandler
         return completedExercises;
     }
 
+    public async Task<IEnumerable<CompletedExercise>> GetExercisesCompletedToday(IEnumerable<ExerciseType> exerciseTypes, DateTime today)
+    {
+        var ticksStartofToday = today.Date.Ticks;
+
+        var completedExercises = await _db.QueryAsync<CompletedExercise>(
+            $"select * from {nameof(CompletedExercise)} where " +
+            $"Time > ?", ticksStartofToday);
+
+        foreach (var completedExercise in completedExercises)
+        {
+            completedExercise.SetExerciseType(exerciseTypes.Single(x => x.Guid == completedExercise.ExerciseTypeGuid));
+        }
+        
+        return completedExercises;
+    }
+
     public async Task<LastStats?> GetLastStats(string guid)
     {
         var res = await _db.QueryAsync<LastStats>($"select * from {nameof(LastStats)} where Guid = ?", guid);

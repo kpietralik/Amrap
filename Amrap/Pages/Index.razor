@@ -2,6 +2,7 @@
 @using Amrap.Core;
 @using Amrap.Core.Domain;
 @using Amrap.Core.Infrastructure;
+@using Amrap.Enum;
 @using Bit.BlazorUI
 
 @inject DatabaseHandler _databaseHandler
@@ -9,20 +10,52 @@
 
 <PageTitle>Amrap App</PageTitle>
 
-@if (orderedWorkoutPlanItems == null)
-{
-    <h1>Loading...</h1>
-}
-else if (orderedWorkoutPlanItems != null)
-{
-    <h1>Workout plan (@orderedWorkoutPlanItems.Count())</h1>
+<BitAccordion>
+    <HeaderTemplate Context="isExpanded">
+        <BitIconButton IconName="isExpanded ? BitIconName.ChevronDown : BitIconName.ChevronRight" />
+        <div class="custom-header">
+            <span class="custom-title">Filter</span>
+        </div>
+    </HeaderTemplate>
+    <ChildContent>
+        <div class="container text-center">
+            <div class="row">
+                <div class="col">
+                    <BitDropdown Items="DayOfWeekItems()"
+                                 Placeholder="Select day"
+                                 ShowClearButton="false"
+                                 OnSelectItem="OnSelectItemDayOfWeek"
+                                 Style="width: 100%; max-width: 290px; margin: 20px 0 20px 0">
+                    </BitDropdown>
+                </div>
+                <div class="col">
+                    <BitToggleButton @bind-IsChecked="onlyCompletedToday"
+                                     Class="tgl-btn"
+                                     Label="Completed"
+                                     IconName=@(onlyCompletedToday ? BitIconName.Completed : BitIconName.CompletedSolid)
+                                     OnChange="OnChangeOnlyCompletedToday"
+                                     ButtonStyle="BitButtonStyle.Primary">
+                    </BitToggleButton>
+                </div>
+            </div>
+        </div>
+    </ChildContent>
+</BitAccordion>
 
-    <BitBasicList Items="items"
+@if (displayedItems == null)
+{
+    <h1>Loading..</h1>
+}
+else if (displayedItems != null)
+{
+    <h3>Workout plan (@displayedItems.Count())</h3>
+
+    <BitBasicList Items="displayedItems"
                   EnableVirtualization="false"
                   Style="border: 1px #a19f9d solid; border-radius: 3px; height: 100%">
         <RowTemplate Context="item">
             <div @key="item.Guid" style="border-bottom: 1px #8a8886 solid; padding: 2px 10px; margin: 5px;">
-                <WorkoutPlanItemComponent Item="@item" />
+                <WorkoutPlanItemComponent Item="@item" OnComplete="ReloadList" />
             </div>
         </RowTemplate>
     </BitBasicList>
@@ -30,7 +63,15 @@ else if (orderedWorkoutPlanItems != null)
 
 @code {
     private IOrderedEnumerable<WorkoutPlanItem> orderedWorkoutPlanItems;
-    private IList<WorkoutPlanItem> items => orderedWorkoutPlanItems?.ToList();
+
+    private IList<WorkoutPlanItem> displayedItems = null;
+    private IEnumerable<CompletedExercise> completedToday = null;
+    private IEnumerable<ExerciseType> exerciseTypes = null;
+
+    private const string All = "All";
+
+    private bool onlyCompletedToday = false;
+    private DayOfWeek? selectedDayOfWeek = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -41,6 +82,109 @@ else if (orderedWorkoutPlanItems != null)
             await DbSeed.SeedDataIfNeeded(_databaseHandler);
         }
 
-        this.orderedWorkoutPlanItems = await _workoutPlanReader.GetWorkoutPlan();
+        orderedWorkoutPlanItems = await _workoutPlanReader.GetWorkoutPlan();
+        exerciseTypes = orderedWorkoutPlanItems.Select(x => x.PlannedExercise.ExerciseType).Distinct().ToList();
+        displayedItems = await SetDisplayedItems(selectedDayOfWeek, onlyCompletedToday);
+    }
+
+    private async Task OnSelectItemDayOfWeek(BitDropdownItem dropdownItem)
+    {
+        if (string.Equals(dropdownItem.Value, All, StringComparison.InvariantCultureIgnoreCase))
+            selectedDayOfWeek = null;
+        else 
+            selectedDayOfWeek = Enum.Parse<DayOfWeek>(dropdownItem.Value);
+
+        displayedItems = await SetDisplayedItems(selectedDayOfWeek, onlyCompletedToday);
+    }
+
+    private async Task OnChangeOnlyCompletedToday(bool enabled)
+    {
+        onlyCompletedToday = enabled;
+        displayedItems = await SetDisplayedItems(selectedDayOfWeek, onlyCompletedToday);
+    }
+
+    private async Task ReloadList()
+    {
+        displayedItems = await SetDisplayedItems(selectedDayOfWeek, onlyCompletedToday);
+    }
+
+    private async Task<IList<WorkoutPlanItem>> SetDisplayedItems(DayOfWeek? dayOfWeek, bool hideCompleted)
+    {
+        if (hideCompleted)
+        {
+            completedToday = await _databaseHandler.GetExercisesCompletedToday(exerciseTypes, DateTime.UtcNow);
+
+            return orderedWorkoutPlanItems
+                .Where(x => FilterByDay(x, dayOfWeek))
+                .Where(x => FilterByNotCompleted(completedToday, x))
+                .ToList();
+        }
+        else
+        {
+            return orderedWorkoutPlanItems
+                .Where(x => FilterByDay(x, dayOfWeek))
+                .ToList();
+        }
+    }
+
+    private bool FilterByDay(WorkoutPlanItem item, DayOfWeek? dayOfWeek)
+        => dayOfWeek.HasValue ? item.Day == dayOfWeek.Value : true;
+
+    private bool FilterByNotCompleted(IEnumerable<CompletedExercise> recentylCompletedExercises, WorkoutPlanItem workoutPlanItem)
+        => !completedToday.Any(compl => compl.ExerciseTypeGuid == workoutPlanItem.PlannedExercise.ExerciseTypeGuid);
+
+    private List<BitDropdownItem> DayOfWeekItems()
+    {
+        return new()
+        {
+            new()
+            {
+                ItemType = BitDropdownItemType.Normal,
+                Text = All,
+                Value = All
+            },
+            new()
+            {
+                ItemType = BitDropdownItemType.Normal,
+                Text = DayOfWeek.Monday.ToString(),
+                Value = DayOfWeek.Monday.ToString()
+            },
+            new()
+            {
+                ItemType = BitDropdownItemType.Normal,
+                Text = DayOfWeek.Tuesday.ToString(),
+                Value = DayOfWeek.Tuesday.ToString()
+            },
+            new()
+            {
+                ItemType = BitDropdownItemType.Normal,
+                Text = DayOfWeek.Wednesday.ToString(),
+                Value = DayOfWeek.Wednesday.ToString()
+            },
+            new()
+            {
+                ItemType = BitDropdownItemType.Normal,
+                Text = DayOfWeek.Friday.ToString(),
+                Value = DayOfWeek.Friday.ToString()
+            },
+            new()
+            {
+                ItemType = BitDropdownItemType.Normal,
+                Text = DayOfWeek.Friday.ToString(),
+                Value = DayOfWeek.Friday.ToString()
+            },
+            new()
+            {
+                ItemType = BitDropdownItemType.Normal,
+                Text = DayOfWeek.Saturday.ToString(),
+                Value = DayOfWeek.Saturday.ToString()
+            },
+            new()
+            {
+                ItemType = BitDropdownItemType.Normal,
+                Text = DayOfWeek.Sunday.ToString(),
+                Value = DayOfWeek.Sunday.ToString()
+            }
+        };
     }
 }

@@ -18,7 +18,7 @@ public class CompletedExercise
     private ExerciseType _exerciseType;
     public ExerciseType ExerciseType => _exerciseType;
 
-    public DateTimeOffset Time { get; set; }
+    public DateTime Time { get; set; }
     public int Sets { get; set; }
     public int Reps { get; set; }
     public float Weight { get; set; }
@@ -34,7 +34,7 @@ public class CompletedExercise
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     { }
 
-    public CompletedExercise(ExerciseType exerciseType, DateTimeOffset time, int sets, int reps, float weight, bool dropSet = false, bool toFailure = false)
+    public CompletedExercise(ExerciseType exerciseType, DateTime time, int sets, int reps, float weight, bool dropSet = false, bool toFailure = false)
     {
         _exerciseType = exerciseType;
         ExerciseTypeGuid = exerciseType.Guid;

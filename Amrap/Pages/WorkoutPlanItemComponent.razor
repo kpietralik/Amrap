@@ -58,6 +58,10 @@
     private bool completed = false;
     private bool deleted = false;
 
+    // See for other option with separate service: https://jonhilton.net/blazor-sibling-communication/
+    [Parameter]
+    public EventCallback<string> OnComplete { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         newSets = Item.GetSets();
@@ -79,7 +83,7 @@
 
         var completedExercise = new CompletedExercise(
             Item.PlannedExercise.ExerciseType,
-            DateTimeOffset.Now,
+            DateTime.Now,
             newSets,
             newReps,
             (float)newWeight,
@@ -88,6 +92,9 @@
 
         await completedExercise.SaveCompletedExercise(_databaseHandler, Item.PlannedExercise);
         completed = true;
+        
+        // Should not be awaited
+        OnComplete.InvokeAsync(Item.PlannedExercise.Guid);
     }
 
     public void Edit()
