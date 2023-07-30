@@ -15,20 +15,11 @@
 
 @if (ExerciseTypes != null)
 {
-    <BitBasicList Items="ExerciseTypes" EnableVirtualization="true" Style="border: 1px #a19f9d solid; border-radius: 3px;">
-        <RowTemplate Context="exerciseType">
-                       
-            @*@if (!string.IsNullOrEmpty(exerciseType.Img))
-            {
-                <img src="@exerciseType.Img" alt="img" loading="lazy" height="100", width="100">
-            }*@
-            
+    <BitBasicList Items="ExerciseTypes" EnableVirtualization="true" Style="border: 1px #a19f9d solid; border-radius: 3px; height: 100%">
+        <RowTemplate Context="exerciseType">                      
             <div @key="exerciseType.Guid" style="border-bottom: 1px #8a8886 solid; padding: 5px 20px; margin: 10px;">
                 <div style="margin-left:3%; display: inline-block;">
-                    <p>Kind: <strong>@exerciseType.ExerciseKind</strong></p>
-                    <p>Name: <strong>@exerciseType.Name</strong></p>
-                    <p>Description: <strong>@exerciseType.Description</strong></p>
-                    <p>Img Link: <strong>@exerciseType.Img</strong></p>
+                    <ExerciseTypeViewComponent ExerciseType="exerciseType" />
                     <BitActionButton IconName="BitIconName.CheckMark" OnClick="() => PickExerciseType(exerciseType)">Pick</BitActionButton>
                     <BitActionButton IconName="BitIconName.Edit" OnClick="() => EditExerciseType(exerciseType)">Edit</BitActionButton>
                 </div>

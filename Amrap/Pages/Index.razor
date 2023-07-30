@@ -21,7 +21,7 @@
         <div class="container text-center">
             <div class="row">
                 <div class="col">
-                    <BitDropdown Items="DayOfWeekItems()"
+                    <BitDropdown Items="DayOfWeekList.FilteringDayOfWeekItems()"
                                  Placeholder="Select day"
                                  ShowClearButton="false"
                                  OnSelectItem="OnSelectItemDayOfWeek"
@@ -48,7 +48,16 @@
 }
 else if (displayedItems != null)
 {
-    <h3>Workout plan (@displayedItems.Count())</h3>
+    <div class="container text-center">
+        <div class="row">
+            <div class="col-8">
+                <h3>Workout plan (@displayedItems.Count())</h3>
+            </div>
+            <div class="col-4">
+                <BitIconButton IconName="BitIconName.Refresh" OnClick="ReloadList" />
+            </div>
+        </div>
+    </div>    
 
     <BitBasicList Items="displayedItems"
                   EnableVirtualization="false"
@@ -67,8 +76,6 @@ else if (displayedItems != null)
     private IList<WorkoutPlanItem> displayedItems = null;
     private IEnumerable<CompletedExercise> completedToday = null;
     private IEnumerable<ExerciseType> exerciseTypes = null;
-
-    private const string All = "All";
 
     private bool onlyCompletedToday = false;
     private DayOfWeek? selectedDayOfWeek = null;
@@ -89,7 +96,7 @@ else if (displayedItems != null)
 
     private async Task OnSelectItemDayOfWeek(BitDropdownItem dropdownItem)
     {
-        if (string.Equals(dropdownItem.Value, All, StringComparison.InvariantCultureIgnoreCase))
+        if (string.Equals(dropdownItem.Value, DayOfWeekList.All, StringComparison.InvariantCultureIgnoreCase))
             selectedDayOfWeek = null;
         else 
             selectedDayOfWeek = Enum.Parse<DayOfWeek>(dropdownItem.Value);
@@ -132,59 +139,4 @@ else if (displayedItems != null)
 
     private bool FilterByNotCompleted(IEnumerable<CompletedExercise> recentylCompletedExercises, WorkoutPlanItem workoutPlanItem)
         => !completedToday.Any(compl => compl.ExerciseTypeGuid == workoutPlanItem.PlannedExercise.ExerciseTypeGuid);
-
-    private List<BitDropdownItem> DayOfWeekItems()
-    {
-        return new()
-        {
-            new()
-            {
-                ItemType = BitDropdownItemType.Normal,
-                Text = All,
-                Value = All
-            },
-            new()
-            {
-                ItemType = BitDropdownItemType.Normal,
-                Text = DayOfWeek.Monday.ToString(),
-                Value = DayOfWeek.Monday.ToString()
-            },
-            new()
-            {
-                ItemType = BitDropdownItemType.Normal,
-                Text = DayOfWeek.Tuesday.ToString(),
-                Value = DayOfWeek.Tuesday.ToString()
-            },
-            new()
-            {
-                ItemType = BitDropdownItemType.Normal,
-                Text = DayOfWeek.Wednesday.ToString(),
-                Value = DayOfWeek.Wednesday.ToString()
-            },
-            new()
-            {
-                ItemType = BitDropdownItemType.Normal,
-                Text = DayOfWeek.Friday.ToString(),
-                Value = DayOfWeek.Friday.ToString()
-            },
-            new()
-            {
-                ItemType = BitDropdownItemType.Normal,
-                Text = DayOfWeek.Friday.ToString(),
-                Value = DayOfWeek.Friday.ToString()
-            },
-            new()
-            {
-                ItemType = BitDropdownItemType.Normal,
-                Text = DayOfWeek.Saturday.ToString(),
-                Value = DayOfWeek.Saturday.ToString()
-            },
-            new()
-            {
-                ItemType = BitDropdownItemType.Normal,
-                Text = DayOfWeek.Sunday.ToString(),
-                Value = DayOfWeek.Sunday.ToString()
-            }
-        };
-    }
 }

@@ -2,15 +2,12 @@
 
 ToDo: 
 
-Filter by day. 
-Hide completed today. 
-Color day by value. 
+Color day by value.
 Placeholder image. 
 Other images for exercises. Royalty free. 
 Color exercise name.
 Alternative exercise.
 
-editing workoutplanitem to set different day
 JSON export & import
 switch to SwipeView https://www.youtube.com/watch?v=BHBYHC_9URc
 switch to blazor navigation using pop & push https://www.youtube.com/watch?v=8z8qz-PePlc

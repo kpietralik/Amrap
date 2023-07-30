@@ -23,6 +23,15 @@
         justify-content: center;
         align-content: center;
     }
+
+    .exerciseNameLabel {
+        background-color: lightgrey;
+    }
+
+    .exerciseNameInput {
+        background-color: lightgrey;
+        font-weight: 900;
+    }
 </style>
 
 @ChildContent
@@ -43,7 +52,7 @@
     </div>
 </div>
 
-<BitTextField Label="Name" IsReadonly="true" IsUnderlined="true" Value="@ExerciseType.Name" />
+<BitTextField Label="Name" LabelClass="exerciseNameLabel" InputClass="exerciseNameInput" IsReadonly="true" IsUnderlined="true" Value="@ExerciseType.Name" />
 <BitTextField Label="Description" IsReadonly="true" IsUnderlined="true" Value="@ExerciseType.Description" />
 
 <BitTextField Label="Img" IsReadonly="true" IsUnderlined="true" Value="@ExerciseType.Img" />
