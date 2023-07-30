@@ -2,10 +2,9 @@
 
 ToDo: 
 
-Color day by value.
 Placeholder image. 
 Other images for exercises. Royalty free. 
-Color exercise name.
+Color day by value.
 Alternative exercise.
 
 JSON export & import

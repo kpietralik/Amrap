@@ -14,6 +14,7 @@ public class WorkoutPlanItem
     [Indexed]
     public string PlannedExerciseGuid { get; set; }
 
+    // ToDo: made as separate entity due to planned option of multiple plannedExercises the user would pick 1 from during training session. In other words: alternative exercises.
     private PlannedExercise _plannedExercise;
     public PlannedExercise PlannedExercise => _plannedExercise;
 
