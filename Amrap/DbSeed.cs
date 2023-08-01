@@ -1,10 +1,15 @@
 ﻿using Amrap.Core.Domain;
 using Amrap.Core.Infrastructure;
+using System.Text.Json;
 
 namespace Amrap;
 
 internal static class DbSeed
 {
+    private static string mainDir = FileSystem.Current.AppDataDirectory;
+    private static string fileName = "exerciseTypes.json";
+    private static string filePath = System.IO.Path.Combine(mainDir, fileName);
+
     internal static async Task SeedDataIfNeeded(DatabaseHandler databaseHandler, bool force = false)
     {
         string isFirstRun = await SecureStorage.Default.GetAsync(Consts.FirstRunKey);
@@ -17,8 +22,8 @@ internal static class DbSeed
             await SecureStorage.Default.SetAsync(Consts.FirstRunKey, Consts.TrueValue);
 
             var glutesDip = new ExerciseType("e19692de-2a43-4be9-b4ed-676676ffe6ab", ExerciseKind.Core, "Glutes dip", "", "");
-            var benchPress = new ExerciseType("84d9a6d2-7a03-4a06-91e5-227d96411adf", ExerciseKind.Push, "Bench press", "", "");
-            var deadlift = new ExerciseType("ec2b1e30-d65b-42e1-9cd9-988e45790c5c", ExerciseKind.Push, "Deadlift", "standard", "");
+            var benchPress = new ExerciseType("84d9a6d2-7a03-4a06-91e5-227d96411adf", ExerciseKind.Push, "Bench press", "", "https://amrapteststo001.blob.core.windows.net/exercise-images/local_stable_diffusion/bench_press2.png");
+            var deadlift = new ExerciseType("ec2b1e30-d65b-42e1-9cd9-988e45790c5c", ExerciseKind.Push, "Deadlift", "standard", "https://amrapteststo001.blob.core.windows.net/exercise-images/local_stable_diffusion/deadlift4.png");
             var lyingLegCurs = new ExerciseType("8724c2b5-0bde-4a25-90ba-58918c71bf5b", ExerciseKind.Legs, "Lying leg curls", "", "");
             var weightedDip = new ExerciseType("ee0e9be9-c6e9-4186-9d03-dd1a63eeae6c", ExerciseKind.Push, "Weighted dip", "", "");
             var cableUprightRow = new ExerciseType("3b14f0b8-cf1c-401f-9022-3de6c66a4240", ExerciseKind.Pull, "Cable upright row", "", "");
@@ -44,7 +49,7 @@ internal static class DbSeed
             var lateralRaise = new ExerciseType("a5e7afb2-8639-4a14-be3b-21dfe02541fb", ExerciseKind.Pull, "Lateral raise", "standard", "");
             var lowToHighCableFlye = new ExerciseType("bdce2420-ea83-41f2-a6a9-e0194748cd51", ExerciseKind.Push, "Low-to-high cable flye", "", "");
 
-            await databaseHandler.SeedExerciseTypes(new List<ExerciseType>() {
+            var exerciseTypes = new List<ExerciseType>() {
                 glutesDip,
                 benchPress,
                 deadlift,
@@ -72,7 +77,9 @@ internal static class DbSeed
                 tricepPressdown,
                 lateralRaise,
                 lowToHighCableFlye
-            });
+            };
+
+            await databaseHandler.SeedExerciseTypes(exerciseTypes);
 
 #region KP first run only
             // ToDo: private temp code
