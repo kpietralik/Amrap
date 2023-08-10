@@ -37,6 +37,8 @@ else
 
 <br />
 <br />
+<BitTextField Label="Exercise types Url" @bind-Value="@exerciseTypesUrl" HasBorder="true" IsRequired="true" IsTrimmed="true" />
+<BitTextField Label="Workout plan Url" @bind-Value="@workoutPlanUrl" HasBorder="true" IsRequired="true" IsTrimmed="true" />
 <BitButton Style="margin-top: 20px;" OnClick="SeedDatabase">Seed Database</BitButton>
 @if (databaseSeeded)
 {
@@ -136,6 +138,10 @@ else
     private bool workoutPlanExported = false;
     private bool workoutPlanImported = false;
 
+    // Sample values
+    private string exerciseTypesUrl = "https://gist.githubusercontent.com/kpietralik/22cb941b0a3a9e1948a55686ef4c3067/raw/af804dfd90707a93f654f9908152bb233bd3b447/exerciseTypes.json";
+    private string workoutPlanUrl = "https://gist.githubusercontent.com/kpietralik/32a930f80bfe1491b3e61e515676519d/raw/bb4a9f1568ee705535737382513936743cddfb68/workoutPlan.json";
+
     protected override async Task OnInitializedAsync()
     {
         firstRun = await SecureStorage.Default.GetAsync(Consts.FirstRunKey);
@@ -176,7 +182,7 @@ else
 
     public async Task SeedDatabase()
     {
-        await DbUtils.SeedDataIfNeeded(_databaseHandler, true);
+        await DbUtils.SeedDataIfNeeded(_databaseHandler, new Uri(exerciseTypesUrl), new Uri(workoutPlanUrl), true);
         databaseSeeded = true;
     }
 

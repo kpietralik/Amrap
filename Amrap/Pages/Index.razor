@@ -94,8 +94,6 @@ else if (displayedItems != null)
         if (!_databaseHandler.HasInitialized)
         {
             await _databaseHandler.CreateConnectionAndTables();
-
-            await DbUtils.SeedDataIfNeeded(_databaseHandler);
         }
 
         try {

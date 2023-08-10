@@ -131,7 +131,7 @@ internal static class DbUtils
         return null;
     }
 
-    internal static async Task SeedDataIfNeeded(DatabaseHandler databaseHandler, bool force = false)
+    internal static async Task SeedDataIfNeeded(DatabaseHandler databaseHandler, Uri exerciseTypesUrl, Uri workoutPlanUrl, bool force = false)
     {
         string isFirstRun = await SecureStorage.Default.GetAsync(Consts.FirstRunKey);
 
@@ -140,9 +140,6 @@ internal static class DbUtils
             || force)
         {
             await SecureStorage.Default.SetAsync(Consts.FirstRunKey, Consts.TrueValue);
-
-            var exerciseTypesUrl = "https://gist.githubusercontent.com/kpietralik/22cb941b0a3a9e1948a55686ef4c3067/raw/af804dfd90707a93f654f9908152bb233bd3b447/exerciseTypes.json";
-            var workoutPlanUrl = "https://gist.githubusercontent.com/kpietralik/32a930f80bfe1491b3e61e515676519d/raw/bb4a9f1568ee705535737382513936743cddfb68/workoutPlan.json";
 
             using var client = new HttpClient();
 
