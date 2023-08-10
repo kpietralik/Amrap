@@ -91,13 +91,15 @@
 
     <ItemGroup>
         <PackageReference Include="Bit.BlazorUI" Version="5.1.0" />
+        <PackageReference Include="CommunityToolkit.Maui" Version="5.3.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
+        <PackageReference Include="System.IO" Version="4.3.0" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Amrap.Core\Amrap.Core.csproj" />
     </ItemGroup>
 
-    <ProjectExtensions><VisualStudio><UserProperties XamarinHotReloadDebuggerTimeoutExceptionAmrapHideInfoBar="True" /></VisualStudio></ProjectExtensions>
+    <ProjectExtensions><VisualStudio><UserProperties XamarinHotReloadDebuggerTimeoutExceptionAmrapHideInfoBar="True" XamarinHotReloadGenericExceptionInfoBarAmrapHideInfoBar="True" /></VisualStudio></ProjectExtensions>
 
 </Project>

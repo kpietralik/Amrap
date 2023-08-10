@@ -1,9 +1,10 @@
 ﻿using Amrap.Core.Infrastructure;
 using SQLite;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Amrap.Core.Domain;
 
-public class PlannedExercise
+public class PlannedExercise : IEqualityComparer<PlannedExercise>
 {
     [PrimaryKey]
     public string Guid { get; set; }
@@ -14,11 +15,11 @@ public class PlannedExercise
     [Indexed]
     public string ExerciseTypeGuid { get; set; }
 
-    private ExerciseType _exerciseType;
-    public ExerciseType ExerciseType => _exerciseType;
+    [SQLite.Ignore]
+    public ExerciseType ExerciseType { get; set; }
 
-    private LastStats _lastStats;
-    public LastStats LastStats => _lastStats;
+    [SQLite.Ignore]
+    public LastStats LastStats { get; set; }
 
     public int Sets { get; set; }
     public int Reps { get; set; }
@@ -41,7 +42,7 @@ public class PlannedExercise
         string note, bool dropSet, bool toFailure, LastStats? lastStats = default)
     {
         Guid = guid;
-        _exerciseType = exerciseType;
+        ExerciseType = exerciseType;
         ExerciseTypeGuid = exerciseType.Guid;
         Sets = sets;
         Reps = reps;
@@ -49,14 +50,14 @@ public class PlannedExercise
         Weight = weight;
         DropSet = dropSet;
         ToFailure = toFailure;
-        _lastStats = lastStats;
+        LastStats = lastStats;
     }
 
     public void SetExerciseType(ExerciseType exerciseType)
     {
         if (exerciseType != null &&
             string.Equals(ExerciseTypeGuid, exerciseType?.Guid, StringComparison.InvariantCultureIgnoreCase))
-            _exerciseType = exerciseType;
+            ExerciseType = exerciseType;
         else
             throw new Exception($"Provided {nameof(ExerciseType)} guid '{exerciseType?.Guid}' does not match expected '{ExerciseTypeGuid}'");
     }
@@ -65,12 +66,53 @@ public class PlannedExercise
     {
         if (lastStats != null &&
             string.Equals(Guid, lastStats.Guid, StringComparison.InvariantCultureIgnoreCase))
-            _lastStats = lastStats;
+            LastStats = lastStats;
         else
             throw new Exception($"Provided {nameof(LastStats)} guid '{lastStats?.Guid}' does not match expected '{Guid}'");
     }
 
     public Task Add(DatabaseHandler databaseHandler) => databaseHandler.AddPlannedExercise(this);
 
-    public Task Update(DatabaseHandler databaseHandler) => databaseHandler.UpdatePlannedExercise(this);
+    public Task Upsert(DatabaseHandler databaseHandler) => databaseHandler.UpsertPlannedExercise(this);
+
+    public bool Equals(PlannedExercise? x, PlannedExercise? y)
+    {
+        if (x == null && y == null)
+            return true;
+
+        if (x == null && y != null)
+            return false;
+
+        if (x != null && y == null)
+            return false;
+
+        return string.Equals(x?.Guid, y?.Guid, StringComparison.InvariantCultureIgnoreCase);
+    }
+
+    public int GetHashCode([DisallowNull] PlannedExercise obj)
+    {
+        return this.GetHashCode();
+    }
+}
+
+public class PlannedExerciseEqualityComparer : IEqualityComparer<PlannedExercise>
+{
+    public bool Equals(PlannedExercise? x, PlannedExercise? y)
+    {
+        if (x == null && y == null)
+            return true;
+
+        if (ReferenceEquals(x, y)) 
+            return true;
+
+        if (x is null || y is null)
+            return false;
+
+        return string.Equals(x?.Guid, y?.Guid, StringComparison.InvariantCultureIgnoreCase);
+    }
+
+    public int GetHashCode([DisallowNull] PlannedExercise obj)
+    {
+        return this.GetHashCode();
+    }
 }

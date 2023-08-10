@@ -15,8 +15,9 @@ public class WorkoutPlanItem
     public string PlannedExerciseGuid { get; set; }
 
     // ToDo: made as separate entity due to planned option of multiple plannedExercises the user would pick 1 from during training session. In other words: alternative exercises.
-    private PlannedExercise _plannedExercise;
-    public PlannedExercise PlannedExercise => _plannedExercise;
+
+    [SQLite.Ignore]
+    public PlannedExercise PlannedExercise { get; set; }
 
     [Indexed]
     public DayOfWeek Day { get; set; }
@@ -37,7 +38,7 @@ public class WorkoutPlanItem
     public WorkoutPlanItem(string guid, PlannedExercise plannedExercise, DayOfWeek day, float priority)
     {
         Guid = guid;
-        _plannedExercise = plannedExercise;
+        PlannedExercise = plannedExercise;
         PlannedExerciseGuid = plannedExercise.Guid;
         Day = day;
         Priority = priority;
@@ -47,14 +48,14 @@ public class WorkoutPlanItem
     {
         if (plannedExercise != null &&
             string.Equals(PlannedExerciseGuid, plannedExercise?.Guid, StringComparison.InvariantCultureIgnoreCase))
-            _plannedExercise = plannedExercise;
+            PlannedExercise = plannedExercise;
         else
             throw new Exception($"Provided {nameof(PlannedExercise)} guid '{plannedExercise?.Guid}' does not match expected '{PlannedExerciseGuid}'");
     }
 
     public Task Add(DatabaseHandler databaseHandler) => databaseHandler.AddWorkoutPlanItem(this);
 
-    public Task Update(DatabaseHandler databaseHandler) => databaseHandler.UpdateWorkoutPlanItem(this);
+    public Task Upsert(DatabaseHandler databaseHandler) => databaseHandler.UpsertWorkoutPlanItem(this);
 
     public Task Delete(DatabaseHandler databaseHandler) => databaseHandler.DeleteWorkoutPlanItem(Guid);
 

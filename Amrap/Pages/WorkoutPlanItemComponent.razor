@@ -78,7 +78,7 @@
         if (newPriorityF != Item.Priority)
         {
             Item.Priority = newPriorityF;
-            await Item.Update(_databaseHandler);
+            await Item.Upsert(_databaseHandler);
         }
 
         var completedExercise = new CompletedExercise(

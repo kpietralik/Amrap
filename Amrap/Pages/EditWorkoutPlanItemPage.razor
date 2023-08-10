@@ -58,8 +58,8 @@ else
 
     private async Task Save()
     {
-        await workoutPlanItem.PlannedExercise.Update(_databaseHandler);
-        await workoutPlanItem.Update(_databaseHandler);
+        await workoutPlanItem.PlannedExercise.Upsert(_databaseHandler);
+        await workoutPlanItem.Upsert(_databaseHandler);
 
         NavigationManager.NavigateTo("/");
     }

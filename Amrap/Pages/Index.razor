@@ -69,6 +69,13 @@ else if (displayedItems != null)
         </RowTemplate>
     </BitBasicList>
 }
+<br />
+@if (errorCought)
+{
+    <BitMessageBar MessageBarType="@BitMessageBarType.Error">
+        @errorMessage
+    </BitMessageBar>
+}
 
 @code {
     private IOrderedEnumerable<WorkoutPlanItem> orderedWorkoutPlanItems;
@@ -79,16 +86,26 @@ else if (displayedItems != null)
     private bool onlyCompletedToday = false;
     private DayOfWeek? selectedDayOfWeek = null;
 
+    private bool errorCought = false;
+    private string errorMessage;
+
     protected override async Task OnInitializedAsync()
     {
         if (!_databaseHandler.HasInitialized)
         {
             await _databaseHandler.CreateConnectionAndTables();
 
-            await DbSeed.SeedDataIfNeeded(_databaseHandler);
+            await DbUtils.SeedDataIfNeeded(_databaseHandler);
         }
 
-        await ReloadLists();
+        try {
+            await ReloadLists();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            errorCought = true;
+        }
     }
 
     private async Task OnSelectItemDayOfWeek(BitDropdownItem dropdownItem)

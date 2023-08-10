@@ -1,4 +1,5 @@
-﻿using SQLite;
+﻿using Amrap.Core.Infrastructure;
+using SQLite;
 
 namespace Amrap.Core.Domain;
 
@@ -53,4 +54,6 @@ public class LastStats
         else
             throw new Exception($"Provided {nameof(PlannedExercise)} guid '{plannedExercise?.Guid}' does not match expected '{PlannedExerciseGuid}'");
     }
+
+    public Task Save(DatabaseHandler databaseHandler) => databaseHandler.SetLastStats(this);
 }

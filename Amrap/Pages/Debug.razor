@@ -9,15 +9,14 @@
 
 @if (HasInternetAccess())
 {
-    <h1>Has internet access</h1>
+    <h3>Has internet access</h3>
 }
 else
 {
-    <h1>No internet access</h1>
+    <h3>No internet access</h3>
 }
-<br />
-<br />
-<h1>First run: @firstRun</h1>
+
+<BitTextField IsReadonly="true" Value="@firstRun" Label="First run?" />
 <BitButton Style="margin-top: 20px;" OnClick="ClearFirstRun">Clear FirstRun</BitButton>
 @if (firstRunCleared)
 {
@@ -25,19 +24,9 @@ else
         Cleared first run flag
     </BitMessageBar>
 }
-<br />
-<h1>KP first run: @kpFirstRun</h1>
-<BitButton Style="margin-top: 20px;" OnClick="ClearKpFirstRun">Clear KpFirstRun</BitButton>
-@if (kpFirstRunCleared)
-{
-    <BitMessageBar MessageBarType="@BitMessageBarType.Success">
-        Cleared KP first run flag
-    </BitMessageBar>
-}
 
 <br />
 <br />
-<h1>Recreate database keep achievements</h1>
 <BitButton Style="margin-top: 20px;" OnClick="RecreateDatabaseKeepAchievements">Recreate Database keeping achievements</BitButton>
 @if (databaseRecreated)
 {
@@ -48,7 +37,6 @@ else
 
 <br />
 <br />
-<h1>Seed database</h1>
 <BitButton Style="margin-top: 20px;" OnClick="SeedDatabase">Seed Database</BitButton>
 @if (databaseSeeded)
 {
@@ -59,7 +47,6 @@ else
 
 <br />
 <br />
-<h1>Recreate whole database</h1>
 <BitButton Style="margin-top: 20px;" OnClick="RecreateDatabaseDeleteAll">Recreate Database deleting all data</BitButton>
 @if (wholeDatabaseRecreated)
 {
@@ -68,26 +55,90 @@ else
     </BitMessageBar>
 }
 
+<br />
+<br />
+<BitButton Style="margin-top: 20px;" OnClick="ExportCompletedExercises">Export Completed Exercises</BitButton>
+@if (completedExercisesExported)
+{
+    <BitMessageBar MessageBarType="@BitMessageBarType.Success">
+        Completed Exercises Exported
+    </BitMessageBar>
+}
+
+<br />
+<br />
+<BitButton Style="margin-top: 20px;" OnClick="ImportCompletedExercises">Import Completed Exercises</BitButton>
+@if (completedExercisesImported)
+{
+    <BitMessageBar MessageBarType="@BitMessageBarType.Success">
+        Completed Exercises Imported
+    </BitMessageBar>
+}
+
+<br />
+<br />
+<BitButton Style="margin-top: 20px;" OnClick="ExportExerciseTypes">Export Exercise Types</BitButton>
+@if (exerciseTypesExported)
+{
+    <BitMessageBar MessageBarType="@BitMessageBarType.Success">
+        Export Exercise Types
+    </BitMessageBar>
+}
+
+<br />
+<br />
+<BitButton Style="margin-top: 20px;" OnClick="ImportExerciseTypes">Import Exercise Types</BitButton>
+@if (exerciseTypesImported)
+{
+    <BitMessageBar MessageBarType="@BitMessageBarType.Success">
+        Import Exercise Types
+    </BitMessageBar>
+}
+
+<br />
+<br />
+<BitButton Style="margin-top: 20px;" OnClick="ExportWorkoutPlan">Export Workout Plan</BitButton>
+@if (workoutPlanExported)
+{
+    <BitMessageBar MessageBarType="@BitMessageBarType.Success">
+        Export Exercise Types
+    </BitMessageBar>
+}
+
+<br />
+<br />
+<BitButton Style="margin-top: 20px;" OnClick="ImportWorkoutPlan">Import Workout Plan</BitButton>
+@if (workoutPlanImported)
+{
+    <BitMessageBar MessageBarType="@BitMessageBarType.Success">
+        Import Workout Plan
+    </BitMessageBar>
+}
+
+<br/>
+
 @code {
     private const string title = "Debug";
 
     private string firstRun;
     private bool firstRunCleared = false;
 
-    private string kpFirstRun;
-    private bool kpFirstRunCleared = false;
-
     private bool databaseRecreated = false;
-
     private bool databaseSeeded = false;
-
     private bool wholeDatabaseRecreated = false;
+
+    private bool completedExercisesExported = false;    
+    private bool completedExercisesImported = false;
+
+    private bool exerciseTypesExported = false;
+    private bool exerciseTypesImported = false;
+
+    private bool workoutPlanExported = false;
+    private bool workoutPlanImported = false;
 
     protected override async Task OnInitializedAsync()
     {
         firstRun = await SecureStorage.Default.GetAsync(Consts.FirstRunKey);
-        kpFirstRun = await SecureStorage.Default.GetAsync(Consts.KpFirstRunKey);
-
     }
 
     public bool HasInternetAccess()
@@ -103,12 +154,6 @@ else
     {
         await SecureStorage.Default.SetAsync(Consts.FirstRunKey, Consts.NullValue);
         firstRunCleared = true;
-    }
-
-    public async Task ClearKpFirstRun()
-    {
-        await SecureStorage.Default.SetAsync(Consts.KpFirstRunKey, Consts.NullValue);
-        kpFirstRunCleared = true;
     }
 
     public async Task RecreateDatabaseDeleteAll()
@@ -131,7 +176,43 @@ else
 
     public async Task SeedDatabase()
     {
-        await DbSeed.SeedDataIfNeeded(_databaseHandler, true);
+        await DbUtils.SeedDataIfNeeded(_databaseHandler, true);
         databaseSeeded = true;
+    }
+
+    public async Task ExportCompletedExercises()
+    {
+        if (await DbUtils.ExportCompletedExercises(_databaseHandler))
+            completedExercisesExported = true;
+    }
+
+    public async Task ImportCompletedExercises()
+    {
+        if (await DbUtils.ImportCompletedExercises(_databaseHandler))
+            completedExercisesImported = true;
+    }
+
+    public async Task ExportExerciseTypes()
+    {
+        if (await DbUtils.ExportExerciseTypes(_databaseHandler))
+            exerciseTypesExported = true;
+    }
+
+    public async Task ImportExerciseTypes()
+    {
+        if (await DbUtils.ImportExerciseTypes(_databaseHandler))
+            exerciseTypesImported = true;
+    }
+
+    public async Task ExportWorkoutPlan()
+    {
+        if (await DbUtils.ExportWorkoutPlan(_databaseHandler))
+            workoutPlanExported = true;
+    }
+
+    public async Task ImportWorkoutPlan()
+    {
+        if (await DbUtils.ImportWorkoutPlan(_databaseHandler))
+            workoutPlanImported = true;
     }
 }
