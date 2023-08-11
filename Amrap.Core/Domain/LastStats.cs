@@ -14,8 +14,70 @@ public class LastStats
     [Indexed]
     public string PlannedExerciseGuid { get; set; }
 
-    private PlannedExercise _plannedExercise;
-    public PlannedExercise PlannedExercise => _plannedExercise;
+    // ToDo: encapsulate
+    [SQLite.Ignore]
+    public LinkedList<ExerciseStat> ExerciseStats { get; set; } = new LinkedList<ExerciseStat>();
+
+    /// <remarks>
+    /// SQLite only
+    /// </remarks>
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
+    public LastStats()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    { }
+
+    public LastStats(PlannedExercise plannedExercise)
+    {
+        // At most 1 last stats for each planned exercise
+        Guid = plannedExercise.Guid;
+        PlannedExerciseGuid = plannedExercise.Guid;
+    }
+
+    private Stack<ExerciseStat> _statsToRemove = new Stack<ExerciseStat>();
+    private Stack<ExerciseStat> _statsToAdd = new Stack<ExerciseStat>();
+
+    public void AddStat(int sets, int reps, float weight, bool dropSet, bool toFailure)
+    {
+        var stat = new ExerciseStat(System.Guid.NewGuid().ToString(), this, sets, reps, weight, dropSet, toFailure);
+
+        _statsToAdd.Push(stat);
+        ExerciseStats.AddFirst(stat);
+
+        if (ExerciseStats.Last != null && ExerciseStats.Count > 5 ) // Storing max 5 last stats
+        {
+            _statsToRemove.Push(ExerciseStats.Last.Value);
+            ExerciseStats.RemoveLast();
+        }
+    }
+
+    public static Task<LastStats?> GetLastStatsFor(DatabaseHandler databaseHandler, PlannedExercise plannedExercise)
+    {
+        return databaseHandler.GetLastStats(plannedExercise.Guid);
+    }
+
+    public async Task Save(DatabaseHandler databaseHandler)
+    {
+        while (_statsToRemove.TryPop(out var stat))
+            await databaseHandler.DeleteExerciseStats(stat.Guid);
+
+        while (_statsToAdd.TryPop(out var stat))
+            await databaseHandler.UpsertExerciseStats(stat);
+
+        await databaseHandler.SetLastStats(this);
+    }
+}
+
+public class ExerciseStat
+{
+    [PrimaryKey]
+    public string Guid { get; set; }
+
+    /// <remarks>
+    /// SQLite only
+    /// </remarks>
+    [Indexed]
+    public string LastStatsGuid { get; set; }
 
     public DateTimeOffset Time { get; set; }
     public int Sets { get; set; }
@@ -29,31 +91,19 @@ public class LastStats
     /// </remarks>
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
-    public LastStats()
+    public ExerciseStat()
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     { }
 
-    public LastStats(PlannedExercise plannedExercise, int sets, int reps, float weight, bool dropSet, bool toFailure)
+    // Should only be called by LastStats.AddStat(..) method. Encapsulate.
+    public ExerciseStat(string guid, LastStats lastStats, int sets, int reps, float weight, bool dropSet, bool toFailure)
     {
-        // At most 1 last stats for each planned exercise
-        Guid = plannedExercise.Guid;
-        _plannedExercise = plannedExercise;
-        PlannedExerciseGuid = plannedExercise.Guid;
+        Guid = guid;
+        LastStatsGuid = lastStats.Guid;
         Sets = sets;
         Reps = reps;
         Weight = weight;
         DropSet = dropSet;
         ToFailure = toFailure;
     }
-
-    public void SetPlannedExercise(PlannedExercise plannedExercise)
-    {
-        if (plannedExercise != null &&
-            string.Equals(PlannedExerciseGuid, plannedExercise?.Guid, StringComparison.InvariantCultureIgnoreCase))
-            _plannedExercise = plannedExercise;
-        else
-            throw new Exception($"Provided {nameof(PlannedExercise)} guid '{plannedExercise?.Guid}' does not match expected '{PlannedExerciseGuid}'");
-    }
-
-    public Task Save(DatabaseHandler databaseHandler) => databaseHandler.SetLastStats(this);
 }

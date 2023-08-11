@@ -33,6 +33,7 @@ public class DatabaseHandler
             {
                 await _db.DropTableAsync<CompletedExercise>();
                 await _db.DropTableAsync<LastStats>();
+                await _db.DropTableAsync<ExerciseStat>();
             }
         }
 
@@ -41,6 +42,7 @@ public class DatabaseHandler
         await _db.CreateTableAsync<WorkoutPlanItem>();
         await _db.CreateTableAsync<CompletedExercise>();
         await _db.CreateTableAsync<LastStats>();
+        await _db.CreateTableAsync<ExerciseStat>();
     }
 
     // SEED
@@ -81,7 +83,22 @@ public class DatabaseHandler
 
     public Task DeleteWorkoutPlanItem(string guid) => _db.DeleteAsync<WorkoutPlanItem>(guid);
 
-    public Task SetLastStats(LastStats lastStatsModel) => _db.InsertOrReplaceAsync(lastStatsModel);
+    public async Task SetLastStats(LastStats lastStatsModel)
+    {
+        // Save all stats first
+
+        foreach (var item in lastStatsModel.ExerciseStats)
+        {
+            await _db.InsertOrReplaceAsync(item);
+        }
+
+        await _db.InsertOrReplaceAsync(lastStatsModel);
+    }
+
+    public Task DeleteExerciseStats(string guid) => _db.DeleteAsync<ExerciseStat>(guid);
+
+    public Task UpsertExerciseStats(ExerciseStat exerciseStat) => _db.InsertOrReplaceAsync(exerciseStat);
+
 
     // READ
     public async Task<IList<ExerciseType>> GetExerciseTypes() =>
@@ -204,6 +221,23 @@ public class DatabaseHandler
     {
         var res = await _db.QueryAsync<LastStats>($"select * from {nameof(LastStats)} where Guid = ?", guid);
 
-        return res.SingleOrDefault();
+        var lastStats = res.SingleOrDefault();
+
+        if (lastStats == null)
+            return null;
+
+        // Get all stats
+        var statsResult = await GetAllExerciseStatsForLastStats(lastStats.Guid);
+
+        lastStats.ExerciseStats = statsResult;
+
+        return lastStats;
+    }
+
+    public async Task<LinkedList<ExerciseStat>> GetAllExerciseStatsForLastStats(string lastStatsGuid)
+    {
+        var res = await _db.QueryAsync<ExerciseStat>($"select * from {nameof(ExerciseStat)} where LastStatsGuid = ?", lastStatsGuid);
+
+        return new LinkedList<ExerciseStat>(res); ;
     }
 }

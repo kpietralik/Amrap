@@ -59,13 +59,16 @@ public class WorkoutPlanItem
 
     public Task Delete(DatabaseHandler databaseHandler) => databaseHandler.DeleteWorkoutPlanItem(Guid);
 
-    public int GetSets() => PlannedExercise.LastStats?.Sets ?? PlannedExercise.Sets;
+    private ExerciseStat? LastStatsFirstEntry =>
+        PlannedExercise.LastStats?.ExerciseStats?.FirstOrDefault();
 
-    public int GetReps() => PlannedExercise.LastStats?.Reps ?? PlannedExercise.Reps;
+    public int GetSets() => LastStatsFirstEntry?.Sets ?? PlannedExercise.Sets;
 
-    public float GetWeight() => PlannedExercise.LastStats?.Weight ?? PlannedExercise.Weight;
+    public int GetReps() => LastStatsFirstEntry?.Reps ?? PlannedExercise.Reps;
 
-    public bool GetDropSet() => PlannedExercise.LastStats?.DropSet ?? PlannedExercise.DropSet;
+    public float GetWeight() => LastStatsFirstEntry?.Weight ?? PlannedExercise.Weight;
 
-    public bool GetToFailure() => PlannedExercise.LastStats?.ToFailure ?? PlannedExercise.ToFailure;
+    public bool GetDropSet() => LastStatsFirstEntry?.DropSet ?? PlannedExercise.DropSet;
+
+    public bool GetToFailure() => LastStatsFirstEntry?.ToFailure ?? PlannedExercise.ToFailure;
 }

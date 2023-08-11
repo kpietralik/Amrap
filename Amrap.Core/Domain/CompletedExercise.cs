@@ -59,13 +59,11 @@ public class CompletedExercise
     {
         await databaseHandler.AddExercise(this);
 
-        var lastStats = new LastStats(
-            plannedExercise,
-            Sets,
-            Reps,
-            Weight,
-            DropSet,
-            ToFailure);
+        var lastStats = await LastStats.GetLastStatsFor(databaseHandler, plannedExercise);
+
+        lastStats ??= new LastStats(plannedExercise);
+
+        lastStats.AddStat(Sets, Reps, Weight, DropSet, ToFailure);
 
         await lastStats.Save(databaseHandler);
     }
