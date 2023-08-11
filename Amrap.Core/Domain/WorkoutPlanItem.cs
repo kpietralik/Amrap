@@ -71,4 +71,48 @@ public class WorkoutPlanItem
     public bool GetDropSet() => LastStatsFirstEntry?.DropSet ?? PlannedExercise.DropSet;
 
     public bool GetToFailure() => LastStatsFirstEntry?.ToFailure ?? PlannedExercise.ToFailure;
+
+    public string GetDropSet(Func<bool, string> boolStringFormatFunc) => boolStringFormatFunc(LastStatsFirstEntry?.DropSet ?? PlannedExercise.DropSet);
+
+    public string GetToFailure(Func<bool, string> boolStringFormatFunc) => boolStringFormatFunc(LastStatsFirstEntry?.ToFailure ?? PlannedExercise.ToFailure);
+
+    public IEnumerable<int> GetSetsArray()
+    {
+        if (LastStatsFirstEntry?.Sets == null)
+            return new int[] { PlannedExercise.Sets };
+
+        return PlannedExercise.LastStats.ExerciseStats.Select(x => x.Sets);
+    }
+
+    public IEnumerable<int> GetRepsArray()
+    {
+        if (LastStatsFirstEntry?.Reps == null)
+            return new int[] { PlannedExercise.Reps };
+
+        return PlannedExercise.LastStats.ExerciseStats.Select(x => x.Reps);
+    }
+
+    public IEnumerable<float> GetWeightArray()
+    {
+        if (LastStatsFirstEntry?.Weight == null)
+            return new float[] { PlannedExercise.Weight };
+
+        return PlannedExercise.LastStats.ExerciseStats.Select(x => x.Weight);
+    }
+
+    public IEnumerable<string> GetDropSetArray(Func<bool, string> boolStringFormatFunc)
+    {
+        if (LastStatsFirstEntry?.DropSet == null)
+            return new string[] { boolStringFormatFunc(PlannedExercise.DropSet) };
+
+        return PlannedExercise.LastStats.ExerciseStats.Select(x => boolStringFormatFunc(x.DropSet));
+    }
+
+    public IEnumerable<string> GetToFailureArray(Func<bool, string> boolStringFormatFunc)
+    {
+        if (LastStatsFirstEntry?.ToFailure == null)
+            return new string[] { boolStringFormatFunc(PlannedExercise.ToFailure) };
+
+        return PlannedExercise.LastStats.ExerciseStats.Select(x => boolStringFormatFunc(x.ToFailure));
+    }
 }

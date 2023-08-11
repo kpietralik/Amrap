@@ -3,7 +3,7 @@
 @using Amrap.Core.Infrastructure;
 @using Bit.BlazorUI
 
-@inject NavigationManager NavigationManager;
+@inject NavigationManager _navigationManager;
 @inject DatabaseHandler _databaseHandler;
 
 <ExerciseTypeViewComponent ExerciseType="@Item.PlannedExercise.ExerciseType" />
@@ -16,13 +16,12 @@
         </div>
     </HeaderTemplate>
     <ChildContent>
-        <BitNumericTextField Label="Sets" IsUnderlined="true" Step="@(1)" Min="1" ShowArrows="true" @bind-Value="@newSets" />
-        <BitNumericTextField Label="Reps" IsUnderlined="true" Step="@(1)" Min="1" ShowArrows="true" @bind-Value="@newReps" />
-        <BitNumericTextField Label="Weight" IsUnderlined="true" Step="@(0.5)" Min="1" IconName="BitIconName.Weights" 
-            Suffix=" kg" ShowArrows="true" @bind-Value="@newWeight" />
-        <BitCheckbox Label="Drop Set" @bind-Value="@newDropSet" BoxSide="@BitCheckBoxSide.Start" />
-        <BitCheckbox Label="To failure" @bind-Value="@newToFailure" BoxSide="@BitCheckBoxSide.Start" />
-        <BitNumericTextField Label="Priority" IsUnderlined="true" Min="0" @bind-Value="@newPriority" />
+        <BitNumericTextField Label="Sets" LabelPosition="BitNumericTextFieldLabelPosition.Left" IsUnderlined="true" Step="@(1)" Min="1" ShowArrows="true" @bind-Value="@newSets" />
+        <BitNumericTextField Label="Reps" LabelPosition="BitNumericTextFieldLabelPosition.Left" IsUnderlined="true" Step="@(1)" Min="1" ShowArrows="true" @bind-Value="@newReps" />
+        <BitNumericTextField Label="Weight" LabelPosition="BitNumericTextFieldLabelPosition.Left" IsUnderlined="true" Step="@(0.5)" Min="1" IconName="BitIconName.Weights"
+                             Suffix=" kg" ShowArrows="true" @bind-Value="@newWeight" />
+        <BitToggle Label="Drop Set" @bind-Value="@newDropSet" /><BitToggle Label="To failure" @bind-Value="@newToFailure" />
+        <BitNumericTextField Label="Priority" LabelPosition="BitNumericTextFieldLabelPosition.Left" IsUnderlined="true" Min="0" @bind-Value="@newPriority" />
 
         <BitActionButton Style="margin-top: 20px;" IconName="BitIconName.Send" OnClick="Complete">Complete</BitActionButton>
         @if (completed)
@@ -33,7 +32,6 @@
         }
         <br />
         <BitActionButton Style="margin-top: 20px;" IconName="BitIconName.Edit" OnClick="Edit">Edit</BitActionButton>
-        <br />
         <BitActionButton Style="margin-top: 20px;" IconName="BitIconName.Delete" OnClick="Delete">Delete</BitActionButton>
         @if (deleted)
         {
@@ -99,7 +97,7 @@
 
     public void Edit()
     {
-        NavigationManager.NavigateTo(Item.Link);
+        _navigationManager.NavigateTo(Item.Link);
     }
 
     public async Task Delete()
