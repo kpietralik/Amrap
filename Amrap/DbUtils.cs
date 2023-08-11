@@ -131,35 +131,26 @@ internal static class DbUtils
         return null;
     }
 
-    internal static async Task SeedDataIfNeeded(DatabaseHandler databaseHandler, Uri exerciseTypesUrl, Uri workoutPlanUrl, bool force = false)
+    internal static async Task SeedData(DatabaseHandler databaseHandler, Uri exerciseTypesUrl, Uri workoutPlanUrl)
     {
-        string isFirstRun = await SecureStorage.Default.GetAsync(Consts.FirstRunKey);
+        using var client = new HttpClient();
 
-        // Seeding sample ExerciseTypes and WorkoutPlan at first run of the app
-        if (!string.Equals(isFirstRun, Consts.TrueValue, StringComparison.InvariantCultureIgnoreCase)
-            || force)
+        var exerciseTypes = await client.GetFromJsonAsync<IList<ExerciseType>>(exerciseTypesUrl);
+        var workoutPlan = await client.GetFromJsonAsync<IList<WorkoutPlanItem>>(workoutPlanUrl);
+
+        await databaseHandler.SeedExerciseTypes(exerciseTypes);
+
+        var plannedExercises = workoutPlan.Select(x => x.PlannedExercise).Distinct(new PlannedExerciseEqualityComparer());
+        foreach (var plannedExercise in plannedExercises)
         {
-            await SecureStorage.Default.SetAsync(Consts.FirstRunKey, Consts.TrueValue);
+            plannedExercise.SetExerciseType(exerciseTypes.Single(x => x.Guid == plannedExercise.ExerciseTypeGuid));
+            await plannedExercise.Add(databaseHandler);
+        }
 
-            using var client = new HttpClient();
-
-            var exerciseTypes = await client.GetFromJsonAsync<IList<ExerciseType>>(exerciseTypesUrl);
-            var workoutPlan = await client.GetFromJsonAsync<IList<WorkoutPlanItem>>(workoutPlanUrl);
-
-            await databaseHandler.SeedExerciseTypes(exerciseTypes);
-
-            var plannedExercises = workoutPlan.Select(x => x.PlannedExercise).Distinct(new PlannedExerciseEqualityComparer());
-            foreach (var plannedExercise in plannedExercises)
-            {
-                plannedExercise.SetExerciseType(exerciseTypes.Single(x => x.Guid == plannedExercise.ExerciseTypeGuid));
-                await plannedExercise.Add(databaseHandler);
-            }
-
-            foreach (var workoutPlanItem in workoutPlan)
-            {
-                workoutPlanItem.SetPlannedExercise(plannedExercises.Single(x => x.Guid == workoutPlanItem.PlannedExerciseGuid));
-                await workoutPlanItem.Add(databaseHandler);
-            }
+        foreach (var workoutPlanItem in workoutPlan)
+        {
+            workoutPlanItem.SetPlannedExercise(plannedExercises.Single(x => x.Guid == workoutPlanItem.PlannedExerciseGuid));
+            await workoutPlanItem.Add(databaseHandler);
         }
     }
 
