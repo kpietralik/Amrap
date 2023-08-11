@@ -48,8 +48,8 @@ public static class DayOfWeekList
             new()
             {
                 ItemType = BitDropdownItemType.Normal,
-                Text = DayOfWeek.Friday.ToString(),
-                Value = DayOfWeek.Friday.ToString()
+                Text = DayOfWeek.Thursday.ToString(),
+                Value = DayOfWeek.Thursday.ToString()
             },
             new()
             {
