@@ -10,37 +10,27 @@
 
 <PageTitle>Amrap App</PageTitle>
 
-<BitAccordion>
-    <HeaderTemplate Context="isExpanded">
-        <BitIconButton IconName="isExpanded ? BitIconName.ChevronDown : BitIconName.ChevronRight" />
-        <div class="custom-header">
-            <span class="custom-title">Filter</span>
+<div class="container text-center">
+    <div class="row">
+        <div class="col">
+            <BitDropdown Items="DayOfWeekList.FilteringDayOfWeekItems()"
+                            Placeholder="Select day"
+                            ShowClearButton="false"
+                            OnSelectItem="OnSelectItemDayOfWeek"
+                            Style="width: 100%; max-width: 290px; margin: 20px 0 20px 0">
+            </BitDropdown>
         </div>
-    </HeaderTemplate>
-    <ChildContent>
-        <div class="container text-center">
-            <div class="row">
-                <div class="col">
-                    <BitDropdown Items="DayOfWeekList.FilteringDayOfWeekItems()"
-                                 Placeholder="Select day"
-                                 ShowClearButton="false"
-                                 OnSelectItem="OnSelectItemDayOfWeek"
-                                 Style="width: 100%; max-width: 290px; margin: 20px 0 20px 0">
-                    </BitDropdown>
-                </div>
-                <div class="col">
-                    <BitToggleButton @bind-IsChecked="onlyCompletedToday"
-                                     Class="tgl-btn"
-                                     Label="Completed"
-                                     IconName=@(onlyCompletedToday ? BitIconName.Completed : BitIconName.CompletedSolid)
-                                     OnChange="OnChangeOnlyCompletedToday"
-                                     ButtonStyle="BitButtonStyle.Primary">
-                    </BitToggleButton>
-                </div>
-            </div>
+        <div class="col">
+            <BitToggleButton @bind-IsChecked="onlyCompletedToday"
+                                Class="tgl-btn"
+                                Label="Completed"
+                                IconName=@(onlyCompletedToday ? BitIconName.Completed : BitIconName.CompletedSolid)
+                                OnChange="OnChangeOnlyCompletedToday"
+                                ButtonStyle="BitButtonStyle.Primary">
+            </BitToggleButton>
         </div>
-    </ChildContent>
-</BitAccordion>
+    </div>
+</div>
 
 @if (displayedItems == null)
 {
