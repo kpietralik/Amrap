@@ -15,13 +15,43 @@ public class DatabaseHandler
     {
     }
 
+    // TODO: trim unused methods
+
+    // Migration #1 -> multiple planned exercises for each workoutplanitem
+    public async Task Migration1()
+    {
+        InitializeDb();
+        await _db.CreateTableAsync<PlannedExercise>();
+
+        var exerciseTypes = await GetExerciseTypes();
+        var workoutPlanItems = await GetWorkoutPlan();
+        var plannedExercises = await _db.QueryAsync<PlannedExercise>($"select * from {nameof(PlannedExercise)}");
+
+        foreach (var plannedExercise in plannedExercises)
+        {
+            var workoutPlanItem = workoutPlanItems.Single(x => x.PlannedExerciseGuid == plannedExercise.Guid);
+
+            plannedExercise.WorkoutPlanItemGuid = workoutPlanItem.Guid;
+
+            await UpsertPlannedExercise(plannedExercise);
+        }
+    }
+
+    private void InitializeDb()
+    {
+        if (!HasInitialized)
+        {
+            _db = new SQLiteAsyncConnection(_databasePath);
+        }
+    }
+
     public async Task CreateConnectionAndTables(bool force = false, bool keepAchievements = true)
     {
         if (HasInitialized && !force)
             return;
 
-        _db = new SQLiteAsyncConnection(_databasePath);
-        
+        InitializeDb();
+
         if (force)
         {
             // This will remove all of application's data.
@@ -77,6 +107,8 @@ public class DatabaseHandler
 
     public Task UpsertPlannedExercise(PlannedExercise plannedExercise) => _db.InsertOrReplaceAsync(plannedExercise);
 
+    public Task DeletePlannedExercise(string guid) => _db.DeleteAsync<PlannedExercise>(guid);
+
     public Task AddWorkoutPlanItem(WorkoutPlanItem workoutPlanItem) => _db.InsertAsync(workoutPlanItem);
 
     public Task UpsertWorkoutPlanItem(WorkoutPlanItem workoutPlanItem) => _db.InsertOrReplaceAsync(workoutPlanItem);
@@ -111,7 +143,7 @@ public class DatabaseHandler
         return res.Single();
     }
 
-    public async Task<IList<PlannedExercise>> GetPlannedExercises(IList<ExerciseType> exerciseTypes)
+    public async Task<IList<PlannedExercise>> GetAllPlannedExercises(IList<ExerciseType> exerciseTypes, IList<WorkoutPlanItem> workoutPlanItems)
     {
         var plannedExercises = await _db.QueryAsync<PlannedExercise>($"select * from {nameof(PlannedExercise)}");
 
@@ -126,6 +158,23 @@ public class DatabaseHandler
         }
 
         return plannedExercises;
+    }
+
+    public async Task<IList<PlannedExercise>> GetPlannedExercisesForWorkoutPlanItem(WorkoutPlanItem workoutPlanItem, IList<ExerciseType> exerciseTypes)
+    {
+        var plannedExercisesForWorkoutPlanItem = await _db.QueryAsync<PlannedExercise>($"select * from {nameof(PlannedExercise)} where WorkoutPlanItemGuid = ?", workoutPlanItem.Guid);
+
+        foreach (var plannedExercise in plannedExercisesForWorkoutPlanItem)
+        {
+            plannedExercise.SetExerciseType(exerciseTypes.Single(x => x.Guid == plannedExercise.ExerciseTypeGuid));
+
+            var lastStats = await GetLastStats(plannedExercise.Guid); // 1 to at most 1 relationship
+
+            if (lastStats != null)
+                plannedExercise.SetLastStats(lastStats);
+        }
+
+        return plannedExercisesForWorkoutPlanItem;
     }
 
     public async Task<PlannedExercise> GetPlannedExercise(string guid)
@@ -150,21 +199,26 @@ public class DatabaseHandler
 
         var workoutPlanItem = res.Single();
 
-        var plannedExercise = await GetPlannedExercise(workoutPlanItem.PlannedExerciseGuid);
+        var exerciseTypes = await GetExerciseTypes();
+        var plannedExercises = await GetPlannedExercisesForWorkoutPlanItem(workoutPlanItem, exerciseTypes);
 
-        workoutPlanItem.SetPlannedExercise(plannedExercise);
+        workoutPlanItem.SetPlannedExercises(plannedExercises);
 
         return workoutPlanItem;
     }
 
-    public async Task<IList<WorkoutPlanItem>> GetWorkoutPlan(IList<PlannedExercise> plannedExercises)
+    public async Task<IList<WorkoutPlanItem>> GetWorkoutPlan()
     {
         var workoutPlan = await _db.QueryAsync<WorkoutPlanItem>($"select * from {nameof(WorkoutPlanItem)}");
 
-        foreach (var workoutPlanItem in workoutPlan)
+        var exerciseTypes = await GetExerciseTypes();
+
+        foreach(var workoutPlanItem in workoutPlan)
         {
-            workoutPlanItem.SetPlannedExercise(plannedExercises.Single(x => x.Guid == workoutPlanItem.PlannedExerciseGuid));
+            var plannedExercises = await GetPlannedExercisesForWorkoutPlanItem(workoutPlanItem, exerciseTypes);
+            workoutPlanItem.SetPlannedExercises(plannedExercises);
         }
+
 
         return workoutPlan;
     }

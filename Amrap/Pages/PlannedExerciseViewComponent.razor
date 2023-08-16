@@ -1,0 +1,40 @@
+﻿@using Amrap.Core.Domain;
+@using Bit.BlazorUI
+
+@if (ShowStartingExercisePlan)
+{
+    <BitTextField Label="Starting Sets" IsUnderlined="true" IsReadonly="true" Value="@PlannedExercise.Sets.ToString()" />
+}
+<BitTextField Label="Last sets" IsUnderlined="true" IsReadonly="true" Value="@setsArray" />
+@if (ShowStartingExercisePlan)
+{
+    <BitTextField Label="Starting Reps" IsUnderlined="true" IsReadonly="true" Value="@PlannedExercise.Reps.ToString()" />
+}
+<BitTextField Label="Last reps" IsUnderlined="true" IsReadonly="true" Value="@repsArray" />
+@if (ShowStartingExercisePlan)
+{
+    <BitTextField Label="Starting Weight" IsUnderlined="true" IsReadonly="true" IconName="BitIconName.Weights" Suffix=" kg" Value="@PlannedExercise.Weight.ToString()" />
+}
+<BitTextField Label="Last weight" IsUnderlined="true" IsReadonly="true" IconName="BitIconName.Weights" Suffix=" kg" Value="@weightArray" />
+<BitTextField Label="Note" IsMultiline="true" IsUnderlined="true" IsReadonly="true" Value="@PlannedExercise.Note" />
+<BitTextField Label="Drop set" IsUnderlined="true" IsReadonly="true" Value="@dropSetArray"/>
+<BitTextField Label="To failure" IsUnderlined="true" IsReadonly="true" Value="@toFailureArray" />
+
+@code {
+    [Parameter]
+    public PlannedExercise PlannedExercise { get; set; }
+
+    [Parameter]
+    public bool ShowStartingExercisePlan { get; set; }
+
+    private string BoolYesNoText(bool value) => value ? "Yes" : "No";
+
+    private string setsArray => FormatValue(PlannedExercise.GetSets(), PlannedExercise.GetSetsArray());
+    private string repsArray => FormatValue(PlannedExercise.GetReps(), PlannedExercise.GetRepsArray());
+    private string weightArray => FormatValue(PlannedExercise.GetWeight(), PlannedExercise.GetWeightArray());
+    private string dropSetArray => FormatValue(PlannedExercise.GetDropSet(BoolYesNoText), PlannedExercise.GetDropSetArray(BoolYesNoText));
+    private string toFailureArray => FormatValue(PlannedExercise.GetToFailure(BoolYesNoText), PlannedExercise.GetToFailureArray(BoolYesNoText));
+
+    private string FormatValue<T>(T last, IEnumerable<T> previous)
+        => string.Concat(last, " | ", string.Join(", ", previous.Skip(1)));
+}

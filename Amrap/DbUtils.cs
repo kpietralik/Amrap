@@ -73,9 +73,9 @@ internal static class DbUtils
 
     internal static async Task<bool> ExportWorkoutPlan(DatabaseHandler databaseHandler, string fileName = "workoutPlan.json")
     {
-        var workoutPlanReader = new WorkoutPlanReader(databaseHandler);
-        var workoutPlan = await workoutPlanReader.GetWorkoutPlan();
+        var workoutPlan = await databaseHandler.GetWorkoutPlan();
 
+        // ToDo: test serialization
         var json = JsonSerializer.Serialize(workoutPlan, _jsonOptions);
 
         using var stream = new MemoryStream(Encoding.Default.GetBytes(json));
@@ -87,22 +87,25 @@ internal static class DbUtils
 
     internal static async Task<bool> ImportWorkoutPlan(DatabaseHandler databaseHandler)
     {
-        var workoutPlan = await PickAndReadJsonFile<WorkoutPlanItem>(JsonPickOptions());
+        // ToDo: test deserialization
+        throw new NotImplementedException();
 
-        if (workoutPlan == null)
-            return false;
+        //var workoutPlan = await PickAndReadJsonFile<WorkoutPlanItem>(JsonPickOptions());
 
-        foreach (var workoutPlanItem in workoutPlan)
-        {
-            await workoutPlanItem.PlannedExercise.Upsert(databaseHandler);
+        //if (workoutPlan == null)
+        //    return false;
 
-            if (workoutPlanItem.PlannedExercise.LastStats != null)
-                await workoutPlanItem.PlannedExercise.LastStats.Save(databaseHandler);
+        //foreach (var workoutPlanItem in workoutPlan)
+        //{
+        //    await workoutPlanItem.PlannedExercise.Upsert(databaseHandler);
+
+        //    if (workoutPlanItem.PlannedExercise.LastStats != null)
+        //        await workoutPlanItem.PlannedExercise.LastStats.Save(databaseHandler);
             
-            await workoutPlanItem.Upsert(databaseHandler);
-        }
+        //    await workoutPlanItem.Upsert(databaseHandler);
+        //}
 
-        return true;
+        //return true;
     }
 
     public static async Task<ICollection<T>> PickAndReadJsonFile<T>(PickOptions options)
@@ -133,25 +136,28 @@ internal static class DbUtils
 
     internal static async Task SeedData(DatabaseHandler databaseHandler, Uri exerciseTypesUrl, Uri workoutPlanUrl)
     {
-        using var client = new HttpClient();
+        // ToDo: test seeding data
+        throw new NotImplementedException();
 
-        var exerciseTypes = await client.GetFromJsonAsync<IList<ExerciseType>>(exerciseTypesUrl);
-        var workoutPlan = await client.GetFromJsonAsync<IList<WorkoutPlanItem>>(workoutPlanUrl);
+        //using var client = new HttpClient();
 
-        await databaseHandler.SeedExerciseTypes(exerciseTypes);
+        //var exerciseTypes = await client.GetFromJsonAsync<IList<ExerciseType>>(exerciseTypesUrl);
+        //var workoutPlan = await client.GetFromJsonAsync<IList<WorkoutPlanItem>>(workoutPlanUrl);
 
-        var plannedExercises = workoutPlan.Select(x => x.PlannedExercise).Distinct(new PlannedExerciseEqualityComparer());
-        foreach (var plannedExercise in plannedExercises)
-        {
-            plannedExercise.SetExerciseType(exerciseTypes.Single(x => x.Guid == plannedExercise.ExerciseTypeGuid));
-            await plannedExercise.Add(databaseHandler);
-        }
+        //await databaseHandler.SeedExerciseTypes(exerciseTypes);
 
-        foreach (var workoutPlanItem in workoutPlan)
-        {
-            workoutPlanItem.SetPlannedExercise(plannedExercises.Single(x => x.Guid == workoutPlanItem.PlannedExerciseGuid));
-            await workoutPlanItem.Add(databaseHandler);
-        }
+        //var plannedExercises = workoutPlan.Select(x => x.PlannedExercise).Distinct(new PlannedExerciseEqualityComparer());
+        //foreach (var plannedExercise in plannedExercises)
+        //{
+        //    plannedExercise.SetExerciseType(exerciseTypes.Single(x => x.Guid == plannedExercise.ExerciseTypeGuid));
+        //    await plannedExercise.Add(databaseHandler);
+        //}
+
+        //foreach (var workoutPlanItem in workoutPlan)
+        //{
+        //    workoutPlanItem.SetPlannedExercise(plannedExercises.Single(x => x.Guid == workoutPlanItem.PlannedExerciseGuid));
+        //    await workoutPlanItem.Add(databaseHandler);
+        //}
     }
 
     private static PickOptions JsonPickOptions()

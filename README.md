@@ -36,7 +36,9 @@ Sample data for `Seed Database` functionality:
 
 ## ToDo:
 ### Features
-- Last X stats instead of single last stat
+- Order exercise types by name
+- Filter exercise types by name
+- Delete exercise type option
 - Alternative exercises for workout plan item
 - Charts with progress for each exercise type
 - Charts completion info for each workout plan item

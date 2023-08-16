@@ -1,0 +1,36 @@
+﻿@page "/plannedexercise/{WorkoutPlanItemGuid}/{PlannedExerciseGuid}"
+
+@using Amrap.Core;
+@using Amrap.Core.Domain;
+@using Amrap.Core.Infrastructure;
+@using Bit.BlazorUI
+
+@inject DatabaseHandler _databaseHandler;
+@inject NavigationManager _navigationManager;
+
+<PageTitle>@title</PageTitle>
+<BitLabel>@title</BitLabel>
+
+@if (WorkoutPlanItem != default && PlannedExercise != default)
+{
+    <PlannedExerciseFullComponent WorkoutPlanItem="WorkoutPlanItem" PlannedExercise="PlannedExercise" DisplayWorkoutPlanItem="true" DisplayExerciseTypeLink="false"/>
+}
+@code {
+    private const string title = "Planned exercise";
+
+    [Parameter]
+    public string WorkoutPlanItemGuid { get; set; }
+
+    [Parameter]
+    public string PlannedExerciseGuid { get; set; }
+
+    public WorkoutPlanItem WorkoutPlanItem { get; set; }
+
+    public PlannedExercise PlannedExercise { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        WorkoutPlanItem = await WorkoutPlanItem.GetWorkoutPlanItem(_databaseHandler, WorkoutPlanItemGuid);
+        PlannedExercise = WorkoutPlanItem.PlannedExercises.Single(x => x.Guid == PlannedExerciseGuid);
+    }
+}
