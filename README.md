@@ -16,6 +16,7 @@ All data is stored locally.
 - creating/edititg/deleting workout plan item from UI
 - presenting workout plan
 - filtering workout plan based on day of week and completed status (current day)
+- multiple planned exercises for each workout plan item
 
 ## Debug menu 
 - `Recreate Database keeping achievements` removes all db data except completed exercises
@@ -26,7 +27,7 @@ All data is stored locally.
 - `Import Exercise Types`
 - `Export Workout plan`
 - `Import Workout plan`
-- `Seed Database` uses provided links to seed exercise types and workout plan. Clearing database before that operation is advised but existing entries should be updated.
+- `Seed Database` uses provided links to seed exercise types and workout plan. Clearing database before that operation is advised.
 
 Sample data for `Seed Database` functionality:
 - exercise types 
@@ -39,7 +40,6 @@ Sample data for `Seed Database` functionality:
 - Order exercise types by name
 - Filter exercise types by name
 - Delete exercise type option
-- Alternative exercises for workout plan item
 - Charts with progress for each exercise type
 - Charts completion info for each workout plan item
 - Placeholder image for lack of sample image cases

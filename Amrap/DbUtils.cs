@@ -75,7 +75,6 @@ internal static class DbUtils
     {
         var workoutPlan = await databaseHandler.GetWorkoutPlan();
 
-        // ToDo: test serialization
         var json = JsonSerializer.Serialize(workoutPlan, _jsonOptions);
 
         using var stream = new MemoryStream(Encoding.Default.GetBytes(json));
@@ -87,28 +86,29 @@ internal static class DbUtils
 
     internal static async Task<bool> ImportWorkoutPlan(DatabaseHandler databaseHandler)
     {
-        // ToDo: test deserialization
-        throw new NotImplementedException();
+        var workoutPlan = await PickAndReadJsonFile<WorkoutPlanItem>(JsonPickOptions());
 
-        //var workoutPlan = await PickAndReadJsonFile<WorkoutPlanItem>(JsonPickOptions());
+        if (workoutPlan == null)
+            return false;
 
-        //if (workoutPlan == null)
-        //    return false;
+        await ImportWorkoutPlan(databaseHandler, workoutPlan);
 
-        //foreach (var workoutPlanItem in workoutPlan)
-        //{
-        //    await workoutPlanItem.PlannedExercise.Upsert(databaseHandler);
-
-        //    if (workoutPlanItem.PlannedExercise.LastStats != null)
-        //        await workoutPlanItem.PlannedExercise.LastStats.Save(databaseHandler);
-            
-        //    await workoutPlanItem.Upsert(databaseHandler);
-        //}
-
-        //return true;
+        return true;
     }
 
-    public static async Task<ICollection<T>> PickAndReadJsonFile<T>(PickOptions options)
+    internal static async Task SeedData(DatabaseHandler databaseHandler, Uri exerciseTypesUrl, Uri workoutPlanUrl)
+    {
+        using var client = new HttpClient();
+
+        var exerciseTypes = await client.GetFromJsonAsync<IList<ExerciseType>>(exerciseTypesUrl);
+        var workoutPlan = await client.GetFromJsonAsync<IList<WorkoutPlanItem>>(workoutPlanUrl);
+
+        await databaseHandler.SeedExerciseTypes(exerciseTypes);
+
+        await ImportWorkoutPlan(databaseHandler, workoutPlan);
+    }
+
+    private static async Task<ICollection<T>> PickAndReadJsonFile<T>(PickOptions options)
     {
         try
         {
@@ -134,30 +134,20 @@ internal static class DbUtils
         return null;
     }
 
-    internal static async Task SeedData(DatabaseHandler databaseHandler, Uri exerciseTypesUrl, Uri workoutPlanUrl)
+    private static async Task ImportWorkoutPlan(DatabaseHandler databaseHandler, ICollection<WorkoutPlanItem> workoutPlan)
     {
-        // ToDo: test seeding data
-        throw new NotImplementedException();
+        foreach (var workoutPlanItem in workoutPlan)
+        {
+            foreach (var plannedExercise in workoutPlanItem.PlannedExercises)
+            {
+                await plannedExercise.Add(databaseHandler);
 
-        //using var client = new HttpClient();
+                if (plannedExercise.LastStats != null)
+                    await plannedExercise.LastStats.Import(databaseHandler);
+            }
 
-        //var exerciseTypes = await client.GetFromJsonAsync<IList<ExerciseType>>(exerciseTypesUrl);
-        //var workoutPlan = await client.GetFromJsonAsync<IList<WorkoutPlanItem>>(workoutPlanUrl);
-
-        //await databaseHandler.SeedExerciseTypes(exerciseTypes);
-
-        //var plannedExercises = workoutPlan.Select(x => x.PlannedExercise).Distinct(new PlannedExerciseEqualityComparer());
-        //foreach (var plannedExercise in plannedExercises)
-        //{
-        //    plannedExercise.SetExerciseType(exerciseTypes.Single(x => x.Guid == plannedExercise.ExerciseTypeGuid));
-        //    await plannedExercise.Add(databaseHandler);
-        //}
-
-        //foreach (var workoutPlanItem in workoutPlan)
-        //{
-        //    workoutPlanItem.SetPlannedExercise(plannedExercises.Single(x => x.Guid == workoutPlanItem.PlannedExerciseGuid));
-        //    await workoutPlanItem.Add(databaseHandler);
-        //}
+            await workoutPlanItem.Upsert(databaseHandler);
+        }
     }
 
     private static PickOptions JsonPickOptions()
