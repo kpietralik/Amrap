@@ -83,18 +83,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Pages\PlannedExerciseFullComponent.razor.css" />
-      <None Remove="Pages\PlannedExercisePreviewComponent.razor.css" />
-      <None Remove="Pages\PlannedExercisePage.razor.css" />
-      <None Remove="Pages\WorkoutPlanItemComponent.razor.css" />
       <None Remove="Resources\AppIcon\logo.png" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="Pages\PlannedExerciseFullComponent.razor.css" />
-      <Content Include="Pages\PlannedExercisePage.razor.css" />
-      <Content Include="Pages\PlannedExercisePreviewComponent.razor.css" />
-      <Content Include="Pages\WorkoutPlanItemComponent.razor.css" />
     </ItemGroup>
 
     <ItemGroup>

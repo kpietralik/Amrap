@@ -107,24 +107,48 @@ public class DatabaseHandler
 
     public Task UpsertPlannedExercise(PlannedExercise plannedExercise) => _db.InsertOrReplaceAsync(plannedExercise);
 
-    public Task DeletePlannedExercise(string guid) => _db.DeleteAsync<PlannedExercise>(guid);
+    public async Task DeletePlannedExercise(PlannedExercise plannedExercise)
+    {
+        await DeleteLastStats(plannedExercise.LastStats);
+
+        await _db.DeleteAsync<PlannedExercise>(plannedExercise.Guid);
+    }
 
     public Task AddWorkoutPlanItem(WorkoutPlanItem workoutPlanItem) => _db.InsertAsync(workoutPlanItem);
 
     public Task UpsertWorkoutPlanItem(WorkoutPlanItem workoutPlanItem) => _db.InsertOrReplaceAsync(workoutPlanItem);
 
-    public Task DeleteWorkoutPlanItem(string guid) => _db.DeleteAsync<WorkoutPlanItem>(guid);
+    public async Task DeleteWorkoutPlanItem(WorkoutPlanItem workoutPlanItem)
+    {
+        foreach (var ex in workoutPlanItem.PlannedExercises)
+            await DeletePlannedExercise(ex);
+     
+        await _db.DeleteAsync<WorkoutPlanItem>(workoutPlanItem.Guid);
+    }
 
-    public async Task SetLastStats(LastStats lastStatsModel)
+    public async Task SetLastStats(LastStats lastStats)
     {
         // Save all stats first
-
-        foreach (var item in lastStatsModel.ExerciseStats)
+        foreach (var item in lastStats.ExerciseStats)
         {
             await _db.InsertOrReplaceAsync(item);
         }
 
-        await _db.InsertOrReplaceAsync(lastStatsModel);
+        await _db.InsertOrReplaceAsync(lastStats);
+    }
+
+    public async Task DeleteLastStats(LastStats lastStats)
+    {
+        if (lastStats == default)
+            return;
+
+        // Delete all stats first
+        foreach (var item in lastStats.ExerciseStats)
+        {
+            await _db.DeleteAsync(item);
+        }
+
+        await _db.DeleteAsync(lastStats);
     }
 
     public Task DeleteExerciseStats(string guid) => _db.DeleteAsync<ExerciseStat>(guid);

@@ -1,0 +1,78 @@
+﻿@page "/newplannedexercise/{ExerciseTypeGuid}/{WorkoutPlanItemGuid}"
+
+@using Amrap.Core;
+@using Amrap.Core.Domain;
+@using Amrap.Enum;
+@using Amrap.Core.Infrastructure;
+@using Bit.BlazorUI
+
+@inject NavigationManager NavigationManager
+@inject DatabaseHandler _databaseHandler;
+
+<BitTextField Label="Sets" IsUnderlined="true" @bind-Value="@setsStr" />
+<BitTextField Label="Reps" IsUnderlined="true" @bind-Value="@repsStr" />
+<BitTextField Label="Weight" IsUnderlined="true" @bind-Value="@weightStr" />
+<BitTextField Label="Note" IsUnderlined="true" @bind-Value="@note" />
+<BitCheckbox Label="Drop set" @bind-Value="dropSet" />
+<BitCheckbox Label="To failure" @bind-Value="toFailure" />
+
+<BitButton Style="margin-top: 20px;" OnClick="Save">Save</BitButton>
+
+@code {
+    [Parameter]
+    public string ExerciseTypeGuid { get; set; }
+
+    [Parameter]
+    public string WorkoutPlanItemGuid { get; set; }
+
+    public ExerciseType ExerciseType { get; set; }
+
+    public WorkoutPlanItem WorkoutPlanItem { get; set; }
+
+    private string setsStr { get; set; }
+    private string repsStr { get; set; }
+    private string weightStr { get; set; }
+    private string note { get; set; }
+    private bool dropSet { get; set; }
+    private bool toFailure { get; set; }
+
+    private const string InvalidInput = "Invalid input";
+    private const string Ok = "Ok";
+
+    protected override async Task OnInitializedAsync()
+    {
+        ExerciseType = await _databaseHandler.GetExerciseType(ExerciseTypeGuid);
+        WorkoutPlanItem = await _databaseHandler.GetWorkoutPlanItem(WorkoutPlanItemGuid);
+    }
+
+    private async Task Save()
+    {
+        if (!int.TryParse(setsStr, out var sets) || sets < 0)
+        {
+            await App.Current.MainPage.DisplayAlert(InvalidInput, "Sets must be a positive integer value", Ok);
+            return;
+        }
+
+        if (!int.TryParse(repsStr, out var reps) || reps < 0)
+        {
+            await App.Current.MainPage.DisplayAlert(InvalidInput, "Reps must be a positive integer value", Ok);
+            return;
+        }
+
+        if (!float.TryParse(weightStr, out var weight) || weight < 0)
+        {
+            await App.Current.MainPage.DisplayAlert(InvalidInput, "Weight must be a positive number", Ok);
+            return;
+        }
+
+        var plannedExercise = new PlannedExercise(
+            Guid.NewGuid().ToString(), ExerciseType, WorkoutPlanItem, sets, reps, weight, note, dropSet, toFailure);
+
+        await plannedExercise.Add(_databaseHandler);
+        WorkoutPlanItem.PlannedExercises.Add(plannedExercise);
+        await WorkoutPlanItem.Upsert(_databaseHandler);
+
+        // ToDo: provide address to navigate to? homepage / WorkoutPlanItem edit page?
+        NavigationManager.NavigateTo("/");
+    }
+}

@@ -1,11 +1,11 @@
-﻿@page "/workoutplanitem"
+﻿@page "/exercisetypes"
 
 @using Amrap.Core.Domain;
 @using Amrap.Core;
 @using Amrap.Core.Infrastructure;
 @using Bit.BlazorUI
 
-@inject NavigationManager NavigationManager;
+@inject NavigationManager _navigationManager;
 @inject DatabaseHandler _databaseHandler;
 
 <PageTitle>@title</PageTitle>
@@ -20,7 +20,6 @@
             <div @key="exerciseType.Guid" style="border-bottom: 1px #8a8886 solid; padding: 5px 20px; margin: 10px;">
                 <div style="margin-left:3%; display: inline-block;">
                     <ExerciseTypeViewComponent ExerciseType="exerciseType" />
-                    <BitActionButton IconName="BitIconName.CheckMark" OnClick="() => PickExerciseType(exerciseType)">Pick</BitActionButton>
                     <BitActionButton IconName="BitIconName.Edit" OnClick="() => EditExerciseType(exerciseType)">Edit</BitActionButton>
                 </div>
             </div>
@@ -29,15 +28,15 @@
 }
 
 @code {
-    private const string title = "Choose or add exercise type";
+    private const string title = "Exercise Types";
 
     private IList<ExerciseType> ExerciseTypes;
 
-        protected override async Task OnInitializedAsync() => ExerciseTypes = await ExerciseType.GetExerciseTypes(_databaseHandler);
+    protected override async Task OnInitializedAsync() => ExerciseTypes = await ExerciseType.GetExerciseTypes(_databaseHandler);
 
-        private void NewExerciseType() => NavigationManager.NavigateTo("/newexercisetype");
+    private void NewExerciseType() => _navigationManager.NavigateTo("/newexercisetype");
 
-        private void EditExerciseType(ExerciseType exerciseType) => NavigationManager.NavigateTo(exerciseType.EditUrl);
+    private void EditExerciseType(ExerciseType exerciseType) => _navigationManager.NavigateTo(exerciseType.EditUrl);
 
-        private void PickExerciseType(ExerciseType exerciseType) => NavigationManager.NavigateTo($"/newworkoutplanitem/{exerciseType.Guid}");
+    // private void PickExerciseType(ExerciseType exerciseType) => _navigationManager.NavigateTo($"/newworkoutplanitem/{exerciseType.Guid}");
 }

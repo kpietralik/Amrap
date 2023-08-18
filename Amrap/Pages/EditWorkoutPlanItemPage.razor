@@ -6,7 +6,7 @@
 @using Amrap.Core.Infrastructure;
 @using Bit.BlazorUI
 
-@inject NavigationManager NavigationManager
+@inject NavigationManager _navigationManager
 @inject DatabaseHandler _databaseHandler;
 
 <PageTitle>@title</PageTitle>
@@ -16,15 +16,18 @@
 {
     <BitTextField Label="Title" IsUnderlined="true" @bind-Value="workoutPlanItem.Title" />
     <BitChoiceGroup Label="Day" Items="DayOfWeekList.Items" @bind-Value="workoutPlanItem.Day" />
-    
-    <p>ToDo: list of planned exercises with links to edit page for each one</p>
+
+    <BitActionButton IconName="BitIconName.CirclePlus" OnClick="NewExercise">New Exercise</BitActionButton>
+
     <BitBasicList Items="workoutPlanItem.PlannedExercises"
                   EnableVirtualization="false"
                   Style="border: 1px #a19f9d solid; border-radius: 3px; height: 100%">
         <RowTemplate Context="item">
             <div @key="item.Guid" style="border-bottom: 3px #8a8886 solid; padding: 2px 10px; margin: 5px;">
-                <PlannedExercisePreviewComponent WorkoutPlanItem="workoutPlanItem" PlannedExercise="item" />
-                @* <BitActionButton IconName="BitIconName.Edit" OnClick="Edit" /> *@
+                <PlannedExercisePreviewComponent WorkoutPlanItem="workoutPlanItem" PlannedExercise="item" >
+                    <BitActionButton IconName="BitIconName.Delete" AriaLabel="Remove planned exercise" OnClick="async () => await RemovePlannedExercise(item)">Remove</BitActionButton>
+                </PlannedExercisePreviewComponent>
+                <BitActionButton IconName="BitIconName.Edit" AriaLabel="Edit planned exercise" OnClick="() => EditPlannedExercise(item)">Edit</BitActionButton>
                 <p>ToDo: option to remove, edit, add new, set as main, reorder</p>
             </div>
         </RowTemplate>
@@ -33,6 +36,9 @@
     <BitNumericTextField Label="Priority" IsUnderlined="true" @bind-Value="workoutPlanItem.Priority" />
 
     <BitButton Style="margin-top: 20px;" OnClick="Save">Save</BitButton>
+
+    <BitActionButton IconName="BitIconName.Delete" AriaLabel="Delete workout plan item" OnClick="Delete">Delete workout plan item</BitActionButton>
+
 }
 else
 {
@@ -56,6 +62,43 @@ else
     {
         await workoutPlanItem.Upsert(_databaseHandler);
 
-        NavigationManager.NavigateTo("/");
+        _navigationManager.NavigateTo("/");
+    }
+
+    private async Task Delete()
+    {
+        var r = await App.Current.MainPage.DisplayActionSheet(
+            $"Delete workout plan item?", "Cancel", "Delete");
+
+        if (r == "Delete")
+        {
+            await workoutPlanItem.Delete(_databaseHandler);
+
+            _navigationManager.NavigateTo("/");
+        }
+    }
+
+    private async Task RemovePlannedExercise(PlannedExercise plannedExercise)
+    {
+        var r = await App.Current.MainPage.DisplayActionSheet(
+            $"Delete planned exercise?", "Cancel", "Delete");
+        
+        if (r == "Delete")
+        {
+            workoutPlanItem.PlannedExercises.Remove(plannedExercise);
+            await workoutPlanItem.Upsert(_databaseHandler);
+            await plannedExercise.Delete(_databaseHandler);
+        }
+    }
+
+    private void EditPlannedExercise(PlannedExercise plannedExercise)
+    {
+        _navigationManager.NavigateTo($"/EditPlannedExercise/{plannedExercise.Guid}/{false}");
+
+    }
+
+    private void NewExercise()
+    {
+        _navigationManager.NavigateTo($"/exercisetypes/{workoutPlanItem.Guid}");
     }
 }

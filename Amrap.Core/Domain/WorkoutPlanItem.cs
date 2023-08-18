@@ -62,7 +62,7 @@ public class WorkoutPlanItem
 
     public Task Upsert(DatabaseHandler databaseHandler) => databaseHandler.UpsertWorkoutPlanItem(this);
 
-    public Task Delete(DatabaseHandler databaseHandler) => databaseHandler.DeleteWorkoutPlanItem(Guid);
+    public Task Delete(DatabaseHandler databaseHandler) => databaseHandler.DeleteWorkoutPlanItem(this);
 
     public static async Task<WorkoutPlanItem> GetWorkoutPlanItem(DatabaseHandler databaseHandler, string guid)
     {

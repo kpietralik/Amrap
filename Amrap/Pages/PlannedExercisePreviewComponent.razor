@@ -8,6 +8,7 @@
 <ExerciseTypeViewComponent ExerciseType="@PlannedExercise.ExerciseType" >
     <BitActionButton IconName="BitIconName.Send" OnClick="OnPlannedExerciseClick" />
 </ExerciseTypeViewComponent>
+@ChildContent
 
 @code {
     [Parameter]
@@ -15,6 +16,9 @@
 
     [Parameter]
     public Amrap.Core.Domain.PlannedExercise PlannedExercise { get; set; }
+    
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
 
     protected override async Task OnInitializedAsync()
     { }

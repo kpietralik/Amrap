@@ -1,4 +1,4 @@
-﻿@page "/EditPlannedExercise/{PlannedExerciseGuid}"
+﻿@page "/EditPlannedExercise/{PlannedExerciseGuid}/{NavigateBack:bool}"
 
 @using Amrap.Core;
 @using Amrap.Core.Domain;
@@ -28,6 +28,12 @@
     <BitCheckbox Label="To failure" IsUnderlined="true" @bind-Value="plannedExercise.ToFailure" />
 
     <BitButton Style="margin-top: 20px;" OnClick="Save">Save</BitButton>
+    @if (saved)
+    {
+        <BitMessageBar MessageBarType="@BitMessageBarType.Success">
+            Saved
+        </BitMessageBar>
+    }
 }
 else
 {
@@ -38,9 +44,13 @@ else
     [Parameter]
     public string PlannedExerciseGuid { get; set; }
 
+    [Parameter]
+    public bool NavigateBack { get; set; }
+
     private const string title = "Edit planned exercise";
 
     private PlannedExercise plannedExercise;
+    private bool saved;
 
     protected override async Task OnInitializedAsync()
     {
@@ -51,6 +61,9 @@ else
     {
         await plannedExercise.Upsert(_databaseHandler);
 
-        _navigationManager.NavigateTo($"/plannedexercise/{plannedExercise.WorkoutPlanItemGuid}/{PlannedExerciseGuid}");
+        if (NavigateBack)
+            _navigationManager.NavigateTo($"/plannedexercise/{plannedExercise.WorkoutPlanItemGuid}/{PlannedExerciseGuid}");
+        else
+            saved = true;
     }
 }

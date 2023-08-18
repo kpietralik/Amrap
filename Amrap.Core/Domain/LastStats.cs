@@ -66,6 +66,10 @@ public class LastStats
 
         await databaseHandler.SetLastStats(this);
     }
+
+    public Task Delete(DatabaseHandler databaseHandler) => databaseHandler.DeleteLastStats(this);
+
+
 }
 
 public class ExerciseStat

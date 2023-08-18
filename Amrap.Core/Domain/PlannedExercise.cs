@@ -160,7 +160,7 @@ public class PlannedExercise : IEqualityComparer<PlannedExercise>
 
     public Task Upsert(DatabaseHandler databaseHandler) => databaseHandler.UpsertPlannedExercise(this);
 
-    public Task Delete(DatabaseHandler databaseHandler) => databaseHandler.DeletePlannedExercise(Guid);
+    public Task Delete(DatabaseHandler databaseHandler) => databaseHandler.DeletePlannedExercise(this);
 
     public bool Equals(PlannedExercise? x, PlannedExercise? y)
     {
