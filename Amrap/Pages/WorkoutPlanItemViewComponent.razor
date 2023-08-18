@@ -1,7 +1,6 @@
 ﻿@using Amrap.Core.Domain;
 @using Bit.BlazorUI
 
-@ChildContent
 <style>
     .day-label {
         font-weight: 900;
@@ -13,24 +12,11 @@
     }
 </style>
 <BitTextField Label="Day" LabelClass="day-label" InputClass="day-value" IsUnderlined="true" IsReadonly="true" Value="@WorkoutPlanItem.Day.ToString()" />
-@if (ShowStartingExercisePlan)
+@if (!string.IsNullOrWhiteSpace(WorkoutPlanItem.Title))
 {
-    <BitTextField Label="Starting Sets" IsUnderlined="true" IsReadonly="true" Value="@WorkoutPlanItem.PlannedExercise.Sets.ToString()" />
+    <BitTextField Label="Title" IsUnderlined="true" IsReadonly="true" Value="@WorkoutPlanItem.Title" />
 }
-<BitTextField Label="Last sets" IsUnderlined="true" IsReadonly="true" Value="@setsArray" />
-@if (ShowStartingExercisePlan)
-{
-    <BitTextField Label="Starting Reps" IsUnderlined="true" IsReadonly="true" Value="@WorkoutPlanItem.PlannedExercise.Reps.ToString()" />
-}
-<BitTextField Label="Last reps" IsUnderlined="true" IsReadonly="true" Value="@repsArray" />
-@if (ShowStartingExercisePlan)
-{
-    <BitTextField Label="Starting Weight" IsUnderlined="true" IsReadonly="true" IconName="BitIconName.Weights" Suffix=" kg" Value="@WorkoutPlanItem.PlannedExercise.Weight.ToString()" />
-}
-<BitTextField Label="Last weight" IsUnderlined="true" IsReadonly="true" IconName="BitIconName.Weights" Suffix=" kg" Value="@weightArray" />
-<BitTextField Label="Note" IsUnderlined="true" IsReadonly="true" Value="@WorkoutPlanItem.PlannedExercise.Note" />
-<BitTextField Label="Drop set" IsUnderlined="true" IsReadonly="true" Value="@dropSetArray"/>
-<BitTextField Label="To failure" IsUnderlined="true" IsReadonly="true" Value="@toFailureArray" />
+@ChildContent
 <BitTextField Label="Priority" IsUnderlined="true" IsReadonly="true" Value="@WorkoutPlanItem.Priority.ToString()" />
 
 @code {
@@ -38,19 +24,5 @@
     public WorkoutPlanItem WorkoutPlanItem { get; set; }
 
     [Parameter]
-    public bool ShowStartingExercisePlan { get; set; }
-
-    [Parameter]
     public RenderFragment ChildContent { get; set; }
-
-    private string BoolYesNoText(bool value) => value ? "Yes" : "No";
-
-    private string setsArray => FormatValue(WorkoutPlanItem.GetSets(), WorkoutPlanItem.GetSetsArray());
-    private string repsArray => FormatValue(WorkoutPlanItem.GetReps(), WorkoutPlanItem.GetRepsArray());
-    private string weightArray => FormatValue(WorkoutPlanItem.GetWeight(), WorkoutPlanItem.GetWeightArray());
-    private string dropSetArray => FormatValue(WorkoutPlanItem.GetDropSet(BoolYesNoText), WorkoutPlanItem.GetDropSetArray(BoolYesNoText));
-    private string toFailureArray => FormatValue(WorkoutPlanItem.GetToFailure(BoolYesNoText), WorkoutPlanItem.GetToFailureArray(BoolYesNoText));
-
-    private string FormatValue<T>(T last, IEnumerable<T> previous)
-        => string.Concat(last, " | ", string.Join(", ", previous.Skip(1)));
 }

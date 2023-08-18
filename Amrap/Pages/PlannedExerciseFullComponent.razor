@@ -1,0 +1,165 @@
+﻿@using Amrap.Core;
+@using Amrap.Core.Domain;
+@using Amrap.Core.Infrastructure;
+@using Bit.BlazorUI
+
+@inject DatabaseHandler _databaseHandler;
+@inject NavigationManager _navigationManager;
+
+<style>
+    .number {
+        position: absolute;
+        top: 0.75rem;
+        padding: 0.75rem;
+        font-size: 0.75rem;
+        color: #D7D7D7;
+    }
+
+    .image {
+        width: 100%;
+        height: 100%;
+    }
+</style>
+
+@if (WorkoutPlanItem != null && PlannedExercise != null)
+{
+    @if (DisplayExerciseTypeLink)
+    {
+
+        <ExerciseTypeViewComponent ExerciseType="@PlannedExercise.ExerciseType">
+            <BitActionButton IconName="BitIconName.Send" OnClick="OnPlannedExerciseClick" />
+        </ExerciseTypeViewComponent>
+    }
+    else
+    {
+        <ExerciseTypeViewComponent ExerciseType="@PlannedExercise.ExerciseType" />
+    }
+    @if (DisplayWorkoutPlanItem)
+    {
+        <WorkoutPlanItemViewComponent WorkoutPlanItem="@WorkoutPlanItem" >
+        </WorkoutPlanItemViewComponent>
+    }
+    <PlannedExerciseViewComponent ShowStartingExercisePlan="false" PlannedExercise="@PlannedExercise" />
+    <BitAccordion>
+        <HeaderTemplate Context="isExpanded">
+            <BitIconButton IconName="isExpanded ? BitIconName.ChevronDown : BitIconName.ChevronRight" />
+            <div class="custom-header">
+                <span class="custom-title">more</span>
+            </div>
+        </HeaderTemplate>
+        <ChildContent>
+            <BitNumericTextField Label="Sets" LabelPosition="BitNumericTextFieldLabelPosition.Left" IsUnderlined="true" Step="@(1)" Min="1" ShowArrows="true" @bind-Value="@newSets" />
+            <BitNumericTextField Label="Reps" LabelPosition="BitNumericTextFieldLabelPosition.Left" IsUnderlined="true" Step="@(1)" Min="1" ShowArrows="true" @bind-Value="@newReps" />
+            <BitNumericTextField Label="Weight" LabelPosition="BitNumericTextFieldLabelPosition.Left" IsUnderlined="true" Step="@(0.5)" Min="1" IconName="BitIconName.Weights"
+            Suffix=" kg" ShowArrows="true" @bind-Value="@newWeight" />
+            <BitToggle Label="Drop Set" @bind-Value="@newDropSet" /><BitToggle Label="To failure" @bind-Value="@newToFailure" />
+            <BitNumericTextField Label="Priority" LabelPosition="BitNumericTextFieldLabelPosition.Left" IsUnderlined="true" Min="0" @bind-Value="@newPriority" />
+
+            <BitActionButton Style="margin-top: 20px;" IconName="BitIconName.Send" OnClick="Complete">Complete</BitActionButton>
+            @if (completed)
+            {
+                <BitMessageBar MessageBarType="@BitMessageBarType.Success">
+                    Completed
+                </BitMessageBar>
+            }
+            <br />
+            <BitActionButton Style="margin-top: 20px;" IconName="BitIconName.Edit" OnClick="Edit">Edit</BitActionButton>
+            <BitActionButton Style="margin-top: 20px;" IconName="BitIconName.Delete" OnClick="Delete">Delete</BitActionButton>
+            @if (deleted)
+            {
+                <BitMessageBar MessageBarType="@BitMessageBarType.Warning">
+                    Deleted
+                </BitMessageBar>
+            }
+        </ChildContent>
+    </BitAccordion>
+}
+
+@code {
+    [Parameter]
+    public WorkoutPlanItem WorkoutPlanItem { get; set; }
+
+    [Parameter]
+    public PlannedExercise PlannedExercise { get; set; }
+
+    [Parameter]
+    public bool DisplayWorkoutPlanItem { get; set; }
+    
+    [Parameter]
+    public bool DisplayExerciseTypeLink { get; set; }
+
+    private int newSets { get; set; }
+    private int newReps { get; set; }
+    private double newWeight { get; set; }
+    private double newPriority { get; set; }
+    private bool newDropSet;
+    private bool newToFailure;
+
+    private bool completed = false;
+    private bool deleted = false;
+
+    // See for other option with separate service: https://jonhilton.net/blazor-sibling-communication/
+    [Parameter]
+    public EventCallback<string> OnComplete { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        PlannedExercise = WorkoutPlanItem.PlannedExercises.Single(x => x.Guid == PlannedExercise.Guid);
+
+        newSets = PlannedExercise.GetSets();
+        newReps = PlannedExercise.GetReps();
+        newWeight = PlannedExercise.GetWeight();
+        newDropSet = PlannedExercise.GetDropSet();
+        newToFailure = PlannedExercise.GetToFailure();
+        newPriority = WorkoutPlanItem.Priority;
+    }
+
+    public async Task Complete()
+    {
+        var newPriorityF = (float)newPriority;
+        if (newPriorityF != WorkoutPlanItem.Priority)
+        {
+            WorkoutPlanItem.Priority = newPriorityF;
+            await WorkoutPlanItem.Upsert(_databaseHandler);
+        }
+
+        var completedExercise = new CompletedExercise(
+            PlannedExercise.ExerciseType,
+            DateTime.Now,
+            newSets,
+            newReps,
+            (float)newWeight,
+            newDropSet,
+            newToFailure);
+
+        await completedExercise.SaveCompletedExercise(_databaseHandler, PlannedExercise);
+        completed = true;
+
+        // Should not be awaited
+        OnComplete.InvokeAsync(PlannedExercise.Guid);
+    }
+
+    public void Edit()
+    {
+        _navigationManager.NavigateTo($"/EditPlannedExercise/{PlannedExercise.Guid}/{true}");
+    }
+
+    public void OnPlannedExerciseClick()
+    {
+        _navigationManager.NavigateTo($"/plannedexercise/{WorkoutPlanItem.Guid}/{PlannedExercise.Guid}");
+    }
+
+    public async Task Delete()
+    {
+        var r = await App.Current.MainPage.DisplayActionSheet(
+            $"Delete {PlannedExercise.ExerciseType.Name}?", "Cancel", "Delete");
+
+        if (r == "Delete")
+        {
+            WorkoutPlanItem.PlannedExercises.Remove(PlannedExercise);
+            await PlannedExercise.Delete(_databaseHandler);
+
+            deleted = true;
+        }
+    }
+}

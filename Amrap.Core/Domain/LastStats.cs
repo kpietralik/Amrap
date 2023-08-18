@@ -66,6 +66,18 @@ public class LastStats
 
         await databaseHandler.SetLastStats(this);
     }
+
+    public async Task Import(DatabaseHandler databaseHandler)
+    {
+        foreach (var stat in ExerciseStats)
+            await databaseHandler.UpsertExerciseStats(stat);
+
+        await databaseHandler.SetLastStats(this);
+    }
+
+    public Task Delete(DatabaseHandler databaseHandler) => databaseHandler.DeleteLastStats(this);
+
+
 }
 
 public class ExerciseStat

@@ -1,0 +1,45 @@
+﻿@page "/exercisetypes/{WorkoutPlanItemGuid}"
+
+@using Amrap.Core.Domain;
+@using Amrap.Core;
+@using Amrap.Core.Infrastructure;
+@using Bit.BlazorUI
+
+@inject NavigationManager _navigationManager;
+@inject DatabaseHandler _databaseHandler;
+
+<PageTitle>@title</PageTitle>
+<BitLabel>@title</BitLabel>
+
+@if (ExerciseTypes != default && WorkoutPlanItem != default)
+{
+    <BitBasicList Items="ExerciseTypes" EnableVirtualization="true" Style="border: 1px #a19f9d solid; border-radius: 3px; height: 100%">
+        <RowTemplate Context="exerciseType">                      
+            <div @key="exerciseType.Guid" style="border-bottom: 1px #8a8886 solid; padding: 5px 20px; margin: 10px;">
+                <div style="margin-left:3%; display: inline-block;">
+                    <ExerciseTypeViewComponent ExerciseType="exerciseType" />
+                    <BitActionButton IconName="BitIconName.CheckMark" OnClick="() => PickExerciseType(exerciseType)">Pick</BitActionButton>
+                </div>
+            </div>
+        </RowTemplate>
+    </BitBasicList>
+}
+
+@code {
+    private const string title = "Choose Exercise Type";
+
+    [Parameter]
+    public string WorkoutPlanItemGuid { get; set; }
+
+    public WorkoutPlanItem WorkoutPlanItem { get; set; }
+
+    private IList<ExerciseType> ExerciseTypes;
+
+    protected override async Task OnInitializedAsync() 
+    {
+        ExerciseTypes = await ExerciseType.GetExerciseTypes(_databaseHandler);
+        WorkoutPlanItem = await WorkoutPlanItem.GetWorkoutPlanItem(_databaseHandler, WorkoutPlanItemGuid);
+    }
+
+    private void PickExerciseType(ExerciseType exerciseType) => _navigationManager.NavigateTo($"/newplannedexercise/{exerciseType.Guid}/{WorkoutPlanItem.Guid}");
+}

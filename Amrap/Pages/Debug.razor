@@ -132,8 +132,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        exerciseTypesUrl = await SecureStorage.Default.GetAsync("fake2222222233232");
-        //exerciseTypesUrl = await SecureStorage.Default.GetAsync(Consts.ExerciseTypesUrlKey);
+        exerciseTypesUrl = await SecureStorage.Default.GetAsync(Consts.ExerciseTypesUrlKey);
         workoutPlanUrl = await SecureStorage.Default.GetAsync(Consts.WorkoutPlanUrlKey);
     }
 

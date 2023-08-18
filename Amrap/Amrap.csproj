@@ -83,12 +83,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Pages\WorkoutPlanItemComponent.razor.css" />
       <None Remove="Resources\AppIcon\logo.png" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="Pages\WorkoutPlanItemComponent.razor.css" />
     </ItemGroup>
 
     <ItemGroup>
