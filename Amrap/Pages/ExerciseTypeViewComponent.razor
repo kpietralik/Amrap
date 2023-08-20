@@ -56,7 +56,7 @@
         </div>
         <div class="col-8">
             <div style="width:100%; padding-top:50%;position:relative;" class="border border-dark">
-                <img src="@ExerciseType.Img" class="imgExerciseType">
+                <img src="@ImgUrl" class="imgExerciseType">
             </div>
         </div>
     </div>
@@ -72,4 +72,9 @@
 
     [Parameter]
     public RenderFragment ChildContent { get; set; }
+
+    private string ImgUrl => 
+        !string.IsNullOrWhiteSpace(ExerciseType.Img) ?
+            ExerciseType.Img :
+            "https://amrapteststo001.blob.core.windows.net/exercise-images/placeholder.png";
 }
