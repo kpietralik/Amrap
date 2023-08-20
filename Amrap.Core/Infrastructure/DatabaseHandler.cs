@@ -12,30 +12,9 @@ public class DatabaseHandler
     public bool HasInitialized => _db != null;
 
     public DatabaseHandler()
-    {
-    }
+    { }
 
     // TODO: trim unused methods
-
-    // Migration #1 -> multiple planned exercises for each workoutplanitem
-    public async Task Migration1()
-    {
-        InitializeDb();
-        await _db.CreateTableAsync<PlannedExercise>();
-
-        var exerciseTypes = await GetExerciseTypes();
-        var workoutPlanItems = await GetWorkoutPlan();
-        var plannedExercises = await _db.QueryAsync<PlannedExercise>($"select * from {nameof(PlannedExercise)}");
-
-        foreach (var plannedExercise in plannedExercises)
-        {
-            var workoutPlanItem = workoutPlanItems.Single(x => x.PlannedExerciseGuid == plannedExercise.Guid);
-
-            plannedExercise.WorkoutPlanItemGuid = workoutPlanItem.Guid;
-
-            await UpsertPlannedExercise(plannedExercise);
-        }
-    }
 
     private void InitializeDb()
     {

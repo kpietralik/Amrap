@@ -55,6 +55,7 @@ Sample data for `Seed Database` functionality:
 - remove unnecessary setters
 - limiting access to classes and properties
 - improved error handling and messages
+- log viewing (local or online)
 
 ## Getting started
 Prequisites:

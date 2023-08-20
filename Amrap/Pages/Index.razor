@@ -82,25 +82,16 @@ else if (displayedItems != null)
 
     protected override async Task OnInitializedAsync()
     {
-        // Migration1
-        bool.TryParse(await SecureStorage.Default.GetAsync(Consts.Migration1AppliedKey), out bool hasAppliedMigration1);
-        if (!hasAppliedMigration1)
-        {
-            await _databaseHandler.Migration1();
-            await SecureStorage.Default.SetAsync(Consts.Migration1AppliedKey, true.ToString());
-        }
-        
-        if (!_databaseHandler.HasInitialized)
-        {
-            await _databaseHandler.CreateConnectionAndTables();
-        }
-
         try {
+            if (!_databaseHandler.HasInitialized)
+            {
+                await _databaseHandler.CreateConnectionAndTables();
+            }
             await ReloadLists();
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
+            errorMessage = ex.ToString();
             errorCought = true;
         }
     }

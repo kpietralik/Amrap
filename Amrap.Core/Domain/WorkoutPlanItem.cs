@@ -17,13 +17,6 @@ public class WorkoutPlanItem
 
     public string Link => $"/WorkoutPlanItem/{Guid}";
 
-    /// <remarks>
-    /// SQLite only
-    /// </remarks>
-    // Left only to apply Migration1
-    [Indexed]
-    public string PlannedExerciseGuid { get; set; }
-
     [SQLite.Ignore]
     public IList<PlannedExercise> PlannedExercises { get; set; } = new List<PlannedExercise>();
 
