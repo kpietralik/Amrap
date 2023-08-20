@@ -7,6 +7,7 @@
 @inject CompletedExerciseReader _completedExerciseReader;
 
 <PageTitle>@title</PageTitle>
+
 <style>
     .exerciseImg {
         max-width: 100px;
@@ -20,7 +21,7 @@
 }
 else if (items != null)
 {
-    <h1>Completed exercises (@items.Count())</h1>
+    <BitTextField IsUnderlined="false" HasBorder="false" IsReadonly="true" Value="@listText" />
 
     <BitBasicList Items="items"
                   EnableVirtualization="false"
@@ -38,6 +39,8 @@ else if (items != null)
 
 @code {
     private const string title = "Completed Exercises";
+
+    private string listText => $"Completed exercises ({items.Count()})";
 
     private IOrderedEnumerable<CompletedExercise> completedExerciseItems;
     private IList<CompletedExercise> items => completedExerciseItems?.ToList();

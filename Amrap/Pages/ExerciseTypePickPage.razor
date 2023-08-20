@@ -9,10 +9,18 @@
 @inject DatabaseHandler _databaseHandler;
 
 <PageTitle>@title</PageTitle>
-<BitLabel>@title</BitLabel>
 
 @if (ExerciseTypes != default && WorkoutPlanItem != default)
 {
+    <div class="container text-center">
+        <div class="row">
+            <div class="col-8">
+                <BitTextField IsUnderlined="false" HasBorder="false" IsReadonly="true" Value="@listText" />
+            </div>
+            <div class="col-4">
+            </div>
+        </div>
+    </div>
     <BitBasicList Items="ExerciseTypes" EnableVirtualization="true" Style="border: 1px #a19f9d solid; border-radius: 3px; height: 100%">
         <RowTemplate Context="exerciseType">                      
             <div @key="exerciseType.Guid" style="border-bottom: 1px #8a8886 solid; padding: 5px 20px; margin: 10px;">
@@ -34,6 +42,8 @@
     public WorkoutPlanItem WorkoutPlanItem { get; set; }
 
     private IList<ExerciseType> ExerciseTypes;
+
+    private string listText => $"Exercise Types ({ExerciseTypes.Count()})";
 
     protected override async Task OnInitializedAsync() 
     {
