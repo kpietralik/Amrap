@@ -46,4 +46,7 @@ public class ExerciseType
 
     public static Task<IList<ExerciseType>> GetExerciseTypes(DatabaseHandler databaseHandler) =>
         databaseHandler.GetExerciseTypes();
+
+    public static Task<ExerciseType> GetExerciseTypeByGuid(DatabaseHandler databaseHandler, string guid) =>
+        databaseHandler.GetExerciseType(guid);
 }

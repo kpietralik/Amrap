@@ -1,0 +1,266 @@
+﻿@page "/charts"
+
+@using Amrap.Core.Domain;
+@using Amrap.Core.Infrastructure;
+@using System.Collections.ObjectModel;
+@using System.Linq;
+
+@inject DatabaseHandler _databaseHandler;
+
+<PageTitle>@title</PageTitle>
+
+<style>
+/*     .chartDiv {
+        height: 1400px;
+        width: auto;
+        background: lightblue;
+    }    */ 
+    
+/*     .chartElement {
+        height: 100vh;
+        width: 100vw;
+    } */
+
+    .chart-wrapper {
+        overflow: auto;
+        background: lightblue;
+    }
+
+    .chart-container {
+        width: 100%;
+        height: 100%;
+        display: inline-grid;
+        min-width: 800px;
+        min-height: 500px;
+        box-sizing: border-box;
+        /* background: lightgreen */
+    }
+</style>
+    <div class="chart-wrapper">
+        <div class="chart-container">
+        @if (_lineChartConfigExample != default)
+        {
+            <BitChart Config="_lineChartConfigExample" @ref="_lineChartExample" />
+        }
+    </div>
+</div>
+
+@code {
+    private const string title = "Chart";
+
+    private BitChartLineConfig _lineChartConfigExample = default;
+    private BitChart _lineChartExample = default;
+
+    private int InitalCount = 12;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var warmUp = await ExerciseType.GetExerciseTypeByGuid(_databaseHandler, "cbe667ec-1409-4a7d-bfd9-f0e825de1c3c");
+
+        var daysOfHistory = 30;
+        var now = DateTime.Now;
+
+        var completedExercises = await CompletedExercise.GetCompletedExercisesForExerciseTypeSinceDate(_databaseHandler, warmUp, DateTime.Now.AddDays(-daysOfHistory));
+
+        InitlineChartExample(warmUp.Name, completedExercises, now, daysOfHistory);
+    }
+
+    private void InitlineChartExample(string title, IEnumerable<CompletedExercise> completedExercises, DateTime now, int daysOfHistory)
+    {
+        var bitChartTimeOptions = new BitChartTimeOptions
+        {
+            //DisplayFormats =
+            IsoWeek = true,
+            Unit = BitChartTimeMeasurement.Day, // Or Week?
+            Round = BitChartTimeMeasurement.Day,
+            //TooltipFormat // https://momentjs.com/docs/#/displaying/format/
+            //Min,
+            //MinUnit,
+            //Max ,
+            //StepSize,
+        };
+
+        _lineChartConfigExample = new BitChartLineConfig
+            {
+                Options = new BitChartLineOptions
+                {
+                    Responsive = true,
+                    Title = new BitChartOptionsTitle
+                    {
+                        Display = true,
+                        Text = title
+                    },
+                    Tooltips = new BitChartTooltips
+                    {
+                        Mode = BitChartInteractionMode.Nearest,
+                        Intersect = true
+                    },
+                    Hover = new BitChartHover
+                    {
+                        Mode = BitChartInteractionMode.Nearest,
+                        Intersect = true
+                    },
+                    Scales = new BitChartScales
+                    {
+                        // Invalid cast
+                        // XAxes = (IList<BitChartCartesianAxis>)new List<BitChartTimeAxis>()
+                        // {
+                        //     new BitChartTimeAxis
+                        //     {
+                        //         Distribution = BitChartTimeDistribution.Linear,
+                        //         Bounds = BitChartScaleBound.Data,
+                        //         Time = bitChartTimeOptions
+                        //     }
+                        // },
+
+                        // JS method not implemented exception
+                        XAxes = new List<BitChartCartesianAxis>
+                        {
+                            new BitChartTimeAxis
+                            {
+                                Distribution = BitChartTimeDistribution.Linear,
+                                Bounds = BitChartScaleBound.Data,
+                                Time = new BitChartTimeOptions
+                                {
+                                    IsoWeek = true,
+                                    Unit = BitChartTimeMeasurement.Day,
+                                    Round = BitChartTimeMeasurement.Day,
+                                }
+                            }
+                        },
+
+                        // Data not visible
+                        // XAxes = new List<BitChartCartesianAxis>
+                        // {
+                        //     new BitChartLinearCartesianAxis
+                        //     {
+                        //         Offset = true
+                        //     }
+                        // },
+
+                        // From linear chart demo
+                        // XAxes = new List<BitChartCartesianAxis>
+                        // {
+                        //     new BitChartCategoryAxis
+                        //     {
+                        //         ScaleLabel = new BitChartScaleLabel
+                        //         {
+                        //             LabelString = "Month"
+                        //         }
+                        //     }
+                        // },
+
+
+                        // --- Y Axis ---
+                        YAxes = new List<BitChartCartesianAxis>
+                        {
+                            new BitChartLinearCartesianAxis
+                            {
+                                ScaleLabel = new BitChartScaleLabel
+                                {
+                                    LabelString = "Value"
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+        // JS method not implemented exception when used with BitChartTimeAxis
+        IDataset<BitChartTimePoint> dataset1 = new BitChartLineDataset<BitChartTimePoint>(completedExercises.Select(x => new BitChartTimePoint(x.Time, (double)x.Weight)))
+        {
+            Label = "Weight",
+            BackgroundColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Red),
+            BorderColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Red),
+            Fill = BitChartFillingMode.Disabled
+        };     
+        
+        // IDataset<float> dataset1 = new BitChartLineDataset<float>(completedExercises.Select(x => (float)x.Weight))
+        // {
+        //     Label = "Weight",
+        //     BackgroundColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Red),
+        //     BorderColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Red),
+        //     Fill = BitChartFillingMode.Disabled
+        // };
+        // IDataset<int> dataset2 = new BitChartLineDataset<int>(BitChartDemoUtils.RandomScalingFactor(InitalCount))
+        //     {
+        //         Label = "My second dataset",
+        //         BackgroundColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Blue),
+        //         BorderColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Blue),
+        //         Fill = BitChartFillingMode.Disabled
+        //     };
+
+        // Only for category charts
+        // var labels = Enumerable.Range(0, daysOfHistory);
+
+        // foreach (var l in labels)
+        //     _lineChartConfigExample.Data.Labels.Add(l.ToString());
+
+        _lineChartConfigExample.Data.Datasets.Add(dataset1);
+        //_lineChartConfigExample.Data.Datasets.Add(dataset2);
+    }
+
+    // public static class BitChartDemoUtils
+    // {
+    //     public static readonly Random _rng = new Random();
+
+    //     public static IReadOnlyList<string> Months { get; } = new ReadOnlyCollection<string>(new[]
+    //     {
+    //         "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
+    // });
+
+    //     private static int RandomScalingFactorThreadUnsafe(int min, int max) => _rng.Next(min, max);
+
+    //     public static int RandomScalingFactor()
+    //     {
+    //         lock (_rng)
+    //         {
+    //             return RandomScalingFactorThreadUnsafe(0, 100);
+    //         }
+    //     }
+
+    //     public static IEnumerable<int> RandomScalingFactor(int count, int min = 0, int max = 100)
+    //     {
+    //         int[] factors = new int[count];
+    //         lock (_rng)
+    //         {
+    //             for (int i = 0; i < count; i++)
+    //             {
+    //                 factors[i] = RandomScalingFactorThreadUnsafe(min, max);
+    //             }
+    //         }
+
+    //         return factors;
+    //     }
+
+    //     public static IEnumerable<DateTime> GetNextDays(int count)
+    //     {
+    //         DateTime now = DateTime.Now;
+    //         DateTime[] factors = new DateTime[count];
+    //         for (int i = 0; i < factors.Length; i++)
+    //         {
+    //             factors[i] = now.AddDays(i);
+    //         }
+
+    //         return factors;
+    //     }
+    // }
+
+    public static class BitChartDemoColors
+    {
+        private static readonly Lazy<IReadOnlyList<System.Drawing.Color>> _all = new Lazy<IReadOnlyList<System.Drawing.Color>>(() => new System.Drawing.Color[7]
+        {
+                Red, Orange, Yellow, Green, Blue, Purple, Grey
+        });
+
+        public static IReadOnlyList<System.Drawing.Color> All => _all.Value;
+
+        public static readonly System.Drawing.Color Red = System.Drawing.Color.FromArgb(255, 99, 132);
+        public static readonly System.Drawing.Color Orange = System.Drawing.Color.FromArgb(255, 159, 64);
+        public static readonly System.Drawing.Color Yellow = System.Drawing.Color.FromArgb(255, 205, 86);
+        public static readonly System.Drawing.Color Green = System.Drawing.Color.FromArgb(75, 192, 192);
+        public static readonly System.Drawing.Color Blue = System.Drawing.Color.FromArgb(54, 162, 235);
+        public static readonly System.Drawing.Color Purple = System.Drawing.Color.FromArgb(153, 102, 255);
+        public static readonly System.Drawing.Color Grey = System.Drawing.Color.FromArgb(201, 203, 207);
+    }
+}
