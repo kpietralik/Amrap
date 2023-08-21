@@ -60,12 +60,21 @@
         var daysOfHistory = 30;
         var now = DateTime.Now;
 
-        var completedExercises = await CompletedExercise.GetCompletedExercisesForExerciseTypeSinceDate(_databaseHandler, warmUp, DateTime.Now.AddDays(-daysOfHistory));
+        //var completedExercises = await CompletedExercise.GetCompletedExercisesForExerciseTypeSinceDate(_databaseHandler, warmUp, DateTime.Now.AddDays(-daysOfHistory));
 
-        InitlineChartExample(warmUp.Name, completedExercises, now, daysOfHistory);
+        // ToDo: temp
+        var newL = new List<CompletedExercise>();
+        newL.Add(new CompletedExercise(warmUp,   DateTime.Now           , 2, 11, 18.0f, false, false));
+        newL.Add(new CompletedExercise(warmUp,  DateTime.Now.AddDays(-7), 3, 10, 14.0f, false, false));
+        newL.Add(new CompletedExercise(warmUp, DateTime.Now.AddDays(-14), 3, 9, 13.5f, false, false));
+        newL.Add(new CompletedExercise(warmUp, DateTime.Now.AddDays(-21), 4, 14, 11.5f, false, false));
+        newL.Add(new CompletedExercise(warmUp, DateTime.Now.AddDays(-28), 5, 10, 9.0f, false, false));
+        newL.Add(new CompletedExercise(warmUp, DateTime.Now.AddDays(-35), 4, 12, 3.0f, false, false));
+
+        InitlineChartExample(warmUp.Name, newL, now);
     }
 
-    private void InitlineChartExample(string title, IEnumerable<CompletedExercise> completedExercises, DateTime now, int daysOfHistory)
+    private void InitlineChartExample(string title, IEnumerable<CompletedExercise> completedExercises, DateTime now)
     {
         var bitChartTimeOptions = new BitChartTimeOptions
         {
@@ -81,170 +90,185 @@
         };
 
         _lineChartConfigExample = new BitChartLineConfig
+        {
+            Options = new BitChartLineOptions
             {
-                Options = new BitChartLineOptions
+                Responsive = true,
+                Title = new BitChartOptionsTitle
                 {
-                    Responsive = true,
-                    Title = new BitChartOptionsTitle
-                    {
-                        Display = true,
-                        Text = title
-                    },
-                    Tooltips = new BitChartTooltips
-                    {
-                        Mode = BitChartInteractionMode.Nearest,
-                        Intersect = true
-                    },
-                    Hover = new BitChartHover
-                    {
-                        Mode = BitChartInteractionMode.Nearest,
-                        Intersect = true
-                    },
-                    Scales = new BitChartScales
-                    {
-                        // Invalid cast
-                        // XAxes = (IList<BitChartCartesianAxis>)new List<BitChartTimeAxis>()
-                        // {
-                        //     new BitChartTimeAxis
-                        //     {
-                        //         Distribution = BitChartTimeDistribution.Linear,
-                        //         Bounds = BitChartScaleBound.Data,
-                        //         Time = bitChartTimeOptions
-                        //     }
-                        // },
+                    Display = true,
+                    Text = title
+                },
+                Tooltips = new BitChartTooltips
+                {
+                    Mode = BitChartInteractionMode.Nearest,
+                    Intersect = true
+                },
+                Hover = new BitChartHover
+                {
+                    Mode = BitChartInteractionMode.Nearest,
+                    Intersect = true
+                },
+                Scales = new BitChartScales
+                {
+                    // Invalid cast
+                    // XAxes = (IList<BitChartCartesianAxis>)new List<BitChartTimeAxis>()
+                    // {
+                    //     new BitChartTimeAxis
+                    //     {
+                    //         Distribution = BitChartTimeDistribution.Linear,
+                    //         Bounds = BitChartScaleBound.Data,
+                    //         Time = bitChartTimeOptions
+                    //     }
+                    // },
 
-                        // JS method not implemented exception
-                        XAxes = new List<BitChartCartesianAxis>
+                    // JS method not implemented exception
+                    // XAxes = new List<BitChartCartesianAxis>
+                    // {
+                    //     new BitChartTimeAxis
+                    //     {
+                    //         Distribution = BitChartTimeDistribution.Linear,
+                    //         Bounds = BitChartScaleBound.Data,
+                    //         Time = new BitChartTimeOptions
+                    //         {
+                    //             IsoWeek = true,
+                    //             Unit = BitChartTimeMeasurement.Day,
+                    //             Round = BitChartTimeMeasurement.Day,
+                    //         }
+                    //     }
+                    // },
+
+                    // Data not visible
+                    // XAxes = new List<BitChartCartesianAxis>
+                    // {
+                    //     new BitChartLinearCartesianAxis
+                    //     {
+                    //         Offset = true
+                    //     }
+                    // },
+
+
+                    // From linear chart demo
+                    XAxes = new List<BitChartCartesianAxis>
+                    {
+                        new BitChartCategoryAxis
                         {
-                            new BitChartTimeAxis
+                            ScaleLabel = new BitChartScaleLabel
                             {
-                                Distribution = BitChartTimeDistribution.Linear,
-                                Bounds = BitChartScaleBound.Data,
-                                Time = new BitChartTimeOptions
-                                {
-                                    IsoWeek = true,
-                                    Unit = BitChartTimeMeasurement.Day,
-                                    Round = BitChartTimeMeasurement.Day,
-                                }
+                                LabelString = "Days ago",
+                                Display = true
                             }
-                        },
-
-                        // Data not visible
-                        // XAxes = new List<BitChartCartesianAxis>
-                        // {
-                        //     new BitChartLinearCartesianAxis
-                        //     {
-                        //         Offset = true
-                        //     }
-                        // },
-
-                        // From linear chart demo
-                        // XAxes = new List<BitChartCartesianAxis>
-                        // {
-                        //     new BitChartCategoryAxis
-                        //     {
-                        //         ScaleLabel = new BitChartScaleLabel
-                        //         {
-                        //             LabelString = "Month"
-                        //         }
-                        //     }
-                        // },
+                        }
+                    },
 
 
-                        // --- Y Axis ---
-                        YAxes = new List<BitChartCartesianAxis>
+                    // --- Y Axis ---
+                    YAxes = new List<BitChartCartesianAxis>
+                    {
+                        new BitChartLinearCartesianAxis
                         {
-                            new BitChartLinearCartesianAxis
+                            ScaleLabel = new BitChartScaleLabel
                             {
-                                ScaleLabel = new BitChartScaleLabel
-                                {
-                                    LabelString = "Value"
-                                }
+                                LabelString = "Value"
                             }
                         }
                     }
                 }
-            };
+            }
+        };
+
 
         // JS method not implemented exception when used with BitChartTimeAxis
-        IDataset<BitChartTimePoint> dataset1 = new BitChartLineDataset<BitChartTimePoint>(completedExercises.Select(x => new BitChartTimePoint(x.Time, (double)x.Weight)))
-        {
-            Label = "Weight",
-            BackgroundColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Red),
-            BorderColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Red),
-            Fill = BitChartFillingMode.Disabled
-        };     
-        
-        // IDataset<float> dataset1 = new BitChartLineDataset<float>(completedExercises.Select(x => (float)x.Weight))
+        // IDataset<BitChartTimePoint> dataset1 = new BitChartLineDataset<BitChartTimePoint>(completedExercises.Select(x => new BitChartTimePoint(x.Time, (double)x.Weight)))
         // {
         //     Label = "Weight",
         //     BackgroundColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Red),
         //     BorderColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Red),
         //     Fill = BitChartFillingMode.Disabled
-        // };
-        // IDataset<int> dataset2 = new BitChartLineDataset<int>(BitChartDemoUtils.RandomScalingFactor(InitalCount))
-        //     {
-        //         Label = "My second dataset",
-        //         BackgroundColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Blue),
-        //         BorderColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Blue),
-        //         Fill = BitChartFillingMode.Disabled
-        //     };
+        // };     
 
-        // Only for category charts
-        // var labels = Enumerable.Range(0, daysOfHistory);
+        var orderedDescending = completedExercises.OrderByDescending(x => x.Time);
 
-        // foreach (var l in labels)
-        //     _lineChartConfigExample.Data.Labels.Add(l.ToString());
+        //Only for category charts
+        var oldestEntryDaysAgo = now.Subtract(orderedDescending.Last().Time).Days;
 
-        _lineChartConfigExample.Data.Datasets.Add(dataset1);
-        //_lineChartConfigExample.Data.Datasets.Add(dataset2);
+        var labels = Enumerable.Range(0, oldestEntryDaysAgo + 2);
+
+        foreach (var l in labels)
+            _lineChartConfigExample.Data.Labels.Add(l.ToString());
+
+        var setsSeries = new List<float>();
+        var repsSeries = new List<float>();
+        var weightSeries = new List<float>();
+        var calculatedMetricSeries = new List<float>();
+        for (var i = oldestEntryDaysAgo + 1; i >= 0; i--)
+        {
+            var day = now.AddDays(-i);
+            var latestEntryFromDate = orderedDescending.Where(x => DateOnly.FromDateTime(x.Time.Date) == DateOnly.FromDateTime(day.Date))?.FirstOrDefault();
+
+            if (latestEntryFromDate != default)
+            {
+                setsSeries.Add(latestEntryFromDate.Sets);
+                repsSeries.Add(latestEntryFromDate.Reps);
+                weightSeries.Add(latestEntryFromDate.Weight);
+                calculatedMetricSeries.Add(latestEntryFromDate.Sets * latestEntryFromDate.Reps * latestEntryFromDate.Weight);
+            }
+            else 
+            {
+                setsSeries.Add(setsSeries.LastOrDefault());
+                repsSeries.Add(repsSeries.LastOrDefault());
+                weightSeries.Add(weightSeries.LastOrDefault());
+                calculatedMetricSeries.Add(
+                    0.05f *
+                    OneOrNonZeroValue(setsSeries.LastOrDefault()) * 
+                    OneOrNonZeroValue(repsSeries.LastOrDefault()) * 
+                    OneOrNonZeroValue(weightSeries.LastOrDefault()));
+            }
+        }
+
+        setsSeries.Reverse();
+        repsSeries.Reverse();
+        weightSeries.Reverse();
+        calculatedMetricSeries.Reverse();
+
+        IDataset<float> setsDataset = new BitChartLineDataset<float>(setsSeries)
+        {
+            Label = "Sets",
+            BackgroundColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Blue),
+            BorderColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Blue),
+            Fill = BitChartFillingMode.Disabled
+        };
+        IDataset<float> repsDataset = new BitChartLineDataset<float>(repsSeries)
+        {
+            Label = "Reps",
+            BackgroundColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Green),
+            BorderColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Green),
+            Fill = BitChartFillingMode.Disabled
+        };
+        IDataset<float> weightDataset = new BitChartLineDataset<float>(weightSeries)
+        {
+            Label = "Weight",
+            BackgroundColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Red),
+            BorderColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Red),
+            Fill = BitChartFillingMode.Disabled
+        };
+        IDataset<float> calculatedMetricDataset = new BitChartLineDataset<float>(calculatedMetricSeries)
+        {
+            Label = "Calculated",
+            BackgroundColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Grey),
+            BorderColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Grey),
+            Fill = BitChartFillingMode.Disabled
+        };
+
+        _lineChartConfigExample.Data.Datasets.Add(setsDataset);
+        _lineChartConfigExample.Data.Datasets.Add(repsDataset);
+        _lineChartConfigExample.Data.Datasets.Add(weightDataset);
+        
+        // ToDo: Not the best metric. Improve and move to different page?
+        // _lineChartConfigExample.Data.Datasets.Add(calculatedMetricDataset);
     }
 
-    // public static class BitChartDemoUtils
-    // {
-    //     public static readonly Random _rng = new Random();
-
-    //     public static IReadOnlyList<string> Months { get; } = new ReadOnlyCollection<string>(new[]
-    //     {
-    //         "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
-    // });
-
-    //     private static int RandomScalingFactorThreadUnsafe(int min, int max) => _rng.Next(min, max);
-
-    //     public static int RandomScalingFactor()
-    //     {
-    //         lock (_rng)
-    //         {
-    //             return RandomScalingFactorThreadUnsafe(0, 100);
-    //         }
-    //     }
-
-    //     public static IEnumerable<int> RandomScalingFactor(int count, int min = 0, int max = 100)
-    //     {
-    //         int[] factors = new int[count];
-    //         lock (_rng)
-    //         {
-    //             for (int i = 0; i < count; i++)
-    //             {
-    //                 factors[i] = RandomScalingFactorThreadUnsafe(min, max);
-    //             }
-    //         }
-
-    //         return factors;
-    //     }
-
-    //     public static IEnumerable<DateTime> GetNextDays(int count)
-    //     {
-    //         DateTime now = DateTime.Now;
-    //         DateTime[] factors = new DateTime[count];
-    //         for (int i = 0; i < factors.Length; i++)
-    //         {
-    //             factors[i] = now.AddDays(i);
-    //         }
-
-    //         return factors;
-    //     }
-    // }
+    public float OneOrNonZeroValue(float value) => value != 0 ? value : 1;
 
     public static class BitChartDemoColors
     {
