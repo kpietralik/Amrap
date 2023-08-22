@@ -1,4 +1,4 @@
-﻿@page "/newworkoutplanitem/{ExerciseTypeGuid}"
+﻿@page "/newworkoutplanitem"
 
 @using Amrap.Core;
 @using Amrap.Core.Domain;
@@ -6,89 +6,55 @@
 @using Amrap.Core.Infrastructure;
 @using Bit.BlazorUI
 
-@inject NavigationManager NavigationManager
+@inject NavigationManager _navigationManager
 @inject DatabaseHandler _databaseHandler;
 
 <PageTitle>@title</PageTitle>
 <BitLabel>@title</BitLabel>
 
-@if (exerciseType != default)
-{
-    <h3>Exercise: @exerciseType.Name</h3>
-    <h3>Description: @exerciseType.Description</h3>
+<BitChoiceGroup Label="Day" Items="DayOfWeekList.Items" @bind-Value="@dayOfWeek" />
+<BitTextField Label="Title" IsUnderlined="true"  @bind-Value="@workOutPlanItemTitle" />
+<BitNumericTextField Label="Priority" IsUnderlined="true" @bind-Value="@priority" />
 
-    <BitChoiceGroup Label="Day" Items="DayOfWeekList.Items" @bind-Value="@dayOfWeek" />
-    <BitTextField Label="Sets" IsUnderlined="true" @bind-Value="@setsStr" />
-    <BitTextField Label="Reps" IsUnderlined="true" @bind-Value="@repsStr" />
-    <BitTextField Label="Weight" IsUnderlined="true" @bind-Value="@weightStr" />
-    <BitTextField Label="Note" IsUnderlined="true" @bind-Value="@note" />
-    <BitCheckbox Label="Drop set" IsUnderlined="true" @bind-Value="dropSet" />
-    <BitCheckbox Label="To failure" IsUnderlined="true" @bind-Value="toFailure" />
-    <BitTextField Label="Priority" IsUnderlined="true" @bind-Value="@priorityStr" />
-    
-    <BitButton Style="margin-top: 20px;" OnClick="Add">Add</BitButton>
+<BitButton Style="margin-top: 20px;" OnClick="Save">Save</BitButton>
+
+@if (saved)
+{
+    <BitMessageBar MessageBarType="@BitMessageBarType.Success">
+        Saved
+    </BitMessageBar>
 }
 
 @code {
-    [Parameter]
-    public string ExerciseTypeGuid { get; set; }
-
     private const string title = "New workout plan item";
 
-    private ExerciseType exerciseType;
-
-    private string setsStr { get; set; }
-    private string repsStr { get; set; }
-    private string weightStr { get; set; }
-    private string priorityStr { get; set; }
-    private string note { get; set; }
-    private bool dropSet { get; set; }
-    private bool toFailure { get; set; }
+    private string workOutPlanItemTitle { get; set; }
+    private float priority { get; set; }
     private DayOfWeek dayOfWeek { get; set; }
+
+    private bool saved { get; set; }
 
     private const string InvalidInput = "Invalid input";
     private const string Ok = "Ok";
 
     protected override async Task OnInitializedAsync()
+    {}
+
+    private async Task Save()
     {
-        exerciseType = await _databaseHandler.GetExerciseType(ExerciseTypeGuid);
-    }
-
-    private async Task Add()
-    {
-        if (!int.TryParse(setsStr, out var sets) || sets < 0)
-        {
-            await App.Current.MainPage.DisplayAlert(InvalidInput, "Sets must be a positive integer value", Ok);
-            return;
-        }
-
-        if (!int.TryParse(repsStr, out var reps) || reps < 0)
-        {
-            await App.Current.MainPage.DisplayAlert(InvalidInput, "Reps must be a positive integer value", Ok);
-            return;
-        }
-
-        if (!float.TryParse(weightStr, out var weight) || weight < 0)
-        {
-            await App.Current.MainPage.DisplayAlert(InvalidInput, "Weight must be a positive number", Ok);
-            return;
-        }
-
-        if (!float.TryParse(priorityStr, out var priority) || weight < 0)
+        if (priority < 0)
         {
             await App.Current.MainPage.DisplayAlert(InvalidInput, "Priority must be a positive number", Ok);
             return;
         }
 
-        var plannedExercise = new PlannedExercise(
-            Guid.NewGuid().ToString(), exerciseType, sets, reps, weight, note, dropSet, toFailure);
-
         var workoutPlanItem = new WorkoutPlanItem(
-            Guid.NewGuid().ToString(), plannedExercise, dayOfWeek, priority);
+            Guid.NewGuid().ToString(), dayOfWeek, priority, workOutPlanItemTitle);
 
-        await plannedExercise.Add(_databaseHandler);
         await workoutPlanItem.Add(_databaseHandler);
 
-        NavigationManager.NavigateTo("/");
+        saved = true;
+
+        //_navigationManager.NavigateTo($"/newplannedexercise/{ExerciseTypeGuid}/{workoutPlanItem.Guid}");
     }
 }

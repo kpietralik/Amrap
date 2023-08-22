@@ -8,21 +8,17 @@ public class WorkoutPlanItem
     [PrimaryKey]
     public string Guid { get; set; }
 
-    /// <remarks>
-    /// SQLite only
-    /// </remarks>
-    [Indexed]
-    public string PlannedExerciseGuid { get; set; }
-
-    private PlannedExercise _plannedExercise;
-    public PlannedExercise PlannedExercise => _plannedExercise;
-
     [Indexed]
     public DayOfWeek Day { get; set; }
 
     public float Priority { get; set; }
 
+    public string Title { get; set; }
+
     public string Link => $"/WorkoutPlanItem/{Guid}";
+
+    [SQLite.Ignore]
+    public IList<PlannedExercise> PlannedExercises { get; set; } = new List<PlannedExercise>();
 
     /// <remarks>
     /// SQLite only
@@ -33,37 +29,38 @@ public class WorkoutPlanItem
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     { }
 
-    public WorkoutPlanItem(string guid, PlannedExercise plannedExercise, DayOfWeek day, float priority)
+    public WorkoutPlanItem(string guid, DayOfWeek day,  float priority, string title)
     {
         Guid = guid;
-        _plannedExercise = plannedExercise;
-        PlannedExerciseGuid = plannedExercise.Guid;
         Day = day;
         Priority = priority;
+        Title = title;
     }
 
-    public void SetPlannedExercise(PlannedExercise plannedExercise)
+    public void SetPlannedExercises(IList<PlannedExercise> plannedExercises)
     {
-        if (plannedExercise != null &&
-            string.Equals(PlannedExerciseGuid, plannedExercise?.Guid, StringComparison.InvariantCultureIgnoreCase))
-            _plannedExercise = plannedExercise;
-        else
-            throw new Exception($"Provided {nameof(PlannedExercise)} guid '{plannedExercise?.Guid}' does not match expected '{PlannedExerciseGuid}'");
+        //if (plannedExercises?.Any() == false)
+        //    throw new Exception($"Provided {nameof(plannedExercises)} list is null or empty");
+
+        foreach(var plannedExersise in plannedExercises)
+        {
+            if (!string.Equals(plannedExersise.WorkoutPlanItemGuid, Guid, StringComparison.InvariantCultureIgnoreCase))
+                throw new Exception($"Provided {nameof(Domain.PlannedExercise)} guid '{plannedExersise?.WorkoutPlanItemGuid}' does not match expected '{Guid}'");
+
+            PlannedExercises.Add(plannedExersise);
+        }
     }
 
     public Task Add(DatabaseHandler databaseHandler) => databaseHandler.AddWorkoutPlanItem(this);
 
-    public Task Update(DatabaseHandler databaseHandler) => databaseHandler.UpdateWorkoutPlanItem(this);
+    public Task Upsert(DatabaseHandler databaseHandler) => databaseHandler.UpsertWorkoutPlanItem(this);
 
-    public Task Delete(DatabaseHandler databaseHandler) => databaseHandler.DeleteWorkoutPlanItem(Guid);
+    public Task Delete(DatabaseHandler databaseHandler) => databaseHandler.DeleteWorkoutPlanItem(this);
 
-    public int GetSets() => PlannedExercise.LastStats?.Sets ?? PlannedExercise.Sets;
+    public static async Task<WorkoutPlanItem> GetWorkoutPlanItem(DatabaseHandler databaseHandler, string guid)
+    {
+        var workoutPlanItem = await databaseHandler.GetWorkoutPlanItem(guid);
 
-    public int GetReps() => PlannedExercise.LastStats?.Reps ?? PlannedExercise.Reps;
-
-    public float GetWeight() => PlannedExercise.LastStats?.Weight ?? PlannedExercise.Weight;
-
-    public bool GetDropSet() => PlannedExercise.LastStats?.DropSet ?? PlannedExercise.DropSet;
-
-    public bool GetToFailure() => PlannedExercise.LastStats?.ToFailure ?? PlannedExercise.ToFailure;
+        return workoutPlanItem;
+    }
 }

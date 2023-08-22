@@ -1,0 +1,291 @@
+﻿@page "/charts/{ExerciseTypeGuid}"
+
+@using Amrap.Core.Domain;
+@using Amrap.Core.Infrastructure;
+@using System.Collections.ObjectModel;
+@using System.Linq;
+
+@inject DatabaseHandler _databaseHandler;
+
+<PageTitle>@title</PageTitle>
+
+<style>
+    .chart-wrapper {
+        overflow: auto;
+    }
+
+    .chart-container {
+        width: 100%;
+        height: 100%;
+        display: inline-grid;
+        min-width: 500px;
+        min-height: 500px;
+        box-sizing: border-box;
+    }
+</style>
+
+@if (noResults)
+{
+    <BitTextField IsReadonly="true" IsUnderlined="true" Value="@noResultsText" />
+}
+
+<div class="chart-wrapper">
+    <div class="chart-container">
+        @if (_lineChartConfig != default)
+        {
+            <BitChart Config="_lineChartConfig" @ref="_lineChart" />
+        }
+    </div>
+</div>
+
+<BitDropdown Items="DaysOfHistoryItems()"
+             Placeholder="@SelectedDropdownItem.Text"
+             ShowClearButton="false"
+             OnSelectItem="OnSelectDaysOfHistoryItems"
+             Style="width: 100%; max-width: 290px; margin: 20px 0 20px 0">
+</BitDropdown>
+
+@code {
+    [Parameter]
+    public string ExerciseTypeGuid { get; set; }
+
+    private const string title = "Exercise Statistics";
+
+    private BitChartLineConfig _lineChartConfig = default;
+    private BitChart _lineChart = default;
+
+    private bool noResults = false;
+    private string noResultsText => $"No completed exercises for {ExerciseType?.Name} in past {SelectedDropdownItem.Text}";
+
+    private string chartTitleText => $"{ExerciseType.Name} past {SelectedDropdownItem.Text}";
+
+    private ExerciseType ExerciseType;
+
+    private IEnumerable<CompletedExercise> completedExercises;
+
+    private uint daysOfHistory = 30;
+
+    private DateTime now;
+
+    private BitDropdownItem SelectedDropdownItem { get; set; } = DaysOfHistoryItems().First();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ExerciseType = await ExerciseType.GetExerciseTypeByGuid(_databaseHandler, ExerciseTypeGuid);
+        now = DateTime.Now;
+
+        await DrawChart();
+    }
+
+    private void InitializeChart()
+    {
+        _lineChartConfig = new BitChartLineConfig
+        {
+            Options = new BitChartLineOptions
+            {
+                SpanGaps = true,
+                Responsive = true,
+                Title = new BitChartOptionsTitle
+                {
+                    Display = true,
+                    Text = chartTitleText
+                },
+                Tooltips = new BitChartTooltips
+                {
+                    Mode = BitChartInteractionMode.Nearest,
+                    Intersect = true
+                },
+                Hover = new BitChartHover
+                {
+                    Mode = BitChartInteractionMode.Nearest,
+                    Intersect = true
+                },
+                Scales = new BitChartScales
+                {
+                    XAxes = new List<BitChartCartesianAxis>
+                    {
+                        new BitChartCategoryAxis
+                        {
+                            ScaleLabel = new BitChartScaleLabel
+                            {
+                                LabelString = "Days ago",
+                                Display = true
+                            }
+                        }
+                    },
+
+                    YAxes = new List<BitChartCartesianAxis>
+                    {
+                        new BitChartLinearCartesianAxis
+                        {
+                            ScaleLabel = new BitChartScaleLabel
+                            {
+                                LabelString = "Value"
+                            }
+                        }
+                    }
+                }
+            }
+        };
+    }
+
+    private async Task DrawChart()
+    {
+        completedExercises = await CompletedExercise.GetCompletedExercisesForExerciseTypeSinceDate(_databaseHandler, ExerciseType, DateTime.Now.AddDays(-daysOfHistory));
+
+        if (!completedExercises.Any())
+        {
+            noResults = true;
+            return;
+        }
+        else
+        {
+            noResults = false;
+
+            if (_lineChartConfig == default)
+                InitializeChart();
+
+            _lineChartConfig.Data.Datasets.Clear();
+            _lineChartConfig.Data.Labels.Clear();
+        }
+
+        var orderedDescending = completedExercises.OrderByDescending(x => x.Time);
+
+        var oldestEntryDaysAgo = now.Subtract(orderedDescending.Last().Time).Days;
+
+        var labels = Enumerable.Range(0, oldestEntryDaysAgo + 2);
+
+        foreach (var l in labels)
+            _lineChartConfig.Data.Labels.Add(l.ToString());
+
+        var setsSeries = new List<int?>();
+        var repsSeries = new List<int?>();
+        var weightSeries = new List<float?>();
+        var calculatedMetricSeries = new List<float?>();
+        for (var i = oldestEntryDaysAgo + 1; i >= 0; i--)
+        {
+            var day = now.AddDays(-i);
+            var latestEntryFromDate = orderedDescending.Where(x => DateOnly.FromDateTime(x.Time.Date) == DateOnly.FromDateTime(day.Date))?.FirstOrDefault();
+
+            if (latestEntryFromDate != default)
+            {
+                setsSeries.Add(latestEntryFromDate.Sets);
+                repsSeries.Add(latestEntryFromDate.Reps);
+                weightSeries.Add(latestEntryFromDate.Weight);
+                calculatedMetricSeries.Add(latestEntryFromDate.Sets * latestEntryFromDate.Reps * latestEntryFromDate.Weight);
+            }
+            else
+            {
+                setsSeries.Add(default);
+                repsSeries.Add(default);
+                weightSeries.Add(default);
+            }
+        }
+
+        setsSeries.Reverse();
+        repsSeries.Reverse();
+        weightSeries.Reverse();
+
+        var setsDataset = new BitChartLineDataset<int?>(setsSeries)
+        {
+            Label = "Sets",
+            BackgroundColor = BitChartColorUtil.FromDrawingColor(BitChartColors.Blue),
+            BorderColor = BitChartColorUtil.FromDrawingColor(BitChartColors.Blue),
+            Fill = BitChartFillingMode.Disabled,
+            PointRadius = 5
+
+        };
+        var repsDataset = new BitChartLineDataset<int?>(repsSeries)
+        {
+            Label = "Reps",
+            BackgroundColor = BitChartColorUtil.FromDrawingColor(BitChartColors.Green),
+            BorderColor = BitChartColorUtil.FromDrawingColor(BitChartColors.Green),
+            Fill = BitChartFillingMode.Disabled,
+            PointRadius = 5
+            //LineTension = 0
+        };
+        var weightDataset = new BitChartLineDataset<float?>(weightSeries)
+        {
+            Label = "Weight",
+            BackgroundColor = BitChartColorUtil.FromDrawingColor(BitChartColors.Red),
+            BorderColor = BitChartColorUtil.FromDrawingColor(BitChartColors.Red),
+            Fill = BitChartFillingMode.Disabled,
+            PointRadius = 5
+        };
+
+        _lineChartConfig.Data.Datasets.Add(setsDataset);
+        _lineChartConfig.Data.Datasets.Add(repsDataset);
+        _lineChartConfig.Data.Datasets.Add(weightDataset);
+    }
+
+    private static class BitChartColors
+    {
+        private static readonly Lazy<IReadOnlyList<System.Drawing.Color>> _all = new Lazy<IReadOnlyList<System.Drawing.Color>>(() => new System.Drawing.Color[7]
+        {
+                Red, Orange, Yellow, Green, Blue, Purple, Grey
+        });
+
+        public static IReadOnlyList<System.Drawing.Color> All => _all.Value;
+
+        public static readonly System.Drawing.Color Red = System.Drawing.Color.FromArgb(255, 99, 132);
+        public static readonly System.Drawing.Color Orange = System.Drawing.Color.FromArgb(255, 159, 64);
+        public static readonly System.Drawing.Color Yellow = System.Drawing.Color.FromArgb(255, 205, 86);
+        public static readonly System.Drawing.Color Green = System.Drawing.Color.FromArgb(75, 192, 192);
+        public static readonly System.Drawing.Color Blue = System.Drawing.Color.FromArgb(54, 162, 235);
+        public static readonly System.Drawing.Color Purple = System.Drawing.Color.FromArgb(153, 102, 255);
+        public static readonly System.Drawing.Color Grey = System.Drawing.Color.FromArgb(201, 203, 207);
+    }
+
+    private async Task OnSelectDaysOfHistoryItems(BitDropdownItem dropdownItem)
+    {
+        SelectedDropdownItem = dropdownItem;
+
+        daysOfHistory = uint.Parse(dropdownItem.Value);
+        _lineChartConfig.Options.Title.Text = chartTitleText;
+        await DrawChart();
+        await _lineChart.Update();
+    }
+
+    private static List<BitDropdownItem> DaysOfHistoryItems()
+    {
+        return new()
+        {
+            new()
+            {
+                ItemType = BitDropdownItemType.Normal,
+                Text = "30 days",
+                Value = "30"
+            },
+            new()
+            {
+                ItemType = BitDropdownItemType.Normal,
+                Text = "90 days",
+                Value = "90"
+            },
+            new()
+            {
+                ItemType = BitDropdownItemType.Normal,
+                Text = "180 days",
+                Value = "180",
+            },
+            new()
+            {
+                ItemType = BitDropdownItemType.Normal,
+                Text = "1 year",
+                Value = "365"
+            },
+            new()
+            {
+                ItemType = BitDropdownItemType.Normal,
+                Text = "2 years",
+                Value = "730"
+            },
+            new()
+            {
+                ItemType = BitDropdownItemType.Normal,
+                Text = "5 years",
+                Value = "1825"
+            }
+        };
+    }
+}

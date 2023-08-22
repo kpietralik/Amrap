@@ -1,5 +1,6 @@
 ﻿using Amrap.Core;
 using Amrap.Core.Infrastructure;
+using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 
 namespace Amrap;
@@ -15,6 +16,7 @@ public static class MauiProgram
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
             });
+        builder.UseMauiCommunityToolkit();
 
         builder.Services.AddMauiBlazorWebView();
 
@@ -26,7 +28,6 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<DatabaseHandler>();
 
-        builder.Services.AddSingleton<WorkoutPlanReader>();
         builder.Services.AddSingleton<CompletedExerciseReader>();
 
         return builder.Build();

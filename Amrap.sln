@@ -6,7 +6,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Amrap", "Amrap\Amrap.csproj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Amrap.Core", "Amrap.Core\Amrap.Core.csproj", "{70C7BA7F-F006-484F-B566-F898669AE4C4}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E5C4DC82-22E7-4689-B58E-D2FFD5DE09F6}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0FDC3B7D-943D-4F5E-8ED9-8FFE05D1369D}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,0 +1,69 @@
+﻿@page "/EditPlannedExercise/{PlannedExerciseGuid}/{NavigateBack:bool}"
+
+@using Amrap.Core;
+@using Amrap.Core.Domain;
+@using Amrap.Enum;
+@using Amrap.Core.Infrastructure;
+@using Bit.BlazorUI
+
+@inject NavigationManager _navigationManager
+@inject DatabaseHandler _databaseHandler;
+
+<PageTitle>@title</PageTitle>
+<BitLabel>@title</BitLabel>
+
+@if (plannedExercise != default)
+{
+    // ToDo: unify and put here component for Exercise Type editing and saving
+
+    <ExerciseTypeViewComponent ExerciseType="@plannedExercise.ExerciseType" />
+    <BitNumericTextField Label="Sets" IsUnderlined="true" Step="@(1)" Min="1" ShowArrows="true" @bind-Value="plannedExercise.Sets" />
+    <BitTextField Label="Last sets" IsUnderlined="true" IsReadonly="true" Value="@plannedExercise.GetSets().ToString()" />
+    <BitNumericTextField Label="Reps" IsUnderlined="true" Step="@(1)" Min="1" ShowArrows="true" @bind-Value="plannedExercise.Reps" />
+    <BitTextField Label="Last reps" IsUnderlined="true" IsReadonly="true" Value="@plannedExercise.GetReps().ToString()" />
+    <BitNumericTextField Label="Weight" IsUnderlined="true" Min="0" IconName="BitIconName.Weights" Suffix=" kg" @bind-Value="plannedExercise.Weight" />
+    <BitTextField Label="Last weight" IsUnderlined="true" IsReadonly="true" Value="@plannedExercise.GetWeight().ToString()" />
+    <BitTextField Label="Note" IsUnderlined="true" @bind-Value="plannedExercise.Note" />
+    <BitCheckbox Label="Drop set" IsUnderlined="true" @bind-Value="plannedExercise.DropSet" />
+    <BitCheckbox Label="To failure" IsUnderlined="true" @bind-Value="plannedExercise.ToFailure" />
+
+    <BitButton Style="margin-top: 20px;" OnClick="Save">Save</BitButton>
+    @if (saved)
+    {
+        <BitMessageBar MessageBarType="@BitMessageBarType.Success">
+            Saved
+        </BitMessageBar>
+    }
+}
+else
+{
+    <h3>Loading..</h3>
+}
+
+@code {
+    [Parameter]
+    public string PlannedExerciseGuid { get; set; }
+
+    [Parameter]
+    public bool NavigateBack { get; set; }
+
+    private const string title = "Edit planned exercise";
+
+    private PlannedExercise plannedExercise;
+    private bool saved;
+
+    protected override async Task OnInitializedAsync()
+    {
+        plannedExercise = await _databaseHandler.GetPlannedExercise(PlannedExerciseGuid);
+    }
+
+    private async Task Save()
+    {
+        await plannedExercise.Upsert(_databaseHandler);
+
+        if (NavigateBack)
+            _navigationManager.NavigateTo($"/plannedexercise/{plannedExercise.WorkoutPlanItemGuid}/{PlannedExerciseGuid}");
+        else
+            saved = true;
+    }
+}

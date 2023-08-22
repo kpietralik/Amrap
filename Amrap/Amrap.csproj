@@ -24,7 +24,7 @@
 
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">14.2</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">14.0</SupportedOSPlatformVersion>
-        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
+        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
         <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
@@ -66,6 +66,7 @@
     <ItemGroup>
         <!-- App Icon -->
         <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+        <MauiIcon Include="Resources\AppIcon\logo.png" />
 
         <!-- Splash Screen -->
         <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
@@ -82,22 +83,21 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Pages\WorkoutPlanItemComponent.razor.css" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="Pages\WorkoutPlanItemComponent.razor.css" />
+      <None Remove="Resources\AppIcon\logo.png" />
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Bit.BlazorUI" Version="5.1.0" />
+        <PackageReference Include="Bit.BlazorUI.Extras" Version="5.4.0" />
+        <PackageReference Include="CommunityToolkit.Maui" Version="5.3.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
+        <PackageReference Include="System.IO" Version="4.3.0" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Amrap.Core\Amrap.Core.csproj" />
     </ItemGroup>
 
-    <ProjectExtensions><VisualStudio><UserProperties XamarinHotReloadDebuggerTimeoutExceptionAmrapHideInfoBar="True" /></VisualStudio></ProjectExtensions>
+    <ProjectExtensions><VisualStudio><UserProperties XamarinHotReloadDebuggerTimeoutExceptionAmrapHideInfoBar="True" XamarinHotReloadGenericExceptionInfoBarAmrapHideInfoBar="True" /></VisualStudio></ProjectExtensions>
 
 </Project>

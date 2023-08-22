@@ -1,38 +1,28 @@
 ﻿@using Amrap.Core.Domain;
 @using Bit.BlazorUI
 
-@ChildContent
 <style>
     .day-label {
-        background-color: lightgrey;
-        color: black;
         font-weight: 900;
     }
 
     .day-value {
-        background-color: lightgrey;
         color: green;
         font-weight: 900;
     }
 </style>
 <BitTextField Label="Day" LabelClass="day-label" InputClass="day-value" IsUnderlined="true" IsReadonly="true" Value="@WorkoutPlanItem.Day.ToString()" />
-<BitTextField Label="Sets" IsUnderlined="true" IsReadonly="true"  Value="@WorkoutPlanItem.PlannedExercise.Sets.ToString()" />
-<BitTextField Label="Last sets" IsUnderlined="true" IsReadonly="true" Value="@WorkoutPlanItem.GetSets().ToString()" />
-<BitTextField Label="Reps" IsUnderlined="true" IsReadonly="true" Value="@WorkoutPlanItem.PlannedExercise.Reps.ToString()" />
-<BitTextField Label="Last reps" IsUnderlined="true" IsReadonly="true" Value="@WorkoutPlanItem.GetReps().ToString()" />
-<BitTextField Label="Weight" IsUnderlined="true" IsReadonly="true" IconName="BitIconName.Weights" Suffix=" kg" Value="@WorkoutPlanItem.PlannedExercise.Weight.ToString()" />
-<BitTextField Label="Last weight" IsUnderlined="true" IsReadonly="true" Value="@WorkoutPlanItem.GetWeight().ToString()" />
-<BitTextField Label="Note" IsUnderlined="true" IsReadonly="true" Value="@WorkoutPlanItem.PlannedExercise.Note" />
-<BitTextField Label="Drop set" IsUnderlined="true" IsReadonly="true" Value="@BoolText(WorkoutPlanItem.PlannedExercise.DropSet)"/>
-<BitTextField Label="To failure" IsUnderlined="true" IsReadonly="true" Value="@BoolText(WorkoutPlanItem.PlannedExercise.ToFailure)" />
+@if (!string.IsNullOrWhiteSpace(WorkoutPlanItem.Title))
+{
+    <BitTextField Label="Title" IsUnderlined="true" IsReadonly="true" Value="@WorkoutPlanItem.Title" />
+}
+@ChildContent
 <BitTextField Label="Priority" IsUnderlined="true" IsReadonly="true" Value="@WorkoutPlanItem.Priority.ToString()" />
 
 @code {
-        [Parameter]
-        public WorkoutPlanItem WorkoutPlanItem { get; set; }
+    [Parameter]
+    public WorkoutPlanItem WorkoutPlanItem { get; set; }
 
-        [Parameter]
-        public RenderFragment ChildContent { get; set; }
-
-        private string BoolText(bool value) => value ? "Yes" : "No";
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
 }

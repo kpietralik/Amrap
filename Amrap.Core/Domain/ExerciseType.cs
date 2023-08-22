@@ -12,6 +12,8 @@ public class ExerciseType
     public string Name { get; set; }
 
     public string Description { get; set; }
+
+    [MaxLength(500)]
     public string Img { get; set; }
 
     public string AddUrl => $"/newexercisetype";
@@ -39,9 +41,12 @@ public class ExerciseType
     }
 
     public Task Add(DatabaseHandler databaseHandler) => databaseHandler.AddExerciseType(this);
-
-    public Task Update(DatabaseHandler databaseHandler) => databaseHandler.UpdateExerciseType(this);
+  
+    public Task Upsert(DatabaseHandler databaseHandler) => databaseHandler.UpsertExerciseType(this);
 
     public static Task<IList<ExerciseType>> GetExerciseTypes(DatabaseHandler databaseHandler) =>
         databaseHandler.GetExerciseTypes();
+
+    public static Task<ExerciseType> GetExerciseTypeByGuid(DatabaseHandler databaseHandler, string guid) =>
+        databaseHandler.GetExerciseType(guid);
 }

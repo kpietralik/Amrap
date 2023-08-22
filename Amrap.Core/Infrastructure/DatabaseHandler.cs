@@ -12,7 +12,16 @@ public class DatabaseHandler
     public bool HasInitialized => _db != null;
 
     public DatabaseHandler()
+    { }
+
+    // TODO: trim unused methods
+
+    private void InitializeDb()
     {
+        if (!HasInitialized)
+        {
+            _db = new SQLiteAsyncConnection(_databasePath);
+        }
     }
 
     public async Task CreateConnectionAndTables(bool force = false, bool keepAchievements = true)
@@ -20,8 +29,8 @@ public class DatabaseHandler
         if (HasInitialized && !force)
             return;
 
-        _db = new SQLiteAsyncConnection(_databasePath);
-        
+        InitializeDb();
+
         if (force)
         {
             // This will remove all of application's data.
@@ -33,6 +42,7 @@ public class DatabaseHandler
             {
                 await _db.DropTableAsync<CompletedExercise>();
                 await _db.DropTableAsync<LastStats>();
+                await _db.DropTableAsync<ExerciseStat>();
             }
         }
 
@@ -41,6 +51,7 @@ public class DatabaseHandler
         await _db.CreateTableAsync<WorkoutPlanItem>();
         await _db.CreateTableAsync<CompletedExercise>();
         await _db.CreateTableAsync<LastStats>();
+        await _db.CreateTableAsync<ExerciseStat>();
     }
 
     // SEED
@@ -62,24 +73,67 @@ public class DatabaseHandler
 
     // WRITE
     public Task AddExerciseType(ExerciseType exerciseType) => _db.InsertAsync(exerciseType);
-
-    public Task UpdateExerciseType(ExerciseType exerciseType) => _db.UpdateAsync(exerciseType);
+    
+    public Task UpsertExerciseType(ExerciseType exerciseType) => _db.InsertOrReplaceAsync(exerciseType);
 
     public Task AddExercise(CompletedExercise exercise) => _db.InsertAsync(exercise);
+    
+    public Task UpsertExercise(CompletedExercise exercise) => _db.InsertOrReplaceAsync(exercise);
 
     public Task DeleteCompletedExercise(int id) => _db.DeleteAsync<CompletedExercise>(id);
 
     public Task AddPlannedExercise(PlannedExercise plannedExercise) => _db.InsertAsync(plannedExercise);
 
-    public Task UpdatePlannedExercise(PlannedExercise plannedExercise) => _db.UpdateAsync(plannedExercise);
+    public Task UpsertPlannedExercise(PlannedExercise plannedExercise) => _db.InsertOrReplaceAsync(plannedExercise);
+
+    public async Task DeletePlannedExercise(PlannedExercise plannedExercise)
+    {
+        await DeleteLastStats(plannedExercise.LastStats);
+
+        await _db.DeleteAsync<PlannedExercise>(plannedExercise.Guid);
+    }
 
     public Task AddWorkoutPlanItem(WorkoutPlanItem workoutPlanItem) => _db.InsertAsync(workoutPlanItem);
 
-    public Task UpdateWorkoutPlanItem(WorkoutPlanItem workoutPlanItem) => _db.UpdateAsync(workoutPlanItem);
+    public Task UpsertWorkoutPlanItem(WorkoutPlanItem workoutPlanItem) => _db.InsertOrReplaceAsync(workoutPlanItem);
 
-    public Task DeleteWorkoutPlanItem(string guid) => _db.DeleteAsync<WorkoutPlanItem>(guid);
+    public async Task DeleteWorkoutPlanItem(WorkoutPlanItem workoutPlanItem)
+    {
+        foreach (var ex in workoutPlanItem.PlannedExercises)
+            await DeletePlannedExercise(ex);
+     
+        await _db.DeleteAsync<WorkoutPlanItem>(workoutPlanItem.Guid);
+    }
 
-    public Task SetLastStats(LastStats lastStatsModel) => _db.InsertOrReplaceAsync(lastStatsModel);
+    public async Task SetLastStats(LastStats lastStats)
+    {
+        // Save all stats first
+        foreach (var item in lastStats.ExerciseStats)
+        {
+            await _db.InsertOrReplaceAsync(item);
+        }
+
+        await _db.InsertOrReplaceAsync(lastStats);
+    }
+
+    public async Task DeleteLastStats(LastStats lastStats)
+    {
+        if (lastStats == default)
+            return;
+
+        // Delete all stats first
+        foreach (var item in lastStats.ExerciseStats)
+        {
+            await _db.DeleteAsync(item);
+        }
+
+        await _db.DeleteAsync(lastStats);
+    }
+
+    public Task DeleteExerciseStats(string guid) => _db.DeleteAsync<ExerciseStat>(guid);
+
+    public Task UpsertExerciseStats(ExerciseStat exerciseStat) => _db.InsertOrReplaceAsync(exerciseStat);
+
 
     // READ
     public async Task<IList<ExerciseType>> GetExerciseTypes() =>
@@ -92,7 +146,7 @@ public class DatabaseHandler
         return res.Single();
     }
 
-    public async Task<IList<PlannedExercise>> GetPlannedExercises(IList<ExerciseType> exerciseTypes)
+    public async Task<IList<PlannedExercise>> GetAllPlannedExercises(IList<ExerciseType> exerciseTypes, IList<WorkoutPlanItem> workoutPlanItems)
     {
         var plannedExercises = await _db.QueryAsync<PlannedExercise>($"select * from {nameof(PlannedExercise)}");
 
@@ -107,6 +161,23 @@ public class DatabaseHandler
         }
 
         return plannedExercises;
+    }
+
+    public async Task<IList<PlannedExercise>> GetPlannedExercisesForWorkoutPlanItem(WorkoutPlanItem workoutPlanItem, IList<ExerciseType> exerciseTypes)
+    {
+        var plannedExercisesForWorkoutPlanItem = await _db.QueryAsync<PlannedExercise>($"select * from {nameof(PlannedExercise)} where WorkoutPlanItemGuid = ?", workoutPlanItem.Guid);
+
+        foreach (var plannedExercise in plannedExercisesForWorkoutPlanItem)
+        {
+            plannedExercise.SetExerciseType(exerciseTypes.Single(x => x.Guid == plannedExercise.ExerciseTypeGuid));
+
+            var lastStats = await GetLastStats(plannedExercise.Guid); // 1 to at most 1 relationship
+
+            if (lastStats != null)
+                plannedExercise.SetLastStats(lastStats);
+        }
+
+        return plannedExercisesForWorkoutPlanItem;
     }
 
     public async Task<PlannedExercise> GetPlannedExercise(string guid)
@@ -131,23 +202,28 @@ public class DatabaseHandler
 
         var workoutPlanItem = res.Single();
 
-        var plannedExercise = await GetPlannedExercise(workoutPlanItem.PlannedExerciseGuid);
+        var exerciseTypes = await GetExerciseTypes();
+        var plannedExercises = await GetPlannedExercisesForWorkoutPlanItem(workoutPlanItem, exerciseTypes);
 
-        workoutPlanItem.SetPlannedExercise(plannedExercise);
+        workoutPlanItem.SetPlannedExercises(plannedExercises);
 
         return workoutPlanItem;
     }
 
-    public async Task<IList<WorkoutPlanItem>> GetWorkoutPlan(IList<PlannedExercise> plannedExercises)
+    public async Task<IList<WorkoutPlanItem>> GetWorkoutPlan()
     {
-        var workoutPlans = await _db.QueryAsync<WorkoutPlanItem>($"select * from {nameof(WorkoutPlanItem)}");
+        var workoutPlan = await _db.QueryAsync<WorkoutPlanItem>($"select * from {nameof(WorkoutPlanItem)}");
 
-        foreach (var workoutPlan in workoutPlans)
+        var exerciseTypes = await GetExerciseTypes();
+
+        foreach(var workoutPlanItem in workoutPlan)
         {
-            workoutPlan.SetPlannedExercise(plannedExercises.Single(x => x.Guid == workoutPlan.PlannedExerciseGuid));
+            var plannedExercises = await GetPlannedExercisesForWorkoutPlanItem(workoutPlanItem, exerciseTypes);
+            workoutPlanItem.SetPlannedExercises(plannedExercises);
         }
 
-        return workoutPlans;
+
+        return workoutPlan;
     }
 
     public async Task<IList<CompletedExercise>> GetCompletedExercises(IList<ExerciseType> exerciseTypes)
@@ -162,10 +238,59 @@ public class DatabaseHandler
         return completedExercises;
     }
 
+    public async Task<IEnumerable<CompletedExercise>> GetExercisesCompletedToday(DateTime today)
+    {
+        var ticksStartofToday = today.Date.Ticks;
+
+        var completedExercises = await _db.QueryAsync<CompletedExercise>(
+            $"select * from {nameof(CompletedExercise)} where " +
+            $"Time > ?", ticksStartofToday);
+
+        var exerciseTypes = await GetExerciseTypes();
+
+        foreach (var completedExercise in completedExercises)
+        {
+            completedExercise.SetExerciseType(exerciseTypes.Single(x => x.Guid == completedExercise.ExerciseTypeGuid));
+        }
+        
+        return completedExercises;
+    }
+
+    public async Task<IEnumerable<CompletedExercise>> GetCompletedExercisesForExerciseTypeSinceDate(ExerciseType exerciseType, DateTime since)
+    {
+        var completedExercises = await _db.QueryAsync<CompletedExercise>($"select * from {nameof(CompletedExercise)} where " +
+            $"ExerciseTypeGuid = ? and " +
+            $"Time > ?", exerciseType.Guid, since.Ticks);
+
+        foreach (var completedExercise in completedExercises)
+        {
+            completedExercise.SetExerciseType(exerciseType);
+        }
+
+        return completedExercises;
+    }
+
     public async Task<LastStats?> GetLastStats(string guid)
     {
         var res = await _db.QueryAsync<LastStats>($"select * from {nameof(LastStats)} where Guid = ?", guid);
 
-        return res.SingleOrDefault();
+        var lastStats = res.SingleOrDefault();
+
+        if (lastStats == null)
+            return null;
+
+        // Get all stats
+        var statsResult = await GetAllExerciseStatsForLastStats(lastStats.Guid);
+
+        lastStats.ExerciseStats = statsResult;
+
+        return lastStats;
+    }
+
+    public async Task<LinkedList<ExerciseStat>> GetAllExerciseStatsForLastStats(string lastStatsGuid)
+    {
+        var res = await _db.QueryAsync<ExerciseStat>($"select * from {nameof(ExerciseStat)} where LastStatsGuid = ?", lastStatsGuid);
+
+        return new LinkedList<ExerciseStat>(res); ;
     }
 }

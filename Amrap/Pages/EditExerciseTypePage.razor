@@ -42,7 +42,7 @@ else
 
     private async Task Save()
     {
-        await exerciseType.Update(_databaseHandler);
+        await exerciseType.Upsert(_databaseHandler);
 
         NavigationManager.NavigateTo("workoutplanitem");
     }
