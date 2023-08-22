@@ -71,7 +71,7 @@
         newL.Add(new CompletedExercise(warmUp, DateTime.Now.AddDays(-28), 5, 10, 9.0f, false, false));
         newL.Add(new CompletedExercise(warmUp, DateTime.Now.AddDays(-35), 4, 12, 3.0f, false, false));
 
-        InitlineChartExample(warmUp.Name, newL, now);
+        InitlineChartExample($"{warmUp.Name} past {daysOfHistory} days", newL, now);
     }
 
     private void InitlineChartExample(string title, IEnumerable<CompletedExercise> completedExercises, DateTime now)
@@ -93,6 +93,7 @@
         {
             Options = new BitChartLineOptions
             {
+                SpanGaps = true,
                 Responsive = true,
                 Title = new BitChartOptionsTitle
                 {
@@ -185,7 +186,7 @@
         //     BackgroundColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Red),
         //     BorderColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Red),
         //     Fill = BitChartFillingMode.Disabled
-        // };     
+        // };
 
         var orderedDescending = completedExercises.OrderByDescending(x => x.Time);
 
@@ -197,10 +198,10 @@
         foreach (var l in labels)
             _lineChartConfigExample.Data.Labels.Add(l.ToString());
 
-        var setsSeries = new List<float>();
-        var repsSeries = new List<float>();
-        var weightSeries = new List<float>();
-        var calculatedMetricSeries = new List<float>();
+        var setsSeries = new List<int?>();
+        var repsSeries = new List<int?>();
+        var weightSeries = new List<float?>();
+        var calculatedMetricSeries = new List<float?>();
         for (var i = oldestEntryDaysAgo + 1; i >= 0; i--)
         {
             var day = now.AddDays(-i);
@@ -213,16 +214,12 @@
                 weightSeries.Add(latestEntryFromDate.Weight);
                 calculatedMetricSeries.Add(latestEntryFromDate.Sets * latestEntryFromDate.Reps * latestEntryFromDate.Weight);
             }
-            else 
+            else
             {
-                setsSeries.Add(setsSeries.LastOrDefault());
-                repsSeries.Add(repsSeries.LastOrDefault());
-                weightSeries.Add(weightSeries.LastOrDefault());
-                calculatedMetricSeries.Add(
-                    0.05f *
-                    OneOrNonZeroValue(setsSeries.LastOrDefault()) * 
-                    OneOrNonZeroValue(repsSeries.LastOrDefault()) * 
-                    OneOrNonZeroValue(weightSeries.LastOrDefault()));
+                setsSeries.Add(default);
+                repsSeries.Add(default);
+                weightSeries.Add(default);
+                calculatedMetricSeries.Add(default);
             }
         }
 
@@ -231,33 +228,39 @@
         weightSeries.Reverse();
         calculatedMetricSeries.Reverse();
 
-        IDataset<float> setsDataset = new BitChartLineDataset<float>(setsSeries)
+        var setsDataset = new BitChartLineDataset<int?>(setsSeries)
         {
             Label = "Sets",
-            BackgroundColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Blue),
-            BorderColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Blue),
-            Fill = BitChartFillingMode.Disabled
+            BackgroundColor = BitChartColorUtil.FromDrawingColor(BitChartColors.Blue),
+            BorderColor = BitChartColorUtil.FromDrawingColor(BitChartColors.Blue),
+            Fill = BitChartFillingMode.Disabled,
+            PointRadius = 5
+            
         };
-        IDataset<float> repsDataset = new BitChartLineDataset<float>(repsSeries)
+        var repsDataset = new BitChartLineDataset<int?>(repsSeries)
         {
             Label = "Reps",
-            BackgroundColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Green),
-            BorderColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Green),
-            Fill = BitChartFillingMode.Disabled
+            BackgroundColor = BitChartColorUtil.FromDrawingColor(BitChartColors.Green),
+            BorderColor = BitChartColorUtil.FromDrawingColor(BitChartColors.Green),
+            Fill = BitChartFillingMode.Disabled,
+            PointRadius = 5
+            //LineTension = 0
         };
-        IDataset<float> weightDataset = new BitChartLineDataset<float>(weightSeries)
+        var weightDataset = new BitChartLineDataset<float?>(weightSeries)
         {
             Label = "Weight",
-            BackgroundColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Red),
-            BorderColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Red),
-            Fill = BitChartFillingMode.Disabled
+            BackgroundColor = BitChartColorUtil.FromDrawingColor(BitChartColors.Red),
+            BorderColor = BitChartColorUtil.FromDrawingColor(BitChartColors.Red),
+            Fill = BitChartFillingMode.Disabled,
+            PointRadius = 5
         };
-        IDataset<float> calculatedMetricDataset = new BitChartLineDataset<float>(calculatedMetricSeries)
+        var calculatedMetricDataset = new BitChartLineDataset<float?>(calculatedMetricSeries)
         {
             Label = "Calculated",
-            BackgroundColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Grey),
-            BorderColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Grey),
-            Fill = BitChartFillingMode.Disabled
+            BackgroundColor = BitChartColorUtil.FromDrawingColor(BitChartColors.Grey),
+            BorderColor = BitChartColorUtil.FromDrawingColor(BitChartColors.Grey),
+            Fill = BitChartFillingMode.Disabled,
+            PointRadius = 5
         };
 
         _lineChartConfigExample.Data.Datasets.Add(setsDataset);
@@ -270,7 +273,7 @@
 
     public float OneOrNonZeroValue(float value) => value != 0 ? value : 1;
 
-    public static class BitChartDemoColors
+    public static class BitChartColors
     {
         private static readonly Lazy<IReadOnlyList<System.Drawing.Color>> _all = new Lazy<IReadOnlyList<System.Drawing.Color>>(() => new System.Drawing.Color[7]
         {
