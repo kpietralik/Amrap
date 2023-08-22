@@ -17,6 +17,7 @@ All data is stored locally.
 - presenting workout plan
 - filtering workout plan based on day of week and completed status (current day)
 - multiple planned exercises for each workout plan item
+- charts with progress for each exercise type
 
 ## Debug menu 
 - `Recreate Database keeping achievements` removes all db data except completed exercises
@@ -40,8 +41,7 @@ Sample data for `Seed Database` functionality:
 - Order exercise types by name
 - Filter exercise types by name
 - Delete exercise type option
-- Charts with progress for each exercise type
-- Charts completion info for each workout plan item
+- Charts with completion info for each workout plan item
 - Placeholder image for lack of sample image cases
 - AI generated exercise type images.
 - Hosting of images -> alongside app code, separate repo & package or online (e.g. Azure Storage) hosting?
