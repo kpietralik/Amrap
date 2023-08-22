@@ -1,4 +1,4 @@
-﻿@page "/charts"
+﻿@page "/charts/{ExerciseTypeGuid}"
 
 @using Amrap.Core.Domain;
 @using Amrap.Core.Infrastructure;
@@ -10,86 +10,76 @@
 <PageTitle>@title</PageTitle>
 
 <style>
-/*     .chartDiv {
-        height: 1400px;
-        width: auto;
-        background: lightblue;
-    }    */ 
-    
-/*     .chartElement {
-        height: 100vh;
-        width: 100vw;
-    } */
-
     .chart-wrapper {
         overflow: auto;
-        background: lightblue;
     }
 
     .chart-container {
         width: 100%;
         height: 100%;
         display: inline-grid;
-        min-width: 800px;
+        min-width: 500px;
         min-height: 500px;
         box-sizing: border-box;
-        /* background: lightgreen */
     }
 </style>
-    <div class="chart-wrapper">
-        <div class="chart-container">
-        @if (_lineChartConfigExample != default)
+
+@if (noResults)
+{
+    <BitTextField IsReadonly="true" IsUnderlined="true" Value="@noResultsText" />
+}
+
+<div class="chart-wrapper">
+    <div class="chart-container">
+        @if (_lineChartConfig != default)
         {
-            <BitChart Config="_lineChartConfigExample" @ref="_lineChartExample" />
+            <BitChart Config="_lineChartConfig" @ref="_lineChart" />
         }
     </div>
 </div>
 
+<BitDropdown Items="DaysOfHistoryItems()"
+             Placeholder="@SelectedDropdownItem.Text"
+             ShowClearButton="false"
+             OnSelectItem="OnSelectDaysOfHistoryItems"
+             Style="width: 100%; max-width: 290px; margin: 20px 0 20px 0">
+</BitDropdown>
+
 @code {
-    private const string title = "Chart";
+    [Parameter]
+    public string ExerciseTypeGuid { get; set; }
 
-    private BitChartLineConfig _lineChartConfigExample = default;
-    private BitChart _lineChartExample = default;
+    private const string title = "Exercise Statistics";
 
-    private int InitalCount = 12;
+    private BitChartLineConfig _lineChartConfig = default;
+    private BitChart _lineChart = default;
+
+    private bool noResults = false;
+    private string noResultsText => $"No completed exercises for {ExerciseType?.Name} in past {SelectedDropdownItem.Text}";
+
+    private string chartTitleText => $"{ExerciseType.Name} past {SelectedDropdownItem.Text}";
+
+    private ExerciseType ExerciseType;
+
+    private IEnumerable<CompletedExercise> completedExercises;
+
+    private uint daysOfHistory = 30;
+
+    private DateTime now;
+
+    private BitDropdownItem SelectedDropdownItem { get; set; } = DaysOfHistoryItems().First();
 
     protected override async Task OnInitializedAsync()
     {
-        var warmUp = await ExerciseType.GetExerciseTypeByGuid(_databaseHandler, "cbe667ec-1409-4a7d-bfd9-f0e825de1c3c");
+        ExerciseType = await ExerciseType.GetExerciseTypeByGuid(_databaseHandler, ExerciseTypeGuid);
+        now = DateTime.Now;
 
-        var daysOfHistory = 30;
-        var now = DateTime.Now;
-
-        //var completedExercises = await CompletedExercise.GetCompletedExercisesForExerciseTypeSinceDate(_databaseHandler, warmUp, DateTime.Now.AddDays(-daysOfHistory));
-
-        // ToDo: temp
-        var newL = new List<CompletedExercise>();
-        newL.Add(new CompletedExercise(warmUp,   DateTime.Now           , 2, 11, 18.0f, false, false));
-        newL.Add(new CompletedExercise(warmUp,  DateTime.Now.AddDays(-7), 3, 10, 14.0f, false, false));
-        newL.Add(new CompletedExercise(warmUp, DateTime.Now.AddDays(-14), 3, 9, 13.5f, false, false));
-        newL.Add(new CompletedExercise(warmUp, DateTime.Now.AddDays(-21), 4, 14, 11.5f, false, false));
-        newL.Add(new CompletedExercise(warmUp, DateTime.Now.AddDays(-28), 5, 10, 9.0f, false, false));
-        newL.Add(new CompletedExercise(warmUp, DateTime.Now.AddDays(-35), 4, 12, 3.0f, false, false));
-
-        InitlineChartExample($"{warmUp.Name} past {daysOfHistory} days", newL, now);
+        await DrawChart();
     }
 
-    private void InitlineChartExample(string title, IEnumerable<CompletedExercise> completedExercises, DateTime now)
+    private void InitializeChart()
     {
-        var bitChartTimeOptions = new BitChartTimeOptions
-        {
-            //DisplayFormats =
-            IsoWeek = true,
-            Unit = BitChartTimeMeasurement.Day, // Or Week?
-            Round = BitChartTimeMeasurement.Day,
-            //TooltipFormat // https://momentjs.com/docs/#/displaying/format/
-            //Min,
-            //MinUnit,
-            //Max ,
-            //StepSize,
-        };
-
-        _lineChartConfigExample = new BitChartLineConfig
+        _lineChartConfig = new BitChartLineConfig
         {
             Options = new BitChartLineOptions
             {
@@ -98,7 +88,7 @@
                 Title = new BitChartOptionsTitle
                 {
                     Display = true,
-                    Text = title
+                    Text = chartTitleText
                 },
                 Tooltips = new BitChartTooltips
                 {
@@ -112,44 +102,6 @@
                 },
                 Scales = new BitChartScales
                 {
-                    // Invalid cast
-                    // XAxes = (IList<BitChartCartesianAxis>)new List<BitChartTimeAxis>()
-                    // {
-                    //     new BitChartTimeAxis
-                    //     {
-                    //         Distribution = BitChartTimeDistribution.Linear,
-                    //         Bounds = BitChartScaleBound.Data,
-                    //         Time = bitChartTimeOptions
-                    //     }
-                    // },
-
-                    // JS method not implemented exception
-                    // XAxes = new List<BitChartCartesianAxis>
-                    // {
-                    //     new BitChartTimeAxis
-                    //     {
-                    //         Distribution = BitChartTimeDistribution.Linear,
-                    //         Bounds = BitChartScaleBound.Data,
-                    //         Time = new BitChartTimeOptions
-                    //         {
-                    //             IsoWeek = true,
-                    //             Unit = BitChartTimeMeasurement.Day,
-                    //             Round = BitChartTimeMeasurement.Day,
-                    //         }
-                    //     }
-                    // },
-
-                    // Data not visible
-                    // XAxes = new List<BitChartCartesianAxis>
-                    // {
-                    //     new BitChartLinearCartesianAxis
-                    //     {
-                    //         Offset = true
-                    //     }
-                    // },
-
-
-                    // From linear chart demo
                     XAxes = new List<BitChartCartesianAxis>
                     {
                         new BitChartCategoryAxis
@@ -162,8 +114,6 @@
                         }
                     },
 
-
-                    // --- Y Axis ---
                     YAxes = new List<BitChartCartesianAxis>
                     {
                         new BitChartLinearCartesianAxis
@@ -177,26 +127,36 @@
                 }
             }
         };
+    }
 
+    private async Task DrawChart()
+    {
+        completedExercises = await CompletedExercise.GetCompletedExercisesForExerciseTypeSinceDate(_databaseHandler, ExerciseType, DateTime.Now.AddDays(-daysOfHistory));
 
-        // JS method not implemented exception when used with BitChartTimeAxis
-        // IDataset<BitChartTimePoint> dataset1 = new BitChartLineDataset<BitChartTimePoint>(completedExercises.Select(x => new BitChartTimePoint(x.Time, (double)x.Weight)))
-        // {
-        //     Label = "Weight",
-        //     BackgroundColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Red),
-        //     BorderColor = BitChartColorUtil.FromDrawingColor(BitChartDemoColors.Red),
-        //     Fill = BitChartFillingMode.Disabled
-        // };
+        if (!completedExercises.Any())
+        {
+            noResults = true;
+            return;
+        }
+        else
+        {
+            noResults = false;
+
+            if (_lineChartConfig == default)
+                InitializeChart();
+
+            _lineChartConfig.Data.Datasets.Clear();
+            _lineChartConfig.Data.Labels.Clear();
+        }
 
         var orderedDescending = completedExercises.OrderByDescending(x => x.Time);
 
-        //Only for category charts
         var oldestEntryDaysAgo = now.Subtract(orderedDescending.Last().Time).Days;
 
         var labels = Enumerable.Range(0, oldestEntryDaysAgo + 2);
 
         foreach (var l in labels)
-            _lineChartConfigExample.Data.Labels.Add(l.ToString());
+            _lineChartConfig.Data.Labels.Add(l.ToString());
 
         var setsSeries = new List<int?>();
         var repsSeries = new List<int?>();
@@ -219,14 +179,12 @@
                 setsSeries.Add(default);
                 repsSeries.Add(default);
                 weightSeries.Add(default);
-                calculatedMetricSeries.Add(default);
             }
         }
 
         setsSeries.Reverse();
         repsSeries.Reverse();
         weightSeries.Reverse();
-        calculatedMetricSeries.Reverse();
 
         var setsDataset = new BitChartLineDataset<int?>(setsSeries)
         {
@@ -235,7 +193,7 @@
             BorderColor = BitChartColorUtil.FromDrawingColor(BitChartColors.Blue),
             Fill = BitChartFillingMode.Disabled,
             PointRadius = 5
-            
+
         };
         var repsDataset = new BitChartLineDataset<int?>(repsSeries)
         {
@@ -254,26 +212,13 @@
             Fill = BitChartFillingMode.Disabled,
             PointRadius = 5
         };
-        var calculatedMetricDataset = new BitChartLineDataset<float?>(calculatedMetricSeries)
-        {
-            Label = "Calculated",
-            BackgroundColor = BitChartColorUtil.FromDrawingColor(BitChartColors.Grey),
-            BorderColor = BitChartColorUtil.FromDrawingColor(BitChartColors.Grey),
-            Fill = BitChartFillingMode.Disabled,
-            PointRadius = 5
-        };
 
-        _lineChartConfigExample.Data.Datasets.Add(setsDataset);
-        _lineChartConfigExample.Data.Datasets.Add(repsDataset);
-        _lineChartConfigExample.Data.Datasets.Add(weightDataset);
-        
-        // ToDo: Not the best metric. Improve and move to different page?
-        // _lineChartConfigExample.Data.Datasets.Add(calculatedMetricDataset);
+        _lineChartConfig.Data.Datasets.Add(setsDataset);
+        _lineChartConfig.Data.Datasets.Add(repsDataset);
+        _lineChartConfig.Data.Datasets.Add(weightDataset);
     }
 
-    public float OneOrNonZeroValue(float value) => value != 0 ? value : 1;
-
-    public static class BitChartColors
+    private static class BitChartColors
     {
         private static readonly Lazy<IReadOnlyList<System.Drawing.Color>> _all = new Lazy<IReadOnlyList<System.Drawing.Color>>(() => new System.Drawing.Color[7]
         {
@@ -289,5 +234,58 @@
         public static readonly System.Drawing.Color Blue = System.Drawing.Color.FromArgb(54, 162, 235);
         public static readonly System.Drawing.Color Purple = System.Drawing.Color.FromArgb(153, 102, 255);
         public static readonly System.Drawing.Color Grey = System.Drawing.Color.FromArgb(201, 203, 207);
+    }
+
+    private async Task OnSelectDaysOfHistoryItems(BitDropdownItem dropdownItem)
+    {
+        SelectedDropdownItem = dropdownItem;
+
+        daysOfHistory = uint.Parse(dropdownItem.Value);
+        _lineChartConfig.Options.Title.Text = chartTitleText;
+        await DrawChart();
+        await _lineChart.Update();
+    }
+
+    private static List<BitDropdownItem> DaysOfHistoryItems()
+    {
+        return new()
+        {
+            new()
+            {
+                ItemType = BitDropdownItemType.Normal,
+                Text = "30 days",
+                Value = "30"
+            },
+            new()
+            {
+                ItemType = BitDropdownItemType.Normal,
+                Text = "90 days",
+                Value = "90"
+            },
+            new()
+            {
+                ItemType = BitDropdownItemType.Normal,
+                Text = "180 days",
+                Value = "180",
+            },
+            new()
+            {
+                ItemType = BitDropdownItemType.Normal,
+                Text = "1 year",
+                Value = "365"
+            },
+            new()
+            {
+                ItemType = BitDropdownItemType.Normal,
+                Text = "2 years",
+                Value = "730"
+            },
+            new()
+            {
+                ItemType = BitDropdownItemType.Normal,
+                Text = "5 years",
+                Value = "1825"
+            }
+        };
     }
 }
