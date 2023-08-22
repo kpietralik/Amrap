@@ -68,6 +68,12 @@ public class CompletedExercise
         await lastStats.Save(databaseHandler);
     }
 
+    public static Task<IEnumerable<CompletedExercise>> GetExercisesCompletedToday(DatabaseHandler databaseHandler, DateTime today) 
+        => databaseHandler.GetExercisesCompletedToday(today);
+
+    public static Task<IEnumerable<CompletedExercise>> GetCompletedExercisesForExerciseTypeSinceDate(DatabaseHandler databaseHandler, ExerciseType exerciseType, DateTime since)
+        => databaseHandler.GetCompletedExercisesForExerciseTypeSinceDate(exerciseType, since);
+
     public Task ImportCompletedExercise(DatabaseHandler databaseHandler) => databaseHandler.UpsertExercise(this);
 
     public Task Delete(DatabaseHandler databaseHandler) => databaseHandler.DeleteCompletedExercise(Id);

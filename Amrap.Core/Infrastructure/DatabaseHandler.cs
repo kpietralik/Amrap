@@ -256,19 +256,15 @@ public class DatabaseHandler
         return completedExercises;
     }
 
-    public async Task<IEnumerable<CompletedExercise>> GetExercisesCompletedWithin(DateTime today)
+    public async Task<IEnumerable<CompletedExercise>> GetCompletedExercisesForExerciseTypeSinceDate(ExerciseType exerciseType, DateTime since)
     {
-        var ticksStartofToday = today.Date.Ticks;
-
-        var completedExercises = await _db.QueryAsync<CompletedExercise>(
-            $"select * from {nameof(CompletedExercise)} where " +
-            $"Time > ?", ticksStartofToday);
-
-        var exerciseTypes = await GetExerciseTypes();
+        var completedExercises = await _db.QueryAsync<CompletedExercise>($"select * from {nameof(CompletedExercise)} where " +
+            $"ExerciseTypeGuid = ? and " +
+            $"Time > ?", exerciseType.Guid, since.Ticks);
 
         foreach (var completedExercise in completedExercises)
         {
-            completedExercise.SetExerciseType(exerciseTypes.Single(x => x.Guid == completedExercise.ExerciseTypeGuid));
+            completedExercise.SetExerciseType(exerciseType);
         }
 
         return completedExercises;

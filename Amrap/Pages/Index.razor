@@ -87,6 +87,7 @@ else if (displayedItems != null)
             {
                 await _databaseHandler.CreateConnectionAndTables();
             }
+
             await ReloadLists();
         }
         catch (Exception ex)
@@ -124,7 +125,7 @@ else if (displayedItems != null)
     {
         if (hideCompleted)
         {
-            completedToday = await _databaseHandler.GetExercisesCompletedToday(DateTime.UtcNow);
+            completedToday = await CompletedExercise.GetExercisesCompletedToday(_databaseHandler, DateTime.UtcNow);
 
             return orderedWorkoutPlanItems
                 .Where(x => FilterByDay(x, dayOfWeek))
