@@ -40,8 +40,8 @@
       <AndroidPackageFormat>aab</AndroidPackageFormat>
       <AndroidUseAapt2>True</AndroidUseAapt2>
       <AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
-      <ApplicationVersion>2</ApplicationVersion>
-      <ApplicationDisplayVersion>2</ApplicationDisplayVersion>
+      <ApplicationVersion>3</ApplicationVersion>
+      <ApplicationDisplayVersion>3</ApplicationDisplayVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-ios|AnyCPU'">
