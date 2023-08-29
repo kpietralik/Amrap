@@ -18,6 +18,7 @@
                 <BitTextField IsUnderlined="false" HasBorder="false" IsReadonly="true" Value="@listText" />
             </div>
             <div class="col-4">
+                <BitActionButton IconName="BitIconName.CirclePlus" OnClick="NewExerciseType">New</BitActionButton>
             </div>
         </div>
     </div>
@@ -50,6 +51,8 @@
         ExerciseTypes = await ExerciseType.GetExerciseTypes(_databaseHandler);
         WorkoutPlanItem = await WorkoutPlanItem.GetWorkoutPlanItem(_databaseHandler, WorkoutPlanItemGuid);
     }
+
+    private void NewExerciseType() => _navigationManager.NavigateTo("/newexercisetype");
 
     private void PickExerciseType(ExerciseType exerciseType) => _navigationManager.NavigateTo($"/newplannedexercise/{exerciseType.Guid}/{WorkoutPlanItem.Guid}");
 }
