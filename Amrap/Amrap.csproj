@@ -15,7 +15,7 @@
         <ApplicationTitle>Amrap</ApplicationTitle>
 
         <!-- App Identifier -->
-        <ApplicationId>com.companyname.amrap</ApplicationId>
+        <ApplicationId>net.yius.amrap</ApplicationId>
         <ApplicationIdGuid>81DD612E-7E0D-4C9B-99D5-7BC74E9DE7B3</ApplicationIdGuid>
 
         <!-- Versions -->
@@ -28,20 +28,29 @@
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
         <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
+        <Configurations>Debug;Release;ReleasePlayBundle</Configurations>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-android|AnyCPU'">
       <ApplicationId>net.yius.amrap</ApplicationId>
       <AndroidCreatePackagePerAbi>True</AndroidCreatePackagePerAbi>
+      <EmbedAssembliesIntoApk>False</EmbedAssembliesIntoApk>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-android|AnyCPU'">
       <ApplicationId>net.yius.amrap</ApplicationId>
+      <AndroidPackageFormat>apk</AndroidPackageFormat>
+      <EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='ReleasePlayBundle|net7.0-android|AnyCPU'">
+      <ApplicationId>net.yius.amrap</ApplicationId>
+      <EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
       <AndroidPackageFormat>aab</AndroidPackageFormat>
       <AndroidUseAapt2>True</AndroidUseAapt2>
       <AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
-      <ApplicationVersion>3</ApplicationVersion>
-      <ApplicationDisplayVersion>3</ApplicationDisplayVersion>
+      <ApplicationVersion>4</ApplicationVersion>
+      <ApplicationDisplayVersion>4</ApplicationDisplayVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-ios|AnyCPU'">
@@ -49,6 +58,10 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-ios|AnyCPU'">
+      <ApplicationId>net.yius.amrap</ApplicationId>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='ReleasePlayBundle|net7.0-ios|AnyCPU'">
       <ApplicationId>net.yius.amrap</ApplicationId>
     </PropertyGroup>
 
@@ -60,11 +73,19 @@
       <ApplicationId>net.yius.amrap</ApplicationId>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='ReleasePlayBundle|net7.0-maccatalyst|AnyCPU'">
+      <ApplicationId>net.yius.amrap</ApplicationId>
+    </PropertyGroup>
+
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-windows10.0.19041.0|AnyCPU'">
       <ApplicationId>net.yius.amrap</ApplicationId>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-windows10.0.19041.0|AnyCPU'">
+      <ApplicationId>net.yius.amrap</ApplicationId>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='ReleasePlayBundle|net7.0-windows10.0.19041.0|AnyCPU'">
       <ApplicationId>net.yius.amrap</ApplicationId>
     </PropertyGroup>
 
