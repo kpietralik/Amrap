@@ -6,21 +6,6 @@
 @inject DatabaseHandler _databaseHandler;
 @inject NavigationManager _navigationManager;
 
-<style>
-    .number {
-        position: absolute;
-        top: 0.75rem;
-        padding: 0.75rem;
-        font-size: 0.75rem;
-        color: #D7D7D7;
-    }
-
-    .image {
-        width: 100%;
-        height: 100%;
-    }
-</style>
-
 @if (WorkoutPlanItem != null && PlannedExercise != null)
 {
     @if (DisplayExerciseTypeLink)
