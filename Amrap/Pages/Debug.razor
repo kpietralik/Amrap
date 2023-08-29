@@ -1,20 +1,21 @@
 ﻿@page "/debug"
 @using Amrap.Core.Infrastructure;
 @using Bit.BlazorUI
+@using System.Text.Json;
 
 @inject DatabaseHandler _databaseHandler;
 
 <PageTitle>@title</PageTitle>
 <BitLabel>@title</BitLabel>
 
-@if (HasInternetAccess())
-{
-    <h3>Has internet access</h3>
-}
-else
-{
-    <h3>No internet access</h3>
-}
+<BitTextField Label="Has Internet access?" @bind-Value="HasInternetAccessString" HasBorder="true" IsReadonly="true" IsTrimmed="true" />
+<BitTextField Label="Name" @bind-Value="name" HasBorder="true" IsReadonly="true" IsTrimmed="true" />
+<BitTextField Label="Package" @bind-Value="package" HasBorder="true" IsReadonly="true" IsTrimmed="true" />
+<BitTextField Label="Version" @bind-Value="version" HasBorder="true" IsReadonly="true" IsTrimmed="true" />
+<BitTextField Label="Build" @bind-Value="build" HasBorder="true" IsReadonly="true" IsTrimmed="true" />
+
+<BitTextField Label="Version Tracking" @bind-Value="versionTracking" HasBorder="true" IsReadonly="true" IsTrimmed="false" IsMultiline="true" />
+<BitTextField Label="App Info" @bind-Value="appInfo" HasBorder="true" IsReadonly="true" IsTrimmed="false" IsMultiline="true" />
 
 <br />
 <br />
@@ -126,17 +127,34 @@ else
     private bool workoutPlanExported = false;
     private bool workoutPlanImported = false;
 
+    // App info
+    private string name = AppInfo.Current.Name;
+    private string package = AppInfo.Current.PackageName;
+    private string version = AppInfo.Current.VersionString;
+    private string build = AppInfo.Current.BuildString;
+
+    // Serialized version
+    private string versionTracking;
+    private string appInfo;
+
     // Sample values
     private string exerciseTypesUrl;
     private string workoutPlanUrl;
 
     protected override async Task OnInitializedAsync()
     {
+        versionTracking = JsonSerializer.Serialize(VersionTracking.Default);
+        appInfo = JsonSerializer.Serialize(AppInfo.Current);
+
+
+        HasInternetAccessString = HasInternetAccess() ? "Yes" : "No";
         exerciseTypesUrl = await SecureStorage.Default.GetAsync(Consts.ExerciseTypesUrlKey);
         workoutPlanUrl = await SecureStorage.Default.GetAsync(Consts.WorkoutPlanUrlKey);
     }
 
-    public bool HasInternetAccess()
+    private string HasInternetAccessString { get; set; }
+
+    private bool HasInternetAccess()
     {
         var accessType = Connectivity.Current.NetworkAccess;
 
@@ -145,7 +163,7 @@ else
             accessType is NetworkAccess.ConstrainedInternet;
     }
 
-    public async Task RecreateDatabaseDeleteAll()
+    private async Task RecreateDatabaseDeleteAll()
     {
         var r = await App.Current.MainPage.DisplayActionSheet(
             $"Delete all data?", "Cancel", "Delete");
@@ -157,13 +175,13 @@ else
         }
     }
 
-    public async Task RecreateDatabaseKeepAchievements()
+    private async Task RecreateDatabaseKeepAchievements()
     {
         await _databaseHandler.CreateConnectionAndTables(true, true);
         databaseRecreated = true;
     }
 
-    public async Task SeedDatabase()
+    private async Task SeedDatabase()
     {
         await DbUtils.SeedData(_databaseHandler, new Uri(exerciseTypesUrl), new Uri(workoutPlanUrl));
         databaseSeeded = true;
@@ -172,37 +190,37 @@ else
         await SecureStorage.Default.SetAsync(Consts.WorkoutPlanUrlKey, workoutPlanUrl);
     }
 
-    public async Task ExportCompletedExercises()
+    private async Task ExportCompletedExercises()
     {
         if (await DbUtils.ExportCompletedExercises(_databaseHandler))
             completedExercisesExported = true;
     }
 
-    public async Task ImportCompletedExercises()
+    private async Task ImportCompletedExercises()
     {
         if (await DbUtils.ImportCompletedExercises(_databaseHandler))
             completedExercisesImported = true;
     }
 
-    public async Task ExportExerciseTypes()
+    private async Task ExportExerciseTypes()
     {
         if (await DbUtils.ExportExerciseTypes(_databaseHandler))
             exerciseTypesExported = true;
     }
 
-    public async Task ImportExerciseTypes()
+    private async Task ImportExerciseTypes()
     {
         if (await DbUtils.ImportExerciseTypes(_databaseHandler))
             exerciseTypesImported = true;
     }
 
-    public async Task ExportWorkoutPlan()
+    private async Task ExportWorkoutPlan()
     {
         if (await DbUtils.ExportWorkoutPlan(_databaseHandler))
             workoutPlanExported = true;
     }
 
-    public async Task ImportWorkoutPlan()
+    private async Task ImportWorkoutPlan()
     {
         if (await DbUtils.ImportWorkoutPlan(_databaseHandler))
             workoutPlanImported = true;

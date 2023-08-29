@@ -20,6 +20,13 @@
 
 <BitButton Style="margin-top: 20px;" OnClick="Add">Add</BitButton>
 
+@if (saved)
+{
+    <BitMessageBar MessageBarType="@BitMessageBarType.Success">
+        Saved
+    </BitMessageBar>
+}
+
 @code {
     private const string title = "New exercise type";
 
@@ -27,6 +34,8 @@
     private string nameText;
     private string descriptionText;
     private string imgText;
+
+    private bool saved;
 
     protected override async Task OnInitializedAsync()
     {
@@ -38,6 +47,7 @@
 
         await newExerciseType.Add(_databaseHandler);
 
-        NavigationManager.NavigateTo("workoutplanitem");
+        saved = true;
+        //NavigationManager.NavigateTo("exercisetypes");
     }
 }

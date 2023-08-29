@@ -39,8 +39,8 @@
         <WorkoutPlanItemViewComponent WorkoutPlanItem="@WorkoutPlanItem" >
         </WorkoutPlanItemViewComponent>
     }
-    <PlannedExerciseViewComponent ShowStartingExercisePlan="false" PlannedExercise="@PlannedExercise" />
-    <BitAccordion>
+        <PlannedExerciseViewComponent ShowStartingExercisePlan="false" PlannedExercise="@PlannedExercise" />
+        <BitAccordion>
         <HeaderTemplate Context="isExpanded">
             <BitIconButton IconName="isExpanded ? BitIconName.ChevronDown : BitIconName.ChevronRight" />
             <div class="custom-header">
@@ -135,8 +135,7 @@
         await completedExercise.SaveCompletedExercise(_databaseHandler, PlannedExercise);
         completed = true;
 
-        // Should not be awaited
-        OnComplete.InvokeAsync(PlannedExercise.Guid);
+        await OnComplete.InvokeAsync(WorkoutPlanItem.Guid);
     }
 
     public void Edit()

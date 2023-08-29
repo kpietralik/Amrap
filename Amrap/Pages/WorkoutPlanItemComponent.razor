@@ -35,9 +35,7 @@
 @if (WorkoutPlanItem?.PlannedExercises?.Count > 1)
 {
     <BitCarousel>
-        <BitBasicList Items="WorkoutPlanItem.PlannedExercises"
-                      EnableVirtualization="false"
-                       >
+        <BitBasicList Items="WorkoutPlanItem.PlannedExercises" EnableVirtualization="false">
             <RowTemplate Context="item">
                 <BitCarouselItem Style="height: 1200px; padding: 2px 10px; margin: 5px;">
                     <PlannedExercisePreviewComponent PlannedExercise="@item" WorkoutPlanItem="@WorkoutPlanItem" />
@@ -48,8 +46,8 @@
 }
 else if (WorkoutPlanItem?.PlannedExercises?.Count == 1)
 {
-    <PlannedExerciseFullComponent WorkoutPlanItem="@WorkoutPlanItem" PlannedExercise="@WorkoutPlanItem.PlannedExercises.Single()" 
-        DisplayWorkoutPlanItem="false" DisplayExerciseTypeLink="true"/>
+    <PlannedExerciseFullComponent WorkoutPlanItem="@WorkoutPlanItem" PlannedExercise="@WorkoutPlanItem.PlannedExercises.Single()"
+                                  DisplayWorkoutPlanItem="false" DisplayExerciseTypeLink="true" OnComplete="OnComplete" />
 }
 else
 {
@@ -58,6 +56,9 @@ else
 @code {
     [Parameter]
     public Amrap.Core.Domain.WorkoutPlanItem WorkoutPlanItem { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnComplete { get; set; }
 
     protected override async Task OnInitializedAsync()
     { }
