@@ -80,7 +80,6 @@
     private int newSets { get; set; }
     private int newReps { get; set; }
     private double newWeight { get; set; }
-    private double newPriority { get; set; }
     private bool newDropSet;
     private bool newToFailure;
 
@@ -100,18 +99,10 @@
         newWeight = PlannedExercise.GetWeight();
         newDropSet = PlannedExercise.GetDropSet();
         newToFailure = PlannedExercise.GetToFailure();
-        newPriority = WorkoutPlanItem.Priority;
     }
 
     public async Task Complete()
     {
-        var newPriorityF = (float)newPriority;
-        if (newPriorityF != WorkoutPlanItem.Priority)
-        {
-            WorkoutPlanItem.Priority = newPriorityF;
-            await WorkoutPlanItem.Upsert(_databaseHandler);
-        }
-
         var completedExercise = new CompletedExercise(
             PlannedExercise.ExerciseType,
             DateTime.Now,

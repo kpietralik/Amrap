@@ -14,7 +14,6 @@
 
 <BitChoiceGroup Label="Day" IsRequired="true" Items="DayOfWeekList.Items" @bind-Value="@dayOfWeek" />
 <BitTextField Label="Title" IsUnderlined="true"  @bind-Value="@workOutPlanItemTitle" />
-<BitNumericTextField Label="Priority" LabelPosition="BitNumericTextFieldLabelPosition.Left" IsUnderlined="true" @bind-Value="@priority" />
 
 <BitButton Style="margin-top: 20px;" OnClick="Save">Save</BitButton>
 
@@ -24,7 +23,6 @@
     private const string title = "New workout plan item";
 
     private string workOutPlanItemTitle { get; set; }
-    private float priority { get; set; }
     private DayOfWeek dayOfWeek { get; set; }
 
     private bool saved;
@@ -37,18 +35,14 @@
 
     private async Task Save()
     {
-
         if (saved)
         {
             await App.Current.MainPage.DisplayAlert(InvalidInput, "Workout plan item already saved", Ok);
             return;
         }
 
-        if (priority < 0)
-        {
-            await App.Current.MainPage.DisplayAlert(InvalidInput, "Priority must be a positive number", Ok);
-            return;
-        }
+        var currentMaxPriority = await WorkoutPlanItem.GetMaxPriorityForDay(_databaseHandler, dayOfWeek);
+        var priority = currentMaxPriority.HasValue ? currentMaxPriority.Value + 1 : 0;
 
         var workoutPlanItem = new WorkoutPlanItem(
             Guid.NewGuid().ToString(), dayOfWeek, priority, workOutPlanItemTitle);
