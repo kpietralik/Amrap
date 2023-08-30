@@ -28,22 +28,21 @@
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
         <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
-        <Configurations>Debug;Release;ReleasePlayBundle</Configurations>
+        <Configurations>Debug;Release;PlayBundle</Configurations>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-android|AnyCPU'">
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-android33.0|AnyCPU'">
       <ApplicationId>net.yius.amrap</ApplicationId>
-      <AndroidCreatePackagePerAbi>True</AndroidCreatePackagePerAbi>
       <EmbedAssembliesIntoApk>False</EmbedAssembliesIntoApk>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-android|AnyCPU'">
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-android33.0|AnyCPU'">
       <ApplicationId>net.yius.amrap</ApplicationId>
       <AndroidPackageFormat>apk</AndroidPackageFormat>
       <EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='ReleasePlayBundle|net7.0-android|AnyCPU'">
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='PlayBundle|net7.0-android33.0|AnyCPU'">
       <ApplicationId>net.yius.amrap</ApplicationId>
       <EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
       <AndroidPackageFormat>aab</AndroidPackageFormat>
@@ -51,42 +50,6 @@
       <AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
       <ApplicationVersion>4</ApplicationVersion>
       <ApplicationDisplayVersion>4</ApplicationDisplayVersion>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-ios|AnyCPU'">
-      <ApplicationId>net.yius.amrap</ApplicationId>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-ios|AnyCPU'">
-      <ApplicationId>net.yius.amrap</ApplicationId>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='ReleasePlayBundle|net7.0-ios|AnyCPU'">
-      <ApplicationId>net.yius.amrap</ApplicationId>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-maccatalyst|AnyCPU'">
-      <ApplicationId>net.yius.amrap</ApplicationId>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-maccatalyst|AnyCPU'">
-      <ApplicationId>net.yius.amrap</ApplicationId>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='ReleasePlayBundle|net7.0-maccatalyst|AnyCPU'">
-      <ApplicationId>net.yius.amrap</ApplicationId>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-windows10.0.19041.0|AnyCPU'">
-      <ApplicationId>net.yius.amrap</ApplicationId>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-windows10.0.19041.0|AnyCPU'">
-      <ApplicationId>net.yius.amrap</ApplicationId>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='ReleasePlayBundle|net7.0-windows10.0.19041.0|AnyCPU'">
-      <ApplicationId>net.yius.amrap</ApplicationId>
     </PropertyGroup>
 
     <ItemGroup>
@@ -124,6 +87,10 @@
       <ProjectReference Include="..\Amrap.Core\Amrap.Core.csproj" />
     </ItemGroup>
 
-    <ProjectExtensions><VisualStudio><UserProperties XamarinHotReloadDebuggerTimeoutExceptionAmrapHideInfoBar="True" XamarinHotReloadGenericExceptionInfoBarAmrapHideInfoBar="True" /></VisualStudio></ProjectExtensions>
+    <ProjectExtensions>
+      <VisualStudio>
+        <UserProperties XamarinHotReloadDebuggerTimeoutExceptionAmrapHideInfoBar="True" XamarinHotReloadGenericExceptionInfoBarAmrapHideInfoBar="True" />
+      </VisualStudio>
+    </ProjectExtensions>
 
 </Project>

@@ -21,9 +21,9 @@ Global
 		{FCC5B51E-D95F-4300-BE43-897C59E07568}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FCC5B51E-D95F-4300-BE43-897C59E07568}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FCC5B51E-D95F-4300-BE43-897C59E07568}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{FCC5B51E-D95F-4300-BE43-897C59E07568}.PlayBundle|Any CPU.ActiveCfg = ReleasePlayBundle|Any CPU
-		{FCC5B51E-D95F-4300-BE43-897C59E07568}.PlayBundle|Any CPU.Build.0 = ReleasePlayBundle|Any CPU
-		{FCC5B51E-D95F-4300-BE43-897C59E07568}.PlayBundle|Any CPU.Deploy.0 = ReleasePlayBundle|Any CPU
+		{FCC5B51E-D95F-4300-BE43-897C59E07568}.PlayBundle|Any CPU.ActiveCfg = PlayBundle|Any CPU
+		{FCC5B51E-D95F-4300-BE43-897C59E07568}.PlayBundle|Any CPU.Build.0 = PlayBundle|Any CPU
+		{FCC5B51E-D95F-4300-BE43-897C59E07568}.PlayBundle|Any CPU.Deploy.0 = PlayBundle|Any CPU
 		{FCC5B51E-D95F-4300-BE43-897C59E07568}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FCC5B51E-D95F-4300-BE43-897C59E07568}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FCC5B51E-D95F-4300-BE43-897C59E07568}.Release|Any CPU.Deploy.0 = Release|Any CPU
@@ -38,7 +38,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {A3D5A5B4-2A7E-4D44-8ABD-B7DA24092C17}
 		        SolutionGuid = {61F7FB11-1E47-470C-91E2-47F8143E1572}
+		SolutionGuid = {A3D5A5B4-2A7E-4D44-8ABD-B7DA24092C17}
 	EndGlobalSection
 EndGlobal
