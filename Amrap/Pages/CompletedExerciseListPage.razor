@@ -4,7 +4,7 @@
 @using Amrap.Core.Infrastructure;
 @using Bit.BlazorUI
 
-@inject CompletedExerciseReader _completedExerciseReader;
+@inject DatabaseHandler _databaseHandler
 
 <PageTitle>@title</PageTitle>
 
@@ -22,14 +22,11 @@
 else if (items != null)
 {
     <div class="row">
-        <div class="col-6">
+        <div class="col-8">
             <BitTextField IsUnderlined="false" HasBorder="false" IsReadonly="true" Value="@listText" />
         </div>
-        <div class="col-3">
+        <div class="col-4">
             <BitIconButton IconName="BitIconName.Filter" OnClick="async () => await FilterToggle()" />
-        </div>
-        <div class="col-3">
-            @* Left for UI consistency *@
         </div>
     </div>
     @if (filterToggle)
@@ -85,7 +82,7 @@ else if (items != null)
 
     protected override async Task OnInitializedAsync()
     {
-        _completedExerciseItems = await _completedExerciseReader.ReadCompletedExercies();
+        _completedExerciseItems = await CompletedExercise.ReadCompletedExercies(_databaseHandler);
         items = _completedExerciseItems.ToList();
     }
 }

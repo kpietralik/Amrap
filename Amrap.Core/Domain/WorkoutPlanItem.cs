@@ -63,4 +63,6 @@ public class WorkoutPlanItem
 
         return workoutPlanItem;
     }
+
+    public static Task<IList<WorkoutPlanItem>> GetWorkoutPlan(DatabaseHandler databaseHandler) => databaseHandler.GetWorkoutPlan();
 }
