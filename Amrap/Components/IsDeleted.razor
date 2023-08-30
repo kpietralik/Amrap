@@ -1,0 +1,11 @@
+﻿@if (Deleted)
+{
+    <BitMessageBar MessageBarType="@BitMessageBarType.Warning">
+        Deleted
+    </BitMessageBar>
+}
+@code {
+
+    [Parameter]
+    public bool Deleted { get; set; }
+}
