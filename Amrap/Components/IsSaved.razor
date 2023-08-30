@@ -1,0 +1,11 @@
+﻿@if (Saved)
+{
+    <BitMessageBar MessageBarType="@BitMessageBarType.Success">
+        Saved
+    </BitMessageBar>
+}
+@code {
+
+    [Parameter]
+    public bool Saved { get; set; }
+}
