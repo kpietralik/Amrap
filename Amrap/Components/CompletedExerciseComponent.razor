@@ -16,12 +16,7 @@
 
 <BitActionButton Style="margin-top: 20px;" IconName="BitIconName.Delete" OnClick="Delete">Delete</BitActionButton>
 
-@if (deleted)
-{
-    <BitMessageBar MessageBarType="@BitMessageBarType.Warning">
-        Deleted
-    </BitMessageBar>
-}
+<IsDeleted Deleted="@deleted" />
 
 @code {
     [Parameter]

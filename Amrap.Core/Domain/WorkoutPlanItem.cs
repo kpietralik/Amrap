@@ -11,7 +11,7 @@ public class WorkoutPlanItem
     [Indexed]
     public DayOfWeek Day { get; set; }
 
-    public float Priority { get; set; }
+    public int Priority { get; set; }
 
     public string Title { get; set; }
 
@@ -29,7 +29,7 @@ public class WorkoutPlanItem
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     { }
 
-    public WorkoutPlanItem(string guid, DayOfWeek day,  float priority, string title)
+    public WorkoutPlanItem(string guid, DayOfWeek day, int priority, string title)
     {
         Guid = guid;
         Day = day;
@@ -39,9 +39,6 @@ public class WorkoutPlanItem
 
     public void SetPlannedExercises(IList<PlannedExercise> plannedExercises)
     {
-        //if (plannedExercises?.Any() == false)
-        //    throw new Exception($"Provided {nameof(plannedExercises)} list is null or empty");
-
         foreach(var plannedExersise in plannedExercises)
         {
             if (!string.Equals(plannedExersise.WorkoutPlanItemGuid, Guid, StringComparison.InvariantCultureIgnoreCase))
@@ -63,4 +60,8 @@ public class WorkoutPlanItem
 
         return workoutPlanItem;
     }
+
+    public static Task<IList<WorkoutPlanItem>> GetWorkoutPlan(DatabaseHandler databaseHandler) => databaseHandler.GetWorkoutPlan();
+
+    public static Task<int?> GetMaxPriorityForDay(DatabaseHandler databaseHandler, DayOfWeek day) => databaseHandler.GetMaxPriorityForDay(day);
 }

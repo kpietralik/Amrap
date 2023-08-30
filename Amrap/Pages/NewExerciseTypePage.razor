@@ -1,31 +1,26 @@
 ﻿@page "/newexercisetype"
 
+@using Amrap.Components
 @using Amrap.Core;
 @using Amrap.Core.Domain;
 @using Amrap.Enum;
 @using Amrap.Core.Infrastructure;
 @using Bit.BlazorUI
 
-@inject NavigationManager NavigationManager
 @inject DatabaseHandler _databaseHandler;
 
 <PageTitle>@title</PageTitle>
 <BitLabel>@title</BitLabel>
 
-<BitTextField Label="Name" IsUnderlined="true" @bind-Value="@nameText" />
+<BitTextField Label="Name" IsRequired="true" IsUnderlined="true" @bind-Value="@nameText" />
 <BitTextField Label="Description" IsUnderlined="true" @bind-Value="@descriptionText" />
 <BitTextField Label="Img" IsUnderlined="true" @bind-Value="@imgText" />
 
-<BitChoiceGroup Label="Kind" Items="ExerciseKindList.Items" @bind-Value="@exerciseKindEnum" />
+<BitChoiceGroup Label="Kind" IsRequired="true" Items="ExerciseKindList.Items" @bind-Value="@exerciseKindEnum" />
 
 <BitButton Style="margin-top: 20px;" OnClick="Add">Add</BitButton>
 
-@if (saved)
-{
-    <BitMessageBar MessageBarType="@BitMessageBarType.Success">
-        Saved
-    </BitMessageBar>
-}
+<IsSaved Saved="@saved" />
 
 @code {
     private const string title = "New exercise type";
@@ -37,17 +32,36 @@
 
     private bool saved;
 
+    private const string InvalidInput = "Invalid input";
+    private const string Ok = "Ok";
+
     protected override async Task OnInitializedAsync()
-    {
-    }
+    {}
 
     private async Task Add()
     {
+        if (saved)
+        {
+            await App.Current.MainPage.DisplayAlert(InvalidInput, "Exercise Type already saved", Ok);
+            return;
+        }
+
+        if (string.IsNullOrEmpty(nameText))
+        {
+            await App.Current.MainPage.DisplayAlert(InvalidInput, "Exercise name is required", Ok);
+            return;
+        }
+
+        if (exerciseKindEnum == ExerciseKind.Unknown)
+        {
+            await App.Current.MainPage.DisplayAlert(InvalidInput, "Exercise Kind is required", Ok);
+            return;
+        }
+
         var newExerciseType = new ExerciseType(Guid.NewGuid().ToString(), exerciseKindEnum, nameText, descriptionText, imgText);
 
         await newExerciseType.Add(_databaseHandler);
 
         saved = true;
-        //NavigationManager.NavigateTo("exercisetypes");
     }
 }

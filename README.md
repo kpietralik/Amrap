@@ -16,10 +16,13 @@ All data is stored locally.
 - creating/edititg/deleting workout plan item from UI
 - presenting workout plan
 - filtering workout plan based on day of week and completed status (current day)
+- filtering lists by title/name value
 - multiple planned exercises for each workout plan item
 - charts with progress for each exercise type
+- Producing bundle .abb file for Google Play Store or .apk for ad-hoc distrubution based on selected run configuration
 
 ## Debug menu 
+- Version information display
 - `Recreate Database keeping achievements` removes all db data except completed exercises
 - `Recreate Database deleting all data` removes all db data
 - `Export Completed Exercises` - exports completed exercises
@@ -39,14 +42,11 @@ Sample data for `Seed Database` functionality:
 ## ToDo:
 ### Features
 - Order exercise types by name
-- Filter exercise types by name
 - Delete exercise type option
 - Charts with completion info for each workout plan item
-- Placeholder image for lack of sample image cases
 - AI generated exercise type images.
 - Hosting of images -> alongside app code, separate repo & package or online (e.g. Azure Storage) hosting?
 - Backing up and restoring db file using native built-in mechanism (at least for Android)
-- CICD for Google Play Store - internal testing
 - UI & UX improvements with focus on scalability for different devices
 - Continous improvement to README.md
 

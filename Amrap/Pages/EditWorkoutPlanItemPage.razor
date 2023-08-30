@@ -1,5 +1,6 @@
 ﻿@page "/WorkoutPlanItem/{WorkoutPlanItemGuid}"
 
+@using Amrap.Components
 @using Amrap.Core;
 @using Amrap.Core.Domain;
 @using Amrap.Enum;
@@ -32,8 +33,8 @@
             </div>
         </RowTemplate>
     </BitBasicList>
-    
-    <BitNumericTextField Label="Priority" IsUnderlined="true" @bind-Value="workoutPlanItem.Priority" />
+
+    <BitNumericTextField LabelPosition="BitNumericTextFieldLabelPosition.Left" Label="Priority" IsEnabled="false" Value="@workoutPlanItem.Priority" />
 
     <BitButton Style="margin-top: 20px;" OnClick="Save">Save</BitButton>
 

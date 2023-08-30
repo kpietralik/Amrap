@@ -1,21 +1,38 @@
 ﻿@using Amrap.Core.Domain;
 @using Bit.BlazorUI
 
+<style>
+    .sets {
+        color: rgb(33, 211, 33);
+        font-weight: 700;
+    }
+
+    .reps {
+        color: rgb(54, 145, 255);
+        font-weight: 700;
+    }
+
+    .weight {
+        color: rgb(255, 100, 100);
+        font-weight: 700;
+    }
+</style>
+
 @if (ShowStartingExercisePlan)
 {
-    <BitTextField Label="Starting Sets" IsUnderlined="true" IsReadonly="true" Value="@PlannedExercise.Sets.ToString()" />
+    <BitTextField InputClass="sets" Label="Starting Sets" IsUnderlined="true" IsReadonly="true" Value="@PlannedExercise.Sets.ToString()" />
 }
-<BitTextField Label="Last sets" IsUnderlined="true" IsReadonly="true" Value="@setsArray" />
+<BitTextField InputClass="sets" Label="Last sets" IsUnderlined="true" IsReadonly="true" Value="@setsArray" />
 @if (ShowStartingExercisePlan)
 {
-    <BitTextField Label="Starting Reps" IsUnderlined="true" IsReadonly="true" Value="@PlannedExercise.Reps.ToString()" />
+    <BitTextField InputClass="reps" Label="Starting Reps" IsUnderlined="true" IsReadonly="true" Value="@PlannedExercise.Reps.ToString()" />
 }
-<BitTextField Label="Last reps" IsUnderlined="true" IsReadonly="true" Value="@repsArray" />
+<BitTextField InputClass="reps" Label="Last reps" IsUnderlined="true" IsReadonly="true" Value="@repsArray" />
 @if (ShowStartingExercisePlan)
 {
-    <BitTextField Label="Starting Weight" IsUnderlined="true" IsReadonly="true" IconName="BitIconName.Weights" Suffix=" kg" Value="@PlannedExercise.Weight.ToString()" />
+    <BitTextField InputClass="weight" Label="Starting Weight" IsUnderlined="true" IsReadonly="true" IconName="BitIconName.Weights" Suffix=" kg" Value="@PlannedExercise.Weight.ToString()" />
 }
-<BitTextField Label="Last weight" IsUnderlined="true" IsReadonly="true" IconName="BitIconName.Weights" Suffix=" kg" Value="@weightArray" />
+<BitTextField InputClass="weight" Label="Last weight" IsUnderlined="true" IsReadonly="true" IconName="BitIconName.Weights" Suffix=" kg" Value="@weightArray" />
 <BitTextField Label="Note" IsMultiline="true" IsUnderlined="true" IsReadonly="true" Value="@PlannedExercise.Note" />
 <BitTextField Label="Drop set" IsUnderlined="true" IsReadonly="true" Value="@dropSetArray"/>
 <BitTextField Label="To failure" IsUnderlined="true" IsReadonly="true" Value="@toFailureArray" />

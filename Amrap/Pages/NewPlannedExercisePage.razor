@@ -1,22 +1,24 @@
 ﻿@page "/newplannedexercise/{ExerciseTypeGuid}/{WorkoutPlanItemGuid}"
 
+@using Amrap.Components
 @using Amrap.Core;
 @using Amrap.Core.Domain;
 @using Amrap.Enum;
 @using Amrap.Core.Infrastructure;
 @using Bit.BlazorUI
 
-@inject NavigationManager NavigationManager
 @inject DatabaseHandler _databaseHandler;
 
-<BitTextField Label="Sets" IsUnderlined="true" @bind-Value="@setsStr" />
-<BitTextField Label="Reps" IsUnderlined="true" @bind-Value="@repsStr" />
-<BitTextField Label="Weight" IsUnderlined="true" @bind-Value="@weightStr" />
+<BitTextField Label="Sets" IsRequired="true" IsUnderlined="true" @bind-Value="@setsStr" />
+<BitTextField Label="Reps" IsRequired="true" IsUnderlined="true" @bind-Value="@repsStr" />
+<BitTextField Label="Weight" IsRequired="true" IsUnderlined="true" @bind-Value="@weightStr" />
 <BitTextField Label="Note" IsUnderlined="true" @bind-Value="@note" />
 <BitCheckbox Label="Drop set" @bind-Value="dropSet" />
 <BitCheckbox Label="To failure" @bind-Value="toFailure" />
 
 <BitButton Style="margin-top: 20px;" OnClick="Save">Save</BitButton>
+
+<IsSaved Saved="@saved" />
 
 @code {
     [Parameter]
@@ -39,6 +41,8 @@
     private const string InvalidInput = "Invalid input";
     private const string Ok = "Ok";
 
+    private bool saved;
+
     protected override async Task OnInitializedAsync()
     {
         ExerciseType = await _databaseHandler.GetExerciseType(ExerciseTypeGuid);
@@ -47,6 +51,12 @@
 
     private async Task Save()
     {
+        if (saved)
+        {
+            await App.Current.MainPage.DisplayAlert(InvalidInput, "Planned exercise already saved", Ok);
+            return;
+        }
+
         if (!int.TryParse(setsStr, out var sets) || sets < 0)
         {
             await App.Current.MainPage.DisplayAlert(InvalidInput, "Sets must be a positive integer value", Ok);
@@ -72,7 +82,6 @@
         WorkoutPlanItem.PlannedExercises.Add(plannedExercise);
         await WorkoutPlanItem.Upsert(_databaseHandler);
 
-        // ToDo: provide address to navigate to? homepage / WorkoutPlanItem edit page?
-        NavigationManager.NavigateTo("/");
+        saved = true;
     }
 }

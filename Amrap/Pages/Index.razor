@@ -1,9 +1,12 @@
 ﻿@page "/"
+
+@using Amrap.Components
 @using Amrap.Core;
 @using Amrap.Core.Domain;
 @using Amrap.Core.Infrastructure;
 @using Amrap.Enum;
 @using Bit.BlazorUI
+@using System.Text.Json;
 
 @inject DatabaseHandler _databaseHandler
 
@@ -13,19 +16,17 @@
     <div class="row">
         <div class="col">
             <BitDropdown Items="DayOfWeekList.FilteringDayOfWeekItems()"
-                            Placeholder="Select day"
-                            ShowClearButton="false"
-                            OnSelectItem="OnSelectItemDayOfWeek"
-                            Style="width: 100%; max-width: 290px; margin: 20px 0 20px 0">
+                          Placeholder="Select day"
+                          ShowClearButton="false"
+                          OnSelectItem="OnSelectItemDayOfWeek">
             </BitDropdown>
         </div>
         <div class="col">
             <BitToggleButton @bind-IsChecked="onlyCompletedToday"
-                                Class="tgl-btn"
-                                Label="Completed"
-                                IconName=@(onlyCompletedToday ? BitIconName.Completed : BitIconName.CompletedSolid)
-                                OnChange="OnChangeOnlyCompletedToday"
-                                ButtonStyle="BitButtonStyle.Primary">
+                             Label="Completed"
+                             IconName=@(onlyCompletedToday ? BitIconName.Completed : BitIconName.CompletedSolid)
+                             OnChange="OnChangeOnlyCompletedToday"
+                             ButtonStyle="BitButtonStyle.Primary">
             </BitToggleButton>
         </div>
     </div>
@@ -39,13 +40,24 @@ else if (displayedItems != null)
 {
     <div class="container text-center">
         <div class="row">
-            <div class="col-8">
+            <div class="col-6">
                 <BitTextField IsUnderlined="false" HasBorder="false" IsReadonly="true" Value="@workoutPlanText" />
             </div>
-            <div class="col-4">
+            <div class="col-3">
+                <BitIconButton IconName="BitIconName.Filter" OnClick="async () => await FilterToggle()" />
+            </div>
+            <div class="col-3">
                 <BitIconButton IconName="BitIconName.Refresh" OnClick="ReloadLists" />
             </div>
         </div>
+        @if (filterToggle)
+        {
+        <div class="row">
+                <div class="col">
+                <BitTextField IconName="BitIconName.Filter" IsUnderlined="false" HasBorder="true" @bind-Value="filterValue" OnChange="async () => await OnFilterValueChange()" />
+            </div>
+        </div>
+        }
     </div>    
 
     <BitBasicList Items="displayedItems"
@@ -53,7 +65,7 @@ else if (displayedItems != null)
                   Style="border: 1px #a19f9d solid; border-radius: 3px; height: 100%">
         <RowTemplate Context="item">
             <div @key="item.Guid" style="border-bottom: 3px #8a8886 solid; padding: 2px 10px; margin: 5px;">
-                <WorkoutPlanItemComponent WorkoutPlanItem="@item" OnComplete="ReloadLists" />
+                <WorkoutPlanItemComponent WorkoutPlanItem="@item" OnComplete="ReloadLists" OnMoveDown="MoveDown" OnMoveUp="MoveUp" />
             </div>
         </RowTemplate>
     </BitBasicList>
@@ -75,8 +87,12 @@ else if (displayedItems != null)
     private bool onlyCompletedToday = false;
     private DayOfWeek? selectedDayOfWeek = null;
 
+    private bool filterToggle = false;
+    private string filterValue = string.Empty;
+
     private bool errorCought = false;
     private string errorMessage;
+    private readonly WorkoutPlanSorter sorter = new WorkoutPlanSorter();
 
     private string workoutPlanText => $"Workout plan ({displayedItems.Count()})";
 
@@ -97,6 +113,20 @@ else if (displayedItems != null)
         }
     }
 
+    private async Task FilterToggle() {
+        filterToggle = !filterToggle;
+        filterValue = string.Empty;
+        displayedItems = await SetDisplayedItems(selectedDayOfWeek, onlyCompletedToday, filterValue);
+    }
+
+    private async Task OnFilterValueChange()
+    {
+        if (!filterToggle)
+            return;
+
+        displayedItems = await SetDisplayedItems(selectedDayOfWeek, onlyCompletedToday, filterValue);
+    }
+
     private async Task OnSelectItemDayOfWeek(BitDropdownItem dropdownItem)
     {
         if (string.Equals(dropdownItem.Value, DayOfWeekList.All, StringComparison.InvariantCultureIgnoreCase))
@@ -104,24 +134,38 @@ else if (displayedItems != null)
         else 
             selectedDayOfWeek = Enum.Parse<DayOfWeek>(dropdownItem.Value);
 
-        displayedItems = await SetDisplayedItems(selectedDayOfWeek, onlyCompletedToday);
+        displayedItems = await SetDisplayedItems(selectedDayOfWeek, onlyCompletedToday, filterValue);
     }
 
     private async Task OnChangeOnlyCompletedToday(bool enabled)
     {
         onlyCompletedToday = enabled;
-        displayedItems = await SetDisplayedItems(selectedDayOfWeek, onlyCompletedToday);
+        displayedItems = await SetDisplayedItems(selectedDayOfWeek, onlyCompletedToday, filterValue);
+    }
+
+    private async Task MoveDown(WorkoutPlanItem item)
+    {
+        orderedWorkoutPlanItems = await sorter.MoveDown(orderedWorkoutPlanItems, item, _databaseHandler);
+
+        displayedItems = await SetDisplayedItems(selectedDayOfWeek, onlyCompletedToday, filterValue);
+    }
+
+    private async Task MoveUp(WorkoutPlanItem item)
+    {
+        orderedWorkoutPlanItems = await sorter.MoveUp(orderedWorkoutPlanItems, item, _databaseHandler);
+
+        displayedItems = await SetDisplayedItems(selectedDayOfWeek, onlyCompletedToday, filterValue);
     }
 
     private async Task ReloadLists()
     {
-        var workoutPlanItems = await _databaseHandler.GetWorkoutPlan();
-        orderedWorkoutPlanItems = workoutPlanItems.OrderBy(x => x.Day).ThenBy(x => x.Priority);
+        var workoutPlanItems = await WorkoutPlanItem.GetWorkoutPlan(_databaseHandler);
+        orderedWorkoutPlanItems = sorter.Sort(workoutPlanItems);
 
-        displayedItems = await SetDisplayedItems(selectedDayOfWeek, onlyCompletedToday);
+        displayedItems = await SetDisplayedItems(selectedDayOfWeek, onlyCompletedToday, filterValue);
     }
 
-    private async Task<IList<WorkoutPlanItem>> SetDisplayedItems(DayOfWeek? dayOfWeek, bool hideCompleted)
+    private async Task<IList<WorkoutPlanItem>> SetDisplayedItems(DayOfWeek? dayOfWeek, bool hideCompleted, string filterValue)
     {
         if (hideCompleted)
         {
@@ -130,12 +174,14 @@ else if (displayedItems != null)
             return orderedWorkoutPlanItems
                 .Where(x => FilterByDay(x, dayOfWeek))
                 .Where(x => FilterByNotCompleted(completedToday, x))
+                .Where(x => FilterByValue(x, filterValue))
                 .ToList();
         }
         else
         {
             return orderedWorkoutPlanItems
                 .Where(x => FilterByDay(x, dayOfWeek))
+                .Where(x => FilterByValue(x, filterValue))
                 .ToList();
         }
     }
@@ -145,4 +191,9 @@ else if (displayedItems != null)
 
     private bool FilterByNotCompleted(IEnumerable<CompletedExercise> recentylCompletedExercises, WorkoutPlanItem workoutPlanItem)
         => !completedToday.Any(compl => workoutPlanItem.PlannedExercises.Select(x => x.ExerciseTypeGuid).Contains(compl.ExerciseTypeGuid));
+
+    private bool FilterByValue(WorkoutPlanItem item, string value)
+        => string.IsNullOrEmpty(value) ||
+           item.Title?.Contains(value, StringComparison.InvariantCultureIgnoreCase) == true ||
+           item.PlannedExercises?.Any(x => x.ExerciseType.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase)) == true;
 }

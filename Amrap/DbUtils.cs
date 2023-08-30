@@ -1,5 +1,4 @@
-﻿using Amrap.Core;
-using Amrap.Core.Domain;
+﻿using Amrap.Core.Domain;
 using Amrap.Core.Infrastructure;
 using CommunityToolkit.Maui.Storage;
 using System.Net.Http.Json;
@@ -14,8 +13,7 @@ internal static class DbUtils
 
     internal static async Task<bool> ExportCompletedExercises(DatabaseHandler databaseHandler, string fileName = "completedExercises.json")
     {
-        var completedExerciseReader = new CompletedExerciseReader(databaseHandler);
-        var compltedExercises = await completedExerciseReader.ReadCompletedExercies();
+        var compltedExercises = await CompletedExercise.ReadCompletedExercies(databaseHandler);
 
         var json = JsonSerializer.Serialize(compltedExercises, _jsonOptions);
         

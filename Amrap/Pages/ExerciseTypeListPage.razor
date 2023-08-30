@@ -1,5 +1,6 @@
 ﻿@page "/exercisetypes"
 
+@using Amrap.Components
 @using Amrap.Core.Domain;
 @using Amrap.Core;
 @using Amrap.Core.Infrastructure;
@@ -14,13 +15,24 @@
 {
     <div class="container text-center">
         <div class="row">
-            <div class="col-8">
+            <div class="col-6">
                 <BitTextField IsUnderlined="false" HasBorder="false" IsReadonly="true" Value="@listText" />
             </div>
-            <div class="col-4">
+            <div class="col-3">
+                <BitIconButton IconName="BitIconName.Filter" OnClick="async () => await FilterToggle()" />
+            </div>
+            <div class="col-3">
                 <BitActionButton IconName="BitIconName.CirclePlus" OnClick="NewExerciseType">New</BitActionButton>
             </div>
         </div>
+        @if (filterToggle)
+        {
+        <div class="row">
+            <div class="col">
+                <BitTextField IconName="BitIconName.Filter" IsUnderlined="false" HasBorder="true" @bind-Value="filterValue" OnChange="async () => await OnFilterValueChange()" />
+            </div>
+        </div>
+        }
     </div>
     <BitBasicList Items="ExerciseTypes" EnableVirtualization="true" Style="border: 1px #a19f9d solid; border-radius: 3px; height: 100%">
         <RowTemplate Context="exerciseType">                      
@@ -37,11 +49,37 @@
 @code {
     private const string title = "Exercise Types";
 
+    private IList<ExerciseType> _exerciseTypes;
     private IList<ExerciseType> ExerciseTypes;
+
+    private bool filterToggle = false;
+    private string filterValue = string.Empty;
+
+    private async Task FilterToggle()
+    {
+        filterToggle = !filterToggle;
+        filterValue = string.Empty;
+        ExerciseTypes = _exerciseTypes;
+    }
+
+    private async Task OnFilterValueChange()
+    {
+        if (!filterToggle)
+            return;
+
+        ExerciseTypes = _exerciseTypes.Where(x => FilterByValue(x, filterValue)).ToList();
+    }
+
+    private bool FilterByValue(ExerciseType item, string value)
+    => string.IsNullOrEmpty(value) ||
+       item.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase);
 
     private string listText => $"Exercise Types ({ExerciseTypes.Count()})";
 
-    protected override async Task OnInitializedAsync() => ExerciseTypes = await ExerciseType.GetExerciseTypes(_databaseHandler);
+    protected override async Task OnInitializedAsync() {
+        _exerciseTypes = await ExerciseType.GetExerciseTypes(_databaseHandler);
+        ExerciseTypes = _exerciseTypes;
+    }
 
     private void NewExerciseType() => _navigationManager.NavigateTo("/newexercisetype");
 

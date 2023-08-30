@@ -1,5 +1,6 @@
 ﻿@page "/EditPlannedExercise/{PlannedExerciseGuid}/{NavigateBack:bool}"
 
+@using Amrap.Components
 @using Amrap.Core;
 @using Amrap.Core.Domain;
 @using Amrap.Enum;
@@ -14,8 +15,6 @@
 
 @if (plannedExercise != default)
 {
-    // ToDo: unify and put here component for Exercise Type editing and saving
-
     <ExerciseTypeViewComponent ExerciseType="@plannedExercise.ExerciseType" />
     <BitNumericTextField Label="Sets" IsUnderlined="true" Step="@(1)" Min="1" ShowArrows="true" @bind-Value="plannedExercise.Sets" />
     <BitTextField Label="Last sets" IsUnderlined="true" IsReadonly="true" Value="@plannedExercise.GetSets().ToString()" />
@@ -24,16 +23,20 @@
     <BitNumericTextField Label="Weight" IsUnderlined="true" Min="0" IconName="BitIconName.Weights" Suffix=" kg" @bind-Value="plannedExercise.Weight" />
     <BitTextField Label="Last weight" IsUnderlined="true" IsReadonly="true" Value="@plannedExercise.GetWeight().ToString()" />
     <BitTextField Label="Note" IsUnderlined="true" @bind-Value="plannedExercise.Note" />
-    <BitCheckbox Label="Drop set" IsUnderlined="true" @bind-Value="plannedExercise.DropSet" />
-    <BitCheckbox Label="To failure" IsUnderlined="true" @bind-Value="plannedExercise.ToFailure" />
+
+    <div class="container text-center">
+        <div class="row">
+            <div class="col-6">
+                <BitToggle Label="Drop Set" Style="margin: 0 auto;" IsInlineLabel="true" @bind-Value="plannedExercise.DropSet" />
+            </div>
+            <div class="col-6">
+                <BitToggle Label="To failure" Style="margin: 0 auto;" IsInlineLabel="true" @bind-Value="plannedExercise.ToFailure" />
+            </div>
+        </div>
+    </div>
 
     <BitButton Style="margin-top: 20px;" OnClick="Save">Save</BitButton>
-    @if (saved)
-    {
-        <BitMessageBar MessageBarType="@BitMessageBarType.Success">
-            Saved
-        </BitMessageBar>
-    }
+    <IsSaved Saved="@saved"/>
 }
 else
 {

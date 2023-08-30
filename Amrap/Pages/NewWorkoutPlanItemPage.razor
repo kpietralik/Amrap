@@ -1,38 +1,31 @@
 ﻿@page "/newworkoutplanitem"
 
+@using Amrap.Components
 @using Amrap.Core;
 @using Amrap.Core.Domain;
 @using Amrap.Enum;
 @using Amrap.Core.Infrastructure;
 @using Bit.BlazorUI
 
-@inject NavigationManager _navigationManager
 @inject DatabaseHandler _databaseHandler;
 
 <PageTitle>@title</PageTitle>
 <BitLabel>@title</BitLabel>
 
-<BitChoiceGroup Label="Day" Items="DayOfWeekList.Items" @bind-Value="@dayOfWeek" />
+<BitChoiceGroup Label="Day" IsRequired="true" Items="DayOfWeekList.Items" @bind-Value="@dayOfWeek" />
 <BitTextField Label="Title" IsUnderlined="true"  @bind-Value="@workOutPlanItemTitle" />
-<BitNumericTextField Label="Priority" IsUnderlined="true" @bind-Value="@priority" />
 
 <BitButton Style="margin-top: 20px;" OnClick="Save">Save</BitButton>
 
-@if (saved)
-{
-    <BitMessageBar MessageBarType="@BitMessageBarType.Success">
-        Saved
-    </BitMessageBar>
-}
+<IsSaved Saved="@saved" />
 
 @code {
     private const string title = "New workout plan item";
 
     private string workOutPlanItemTitle { get; set; }
-    private float priority { get; set; }
     private DayOfWeek dayOfWeek { get; set; }
 
-    private bool saved { get; set; }
+    private bool saved;
 
     private const string InvalidInput = "Invalid input";
     private const string Ok = "Ok";
@@ -42,11 +35,14 @@
 
     private async Task Save()
     {
-        if (priority < 0)
+        if (saved)
         {
-            await App.Current.MainPage.DisplayAlert(InvalidInput, "Priority must be a positive number", Ok);
+            await App.Current.MainPage.DisplayAlert(InvalidInput, "Workout plan item already saved", Ok);
             return;
         }
+
+        var currentMaxPriority = await WorkoutPlanItem.GetMaxPriorityForDay(_databaseHandler, dayOfWeek);
+        var priority = currentMaxPriority.HasValue ? currentMaxPriority.Value + 1 : 0;
 
         var workoutPlanItem = new WorkoutPlanItem(
             Guid.NewGuid().ToString(), dayOfWeek, priority, workOutPlanItemTitle);
@@ -54,7 +50,5 @@
         await workoutPlanItem.Add(_databaseHandler);
 
         saved = true;
-
-        //_navigationManager.NavigateTo($"/newplannedexercise/{ExerciseTypeGuid}/{workoutPlanItem.Guid}");
     }
 }

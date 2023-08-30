@@ -1,10 +1,12 @@
 ﻿@page "/completed"
+
+@using Amrap.Components
 @using Amrap.Core;
 @using Amrap.Core.Domain;
 @using Amrap.Core.Infrastructure;
 @using Bit.BlazorUI
 
-@inject CompletedExerciseReader _completedExerciseReader;
+@inject DatabaseHandler _databaseHandler
 
 <PageTitle>@title</PageTitle>
 
@@ -21,8 +23,22 @@
 }
 else if (items != null)
 {
-    <BitTextField IsUnderlined="false" HasBorder="false" IsReadonly="true" Value="@listText" />
-
+    <div class="row">
+        <div class="col-8">
+            <BitTextField IsUnderlined="false" HasBorder="false" IsReadonly="true" Value="@listText" />
+        </div>
+        <div class="col-4">
+            <BitIconButton IconName="BitIconName.Filter" OnClick="async () => await FilterToggle()" />
+        </div>
+    </div>
+    @if (filterToggle)
+    {
+        <div class="row">
+            <div class="col">
+                <BitTextField IconName="BitIconName.Filter" IsUnderlined="false" HasBorder="true" @bind-Value="filterValue" OnChange="async () => await OnFilterValueChange()" />
+            </div>
+        </div>
+    }
     <BitBasicList Items="items"
                   EnableVirtualization="false"
                   Style="border: 1px #a19f9d solid; border-radius: 3px; height: 100%">
@@ -41,11 +57,34 @@ else if (items != null)
 
     private string listText => $"Completed exercises ({items.Count()})";
 
-    private IOrderedEnumerable<CompletedExercise> completedExerciseItems;
-    private IList<CompletedExercise> items => completedExerciseItems?.ToList();
+    private IOrderedEnumerable<CompletedExercise> _completedExerciseItems;
+    private IList<CompletedExercise> items;
+
+    private bool filterToggle = false;
+    private string filterValue = string.Empty;
+
+    private async Task FilterToggle()
+    {
+        filterToggle = !filterToggle;
+        filterValue = string.Empty;
+        items = _completedExerciseItems.ToList();
+    }
+
+    private async Task OnFilterValueChange()
+    {
+        if (!filterToggle)
+            return;
+
+        items = _completedExerciseItems.Where(x => FilterByValue(x, filterValue)).ToList();
+    }
+
+    private bool FilterByValue(CompletedExercise item, string value)
+    => string.IsNullOrEmpty(value) ||
+       item.ExerciseType.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase);
 
     protected override async Task OnInitializedAsync()
     {
-        completedExerciseItems = await _completedExerciseReader.ReadCompletedExercies();
+        _completedExerciseItems = await CompletedExercise.ReadCompletedExercies(_databaseHandler);
+        items = _completedExerciseItems.ToList();
     }
 }
