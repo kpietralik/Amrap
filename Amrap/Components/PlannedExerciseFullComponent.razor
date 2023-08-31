@@ -25,43 +25,35 @@
         <WorkoutPlanItemViewComponent WorkoutPlanItem="@WorkoutPlanItem" >
         </WorkoutPlanItemViewComponent>
     }
-        <PlannedExerciseViewComponent ShowStartingExercisePlan="false" PlannedExercise="@PlannedExercise" />
-        <BitAccordion>
-        <HeaderTemplate Context="isExpanded">
-            <BitIconButton IconName="isExpanded ? BitIconName.ChevronDown : BitIconName.ChevronRight" />
-            <div class="custom-header">
-                <span class="custom-title">more</span>
-            </div>
-        </HeaderTemplate>
-        <ChildContent>
-            <BitNumericTextField Label="Sets" LabelPosition="BitNumericTextFieldLabelPosition.Left" Step="@(1)" Min="1" ShowArrows="true" @bind-Value="@newSets" />
-            <BitNumericTextField Label="Reps" LabelPosition="BitNumericTextFieldLabelPosition.Left" Step="@(1)" Min="1" ShowArrows="true" @bind-Value="@newReps" />
-            <BitNumericTextField Label="Weight" LabelPosition="BitNumericTextFieldLabelPosition.Left" Step="@(0.5)" Min="1" IconName="BitIconName.Weights"
-                Suffix=" kg" ShowArrows="true" @bind-Value="@newWeight" />
-            <div class="container text-center">
-                <div class="row">
-                    <div class="col-6">
-                        <BitToggle Label="Drop Set" Style="margin: 0 auto;" IsInlineLabel="true" @bind-Value="@newDropSet" />
-                    </div>
-                    <div class="col-6">
-                        <BitToggle Label="To failure" Style="margin: 0 auto;" IsInlineLabel="true" @bind-Value="@newToFailure" />
-                    </div>
+    <PlannedExerciseViewComponent ShowStartingExercisePlan="false" PlannedExercise="@PlannedExercise" />
+    <BitAccordion @bind-IsExpanded="IsExpanded">
+        <BitNumericTextField Label="Sets" LabelPosition="BitNumericTextFieldLabelPosition.Left" Step="@(1)" Min="1" ShowArrows="true" @bind-Value="@newSets" />
+        <BitNumericTextField Label="Reps" LabelPosition="BitNumericTextFieldLabelPosition.Left" Step="@(1)" Min="1" ShowArrows="true" @bind-Value="@newReps" />
+        <BitNumericTextField Label="Weight" LabelPosition="BitNumericTextFieldLabelPosition.Left" Step="@(0.5)" Min="1" IconName="BitIconName.Weights"
+            Suffix=" kg" ShowArrows="true" @bind-Value="@newWeight" />
+        <div class="container text-center">
+            <div class="row">
+                <div class="col-6">
+                    <BitToggle Label="Drop Set" Style="margin: 0 auto;" IsInlineLabel="true" @bind-Value="@newDropSet" />
                 </div>
-                <div class="row">
-                    <div class="col-4">
-                        <BitActionButton Style="margin-left: 0px; margin-right: auto;" IconName="BitIconName.Send" OnClick="Complete">Complete</BitActionButton>
-                    </div>
-                    <div class="col-4">
-                        <BitActionButton Style="margin-left: auto; margin-right: auto;" IconName="BitIconName.Edit" OnClick="Edit">Edit</BitActionButton>
-                    </div>
-                    <div class="col-4">
-                        <BitActionButton Style="margin-left: auto; margin-right: 0px;" IconName="BitIconName.Delete" OnClick="Delete">Delete</BitActionButton>
-                    </div>
+                <div class="col-6">
+                    <BitToggle Label="To failure" Style="margin: 0 auto;" IsInlineLabel="true" @bind-Value="@newToFailure" />
                 </div>
             </div>
-            <IsCompleted Completed="@completed"/>
-            <IsDeleted Deleted="@deleted"/>
-        </ChildContent>
+            <div class="row">
+                <div class="col-4">
+                    <BitActionButton Style="margin-left: 0px; margin-right: auto;" IconName="BitIconName.Send" OnClick="Complete">Complete</BitActionButton>
+                </div>
+                <div class="col-4">
+                    <BitActionButton Style="margin-left: auto; margin-right: auto;" IconName="BitIconName.Edit" OnClick="Edit">Edit</BitActionButton>
+                </div>
+                <div class="col-4">
+                    <BitActionButton Style="margin-left: auto; margin-right: 0px;" IconName="BitIconName.Delete" OnClick="Delete">Delete</BitActionButton>
+                </div>
+            </div>
+        </div>
+        <IsCompleted Completed="@completed"/>
+        <IsDeleted Deleted="@deleted"/>
     </BitAccordion>
 }
 
@@ -74,9 +66,12 @@
 
     [Parameter]
     public bool DisplayWorkoutPlanItem { get; set; }
-    
+
     [Parameter]
     public bool DisplayExerciseTypeLink { get; set; }
+
+    [Parameter]
+    public bool IsExpanded { get; set; } = false;
 
     private int newSets { get; set; }
     private int newReps { get; set; }

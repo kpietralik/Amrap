@@ -1,6 +1,5 @@
 ﻿using Amrap.Core.Domain;
 using SQLite;
-using System;
 
 namespace Amrap.Core.Infrastructure;
 
@@ -142,7 +141,6 @@ public class DatabaseHandler
     public Task DeleteExerciseStats(string guid) => _db.DeleteAsync<ExerciseStat>(guid);
 
     public Task UpsertExerciseStats(ExerciseStat exerciseStat) => _db.InsertOrReplaceAsync(exerciseStat);
-
 
     // READ
     public async Task<IList<ExerciseType>> GetExerciseTypes() =>
