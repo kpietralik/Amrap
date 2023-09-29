@@ -1,4 +1,6 @@
-﻿# Amrap
+![2023-08-11 23_07_52-NVIDIA GeForce Overlay DT](https://github.com/kpietralik/Amrap/assets/12815143/1419a030-ecb1-4da1-a527-d0c2f1f98241) 
+
+# Amrap
 ## Introduction
 Amrap = "As many reps as possible"
 
@@ -73,3 +75,9 @@ Troubleshooting
   `dotnet workload list`
    
    Then try to clean up preview workload and install correct version only.
+
+![2023-08-11 23_07_46-NVIDIA GeForce Overlay DT](https://github.com/kpietralik/Amrap/assets/12815143/257eb197-b9fd-408e-bdd4-725f4c60aaf9)
+<br/>
+![2023-08-11 23_07_22-NVIDIA GeForce Overlay DT](https://github.com/kpietralik/Amrap/assets/12815143/46581c97-f62c-4b76-adb3-d88dbd0bdeb4)
+<br/>
+![2023-08-11 23_08_06-NVIDIA GeForce Overlay DT](https://github.com/kpietralik/Amrap/assets/12815143/179241d3-7a9b-4915-b09c-c35510d80bd6)
