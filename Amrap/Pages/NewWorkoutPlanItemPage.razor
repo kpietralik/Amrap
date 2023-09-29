@@ -41,11 +41,8 @@
             return;
         }
 
-        var currentMaxPriority = await WorkoutPlanItem.GetMaxPriorityForDay(_databaseHandler, dayOfWeek);
-        var priority = currentMaxPriority.HasValue ? currentMaxPriority.Value + 1 : 0;
-
         var workoutPlanItem = new WorkoutPlanItem(
-            Guid.NewGuid().ToString(), dayOfWeek, priority, workOutPlanItemTitle);
+            Guid.NewGuid().ToString(), dayOfWeek, workOutPlanItemTitle);
 
         await workoutPlanItem.Add(_databaseHandler);
 

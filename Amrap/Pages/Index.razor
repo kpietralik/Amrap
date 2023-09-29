@@ -18,6 +18,7 @@
             <BitDropdown Items="DayOfWeekList.FilteringDayOfWeekItems()"
                           Placeholder="Select day"
                           ShowClearButton="false"
+                          DefaultValue="@(selectedDayOfWeek?.ToString() ?? "All")"
                           OnSelectItem="OnSelectItemDayOfWeek">
             </BitDropdown>
         </div>
@@ -104,6 +105,15 @@ else if (displayedItems != null)
                 await _databaseHandler.CreateConnectionAndTables();
             }
 
+            var savedFilterDaySetting = await SecureStorage.Default.GetAsync(Consts.FilterDayKey);
+            if (Enum.TryParse<DayOfWeek>(savedFilterDaySetting, true, out var dayFromSettings))
+                selectedDayOfWeek = dayFromSettings;
+            else 
+                selectedDayOfWeek = null;
+
+            var onlyCompletedTodaySetting = await SecureStorage.Default.GetAsync(Consts.HideCompletedKey);
+            bool.TryParse(onlyCompletedTodaySetting, out onlyCompletedToday);
+
             await ReloadLists();
         }
         catch (Exception ex)
@@ -115,6 +125,7 @@ else if (displayedItems != null)
 
     private async Task FilterToggle() {
         filterToggle = !filterToggle;
+
         filterValue = string.Empty;
         displayedItems = await SetDisplayedItems(selectedDayOfWeek, onlyCompletedToday, filterValue);
     }
@@ -134,12 +145,17 @@ else if (displayedItems != null)
         else 
             selectedDayOfWeek = Enum.Parse<DayOfWeek>(dropdownItem.Value);
 
+        await SecureStorage.Default.SetAsync(Consts.FilterDayKey, selectedDayOfWeek?.ToString() ?? "all");
+
         displayedItems = await SetDisplayedItems(selectedDayOfWeek, onlyCompletedToday, filterValue);
     }
 
     private async Task OnChangeOnlyCompletedToday(bool enabled)
     {
         onlyCompletedToday = enabled;
+
+        await SecureStorage.Default.SetAsync(Consts.HideCompletedKey, onlyCompletedToday.ToString());
+
         displayedItems = await SetDisplayedItems(selectedDayOfWeek, onlyCompletedToday, filterValue);
     }
 

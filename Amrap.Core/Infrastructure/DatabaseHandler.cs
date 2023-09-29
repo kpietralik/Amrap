@@ -95,7 +95,10 @@ public class DatabaseHandler
 
     public async Task AddWorkoutPlanItem(WorkoutPlanItem workoutPlanItem)
     {
+        var res = _db.Table<WorkoutPlanItem>().Where(x => x.Day == workoutPlanItem.Day).OrderByDescending(x => x.Priority);
+        var item = await res.FirstOrDefaultAsync();
 
+        workoutPlanItem.Priority = item?.Priority + 1 ?? 0;
 
         await _db.InsertAsync(workoutPlanItem);
     }
@@ -138,7 +141,6 @@ public class DatabaseHandler
     public Task DeleteExerciseStats(string guid) => _db.DeleteAsync<ExerciseStat>(guid);
 
     public Task UpsertExerciseStats(ExerciseStat exerciseStat) => _db.InsertOrReplaceAsync(exerciseStat);
-
 
     // READ
     public async Task<IList<ExerciseType>> GetExerciseTypes() =>
@@ -199,14 +201,6 @@ public class DatabaseHandler
             plannedExercise.SetLastStats(lastStats);
 
         return plannedExercise;
-    }
-
-    public async Task<int?> GetMaxPriorityForDay(DayOfWeek dayOfWeek)
-    {
-        var res = _db.Table<WorkoutPlanItem>().Where(x => x.Day == dayOfWeek).OrderByDescending(x => x.Priority);
-        var item = await res.FirstOrDefaultAsync();
-
-        return item?.Priority;
     }
 
     public async Task<WorkoutPlanItem> GetWorkoutPlanItem(string guid)

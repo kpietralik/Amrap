@@ -24,10 +24,10 @@ public class WorkoutPlanSorter
         else
             return Sort(allItems); // Was not found (error?) or last item in the list
 
-        nodeToMove.Value.Priority++;
-        nodeToMoveAfter.Value.Priority--;
-        await nodeToMove.Value.Upsert(databaseHandler);
-        await nodeToMoveAfter.Value.Upsert(databaseHandler);
+        // ToDo: Perf could be improved by skipping all before entries but keeping code as is will help in first migration of Priority
+        //       This is also resilient to item deletion
+
+        await RewritePriority(ll, databaseHandler);
 
         return Sort(allItems);
     }
@@ -47,10 +47,9 @@ public class WorkoutPlanSorter
         else
             return Sort(allItems); // Was not found (error?) or first item in the list
 
-        nodeToMove.Value.Priority--;
-        nodeToMoveBefore.Value.Priority++;
-        await nodeToMove.Value.Upsert(databaseHandler);
-        await nodeToMoveBefore.Value.Upsert(databaseHandler);
+        // ToDo: Perf could be improved by skipping all after entries but keeping code as is will help in first migration of Priority
+        //       This is also resilient to item deletion
+        await RewritePriority(ll, databaseHandler);
 
         return Sort(allItems);
     }
@@ -61,5 +60,16 @@ public class WorkoutPlanSorter
         var toMoveGroup = groups.Single(g => g.Key == itemToMove.Day);
 
         return new LinkedList<WorkoutPlanItem>(toMoveGroup);
+    }
+
+    private async Task RewritePriority(IEnumerable<WorkoutPlanItem> workoutPlanItems, DatabaseHandler databaseHandler)
+    {
+        int i = 0;
+        foreach (var ex in workoutPlanItems)
+        {
+            ex.Priority = i;
+            i++;
+            await ex.Upsert(databaseHandler);
+        }
     }
 }

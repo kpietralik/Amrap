@@ -29,7 +29,16 @@
                     <BitActionButton IconName="BitIconName.Delete" AriaLabel="Remove planned exercise" OnClick="async () => await RemovePlannedExercise(item)">Remove</BitActionButton>
                 </PlannedExercisePreviewComponent>
                 <BitActionButton IconName="BitIconName.Edit" AriaLabel="Edit planned exercise" OnClick="() => EditPlannedExercise(item)">Edit</BitActionButton>
-                <p>ToDo: option to remove, edit, add new, set as main, reorder</p>
+                <div class="container text-center">
+                    <div class="row">
+                        <div class="col">
+                            <BitActionButton IconName="BitIconName.ChevronDownMed" OnClick="async () => await MoveDown(item)" />
+                        </div>
+                        <div class="col">
+                            <BitActionButton IconName="BitIconName.ChevronUpMed" OnClick="async () => await MoveUp(item)" />
+                        </div>
+                    </div>
+                </div>
             </div>
         </RowTemplate>
     </BitBasicList>
@@ -79,6 +88,48 @@ else
         }
     }
 
+    private async Task MoveDown(PlannedExercise itemToMove)
+    {
+        var ll = new LinkedList<PlannedExercise>(workoutPlanItem.PlannedExercises);
+
+        var nodeToMove = ll.Find(itemToMove);
+        var nodeToMoveAfter = nodeToMove?.Next;
+        if (nodeToMove != null && nodeToMoveAfter != null)
+        {
+            ll.Remove(nodeToMove);
+            ll.AddAfter(nodeToMoveAfter, nodeToMove);
+        }
+        else
+            return; // Was not found (error?) or last item in the list
+
+        // ToDo: Perf could be improved by skipping all before entries but keeping code as is will help in first migration of Priority
+        //       This is also resilient to item deletion
+        await RewritePriority(ll);
+
+        workoutPlanItem.PlannedExercises = Sort(ll);
+    }
+
+    private async Task MoveUp(PlannedExercise itemToMove)
+    {
+        var ll = new LinkedList<PlannedExercise>(workoutPlanItem.PlannedExercises);
+
+        var nodeToMove = ll.Find(itemToMove);
+        var nodeToMoveBefore = nodeToMove?.Previous;
+        if (nodeToMove != null && nodeToMoveBefore != null)
+        {
+            ll.Remove(nodeToMove);
+            ll.AddBefore(nodeToMoveBefore, nodeToMove);
+        }
+        else
+            return; // Was not found (error?) or first item in the list
+
+        // ToDo: Perf could be improved by skipping all after entries but keeping code as is will help in first migration of Priority
+        //       This is also resilient to item deletion
+        await RewritePriority(ll);
+
+        workoutPlanItem.PlannedExercises = Sort(ll);
+    }
+
     private async Task RemovePlannedExercise(PlannedExercise plannedExercise)
     {
         var r = await App.Current.MainPage.DisplayActionSheet(
@@ -87,9 +138,28 @@ else
         if (r == "Delete")
         {
             workoutPlanItem.PlannedExercises.Remove(plannedExercise);
+
+            await RewritePriority(workoutPlanItem.PlannedExercises);
+
             await workoutPlanItem.Upsert(_databaseHandler);
             await plannedExercise.Delete(_databaseHandler);
         }
+    }
+
+    private async Task RewritePriority(IEnumerable<PlannedExercise> plannedExercises)
+    {
+        int i = 0;
+        foreach (var ex in plannedExercises)
+        {
+            ex.Priority = i;
+            i++;
+            await ex.Upsert(_databaseHandler);
+        }
+    }
+
+    private IList<PlannedExercise> Sort(IEnumerable<PlannedExercise> items)
+    {
+        return items.OrderBy(x => x.Priority).ToList();
     }
 
     private void EditPlannedExercise(PlannedExercise plannedExercise)

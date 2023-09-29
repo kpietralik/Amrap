@@ -14,7 +14,12 @@
 
 @if (WorkoutPlanItem != default && PlannedExercise != default)
 {
-    <PlannedExerciseFullComponent WorkoutPlanItem="WorkoutPlanItem" PlannedExercise="PlannedExercise" DisplayWorkoutPlanItem="true" DisplayExerciseTypeLink="false"/>
+    <PlannedExerciseFullComponent 
+        WorkoutPlanItem="WorkoutPlanItem"
+        PlannedExercise="PlannedExercise"
+        DisplayWorkoutPlanItem="true"
+        DisplayExerciseTypeLink="false"
+        IsExpanded="true"/>
 }
 @code {
     private const string title = "Planned exercise";

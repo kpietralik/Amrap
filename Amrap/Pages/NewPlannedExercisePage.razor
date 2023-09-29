@@ -75,8 +75,12 @@
             return;
         }
 
+        int priority = 0;
+        if (WorkoutPlanItem.PlannedExercises?.Any() == true)
+            priority = WorkoutPlanItem.PlannedExercises.Max(x => x.Priority) + 1;
+
         var plannedExercise = new PlannedExercise(
-            Guid.NewGuid().ToString(), ExerciseType, WorkoutPlanItem, sets, reps, weight, note, dropSet, toFailure);
+            Guid.NewGuid().ToString(), ExerciseType, WorkoutPlanItem, sets, reps, weight, note, dropSet, toFailure, priority);
 
         await plannedExercise.Add(_databaseHandler);
         WorkoutPlanItem.PlannedExercises.Add(plannedExercise);

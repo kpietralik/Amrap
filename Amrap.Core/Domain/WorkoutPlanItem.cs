@@ -29,11 +29,10 @@ public class WorkoutPlanItem
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     { }
 
-    public WorkoutPlanItem(string guid, DayOfWeek day, int priority, string title)
+    public WorkoutPlanItem(string guid, DayOfWeek day, string title)
     {
         Guid = guid;
         Day = day;
-        Priority = priority;
         Title = title;
     }
 
@@ -62,6 +61,4 @@ public class WorkoutPlanItem
     }
 
     public static Task<IList<WorkoutPlanItem>> GetWorkoutPlan(DatabaseHandler databaseHandler) => databaseHandler.GetWorkoutPlan();
-
-    public static Task<int?> GetMaxPriorityForDay(DatabaseHandler databaseHandler, DayOfWeek day) => databaseHandler.GetMaxPriorityForDay(day);
 }

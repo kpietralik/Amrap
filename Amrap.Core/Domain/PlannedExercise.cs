@@ -21,6 +21,8 @@ public class PlannedExercise : IEqualityComparer<PlannedExercise>
     [SQLite.Ignore]
     public LastStats LastStats { get; set; }
 
+    public int Priority { get; set; }
+
     /// <remarks>
     /// SQLite only
     /// </remarks>
@@ -102,7 +104,7 @@ public class PlannedExercise : IEqualityComparer<PlannedExercise>
 
     public PlannedExercise(
         string guid, ExerciseType exerciseType, WorkoutPlanItem workoutPlanItem, int sets, int reps, float weight,
-        string note, bool dropSet, bool toFailure, LastStats? lastStats = default)
+        string note, bool dropSet, bool toFailure, int priority, LastStats? lastStats = default)
     {
         Guid = guid;
         ExerciseType = exerciseType;
@@ -114,6 +116,7 @@ public class PlannedExercise : IEqualityComparer<PlannedExercise>
         Weight = weight;
         DropSet = dropSet;
         ToFailure = toFailure;
+        Priority = priority;
         LastStats = lastStats;
     }
 
