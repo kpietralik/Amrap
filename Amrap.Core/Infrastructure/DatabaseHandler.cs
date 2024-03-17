@@ -6,7 +6,10 @@ namespace Amrap.Core.Infrastructure;
 public class DatabaseHandler
 {
     private const string _dbName = "Amrap.db";
-    private string _databasePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), _dbName);
+
+    // Recently changed to use UserProfile instead of MyDocuments due to breaking changes in .NET 8:
+	// https://learn.microsoft.com/en-us/dotnet/core/compatibility/core-libraries/8.0/getfolderpath-unix#recommended-action
+    private string _databasePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), _dbName);
     private SQLiteAsyncConnection _db;
 
     public bool HasInitialized => _db != null;
