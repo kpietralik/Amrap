@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
-        <TargetFrameworks>net7.0-android33.0</TargetFrameworks>
+        <TargetFrameworks>net8.0-android</TargetFrameworks>
         <!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
         <!-- <TargetFrameworks>$(TargetFrameworks);net7.0-tizen</TargetFrameworks> -->
         <OutputType>Exe</OutputType>
@@ -79,7 +79,7 @@
         <PackageReference Include="Bit.BlazorUI" Version="5.1.0" />
         <PackageReference Include="Bit.BlazorUI.Extras" Version="5.4.0" />
         <PackageReference Include="CommunityToolkit.Maui" Version="5.3.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
         <PackageReference Include="System.IO" Version="4.3.0" />
     </ItemGroup>
 
